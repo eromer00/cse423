@@ -1,0 +1,7 @@
+Group Members: Erik Romero, Carlos Rubio, Franz Chavez
+
+Assignment: Project Assignment 1
+Description: Using flex and bison, we created a token parser to begin working on our compiler
+Status of Completion: Complete
+
+To run: Simply type 'make' and choose a way of sending data {./c- {filename}, ./c- < {filename}, cat {filename} | ./c-}
