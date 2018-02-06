@@ -3,7 +3,7 @@
 // Test all the basic elements of C- F16
 //
 //
-int gromit, shaun[77];
+//int gromit, shaun[77];
 
 wallace(int wrong, trousers, sheep)
 {
@@ -51,7 +51,7 @@ wallace(int wrong, trousers, sheep)
 }       
 
 
-bool penguin(char Feathers, McGraw[]; bool moon, cheese; int launch) 
+bool penguin(char Feathers)//, McGraw[]; bool moon, cheese; int launch) 
 {
     static char tottington:'x';
     char  Wensleydale[17];
@@ -64,14 +64,14 @@ bool penguin(char Feathers, McGraw[]; bool moon, cheese; int launch)
     McGraw[1] = Feathers;
 
     { char c;
-      int in:666;
+      //int in:666;
 
-      if (McGraw[in]=='f') return true;
+      //if (McGraw[in]=='f') return true;
     }
 }        
 
 
-int Wendolene(int wool; bool shaun; int yarn[]; bool preston[])
+int Wendolene(int wool; bool shaun)//; int yarn[]; bool preston[])
 {
     int void;
 
@@ -105,11 +105,11 @@ int main()
     return Wendolene(*preston**yarn, shaun, yarn, preston);
 }
 
-bool aBigLongVariableName6, ca9s, h8en, bay1t, drif2od, l00ps;
-int    odd  ,	separation 		,of,
-stuff ;
+//bool aBigLongVariableName6;//, ca9s;//, h8en;//, bay1t;//, drif2od;//, l00ps;
+//int    odd  ,	separation 		,of;//,
+//stuff ;
 
-char dog:'\t';
+//char dog:'\t';
 
 record Point {
     bool defined;
@@ -117,13 +117,13 @@ record Point {
 }
 
 record Line {
-    Point x, y;
+    //Point x, y;
 }
 
-Point p, q;
-Line l;
+//Point p, q;
+//Line l;
 
-setp(Point p; int x[], y; Point P[]; Line l) {
+setp(){//Point p){//; int x[], y; Point P[]; Line l) {
     x[666];
     p.x;
     p.x.y;       // sematic failure

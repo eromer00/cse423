@@ -45,138 +45,98 @@ void yyerror(const char* s);
 %type <token> statement matchstmt unmatchstmt compoundStmt localDeclarations statementList expressionStmt otherstatement iterationStmt returnStmt breakStmt 
 %type <token> expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
 
-//Grammar starting point
-%start program
 
 %%
 
-//1
+
 program:
-    //words
-	declarationList
+    declarationList { printf("a1 "); }
     ;
 
-//2
 declarationList:
-    declarationList declaration
-    | declaration
+    declarationList declaration { printf("a2 "); }
+    | declaration { printf("b2 "); }
+    | %empty { printf("c2 "); }
     ;
 
-//3
 declaration:
-    varDeclaration
-    | funDeclaration
-    | recDeclaration
+    varDeclaration { printf("a3 "); }
+    | funDeclaration { printf("b3 "); }
+    | recDeclaration { printf("c3 "); }
     ;
 
-/*------------------------------------*/
 
 recDeclaration:
-    RECORD IDVAL LBRACK localDeclarations RBRACK// { printf("%s %s %s %s %s\n", ($1).str, ($2).str, ($3).str, $4.str, ($5).str);}
+    RECORD IDVAL LBRACK localDeclarations RBRACK { printf("a4 "); }
     ; 
-	
-/*
-extDeclaration:
-    CHAR { $$ = $1.str; }
-    | BOOL { $$ = $1.str; }
-    | KEY { $$ = $1.str; }
-    | RECORD { $$ = $1.str; }
-    | SEMICOLON { $$ = $1.str; }
-    | COLON { $$ = $1.str; }
-    | LBRACK { $$ = $1.str; }
-    | RBRACK { $$ = $1.str; }
-    | IDVAL { $$ = $1.str; }
-    | NUM { $$ = $1.str; }
-    ;  
-*/
-/*------------------------------------*/
 
-//5
 varDeclaration:
-    typeSpecifier varDeclList
+    typeSpecifier varDeclList { printf("a5 "); }
     ;
 
-//6
 scopedVarDeclaration:
-    scopedTypeSpecifier varDeclList SEMICOLON
+    scopedTypeSpecifier varDeclList SEMICOLON { printf("a6 "); }
     ;
 
-//7
 varDeclList:
-    varDeclList COMMA varDeclInitialize
-    | varDeclInitialize
+    varDeclList COMMA varDeclInitialize { printf("a7 "); }
+    | varDeclInitialize { printf("b7 "); }
     ;
 
-//8
 varDeclInitialize:
-    varDeclID COLON simpleExpression
-    | varDeclID
+    varDeclID COLON simpleExpression { printf("a8 "); }
+    | varDeclID { printf("b8 "); }
     ;
 
-//9
 varDeclID:
-    IDVAL LBOX NUM RBOX
-    IDVAL
+    IDVAL LBOX NUM RBOX { printf("a9 "); }
+    | IDVAL { printf("b9 "); }
     ;
 
-//10
 scopedTypeSpecifier:
-    STATIC typeSpecifier
-    | typeSpecifier
+    STATIC typeSpecifier { printf("a10 "); }
+    | typeSpecifier { printf("b10 "); }
     ;
 
-//11
 typeSpecifier:
-    returnTypeSpecifier
+    returnTypeSpecifier { printf("a11 "); }
     ;
 
-//12
 returnTypeSpecifier:
-    INTCND
-    | BOOLCND
-    | CHARCND
+    INTCND { printf("a12 "); }
+    | BOOLCND { printf("b12 "); }
+    | CHARCND { printf("c12 "); }
     ;
 
-/*------------------------------------*/
-
-//13
 funDeclaration:
-    typeSpecifier IDVAL LPAREN params RPAREN statement
-    | IDVAL LPAREN params RPAREN statement
+    typeSpecifier IDVAL LPAREN params RPAREN statement { printf("a13 "); }
+    | IDVAL LPAREN params RPAREN statement { printf("b13 "); }
     ;
 
-//14
 params:
     paramList
-    | /* empty */ { int x = 0; }
+    | %empty {}
     ;
 
-//15
 paramList:
     paramList SEMICOLON paramTypeList
     | paramTypeList
     ;
 
-//16
 paramTypeList:
     typeSpecifier paramIdList
     ;
 
-//17
 paramIdList:
     paramIdList COMMA paramId
     | paramId
     ;
 
-//18
 paramId:
     IDVAL LPAREN RPAREN
     | IDVAL
     ;
 
-/*------------------------------------*/
-
-/* modified from original */
 statement:
     matchstmt
     | unmatchstmt
@@ -193,7 +153,6 @@ unmatchstmt:
     | IFCND LPAREN simpleExpression RPAREN unmatchstmt
     ;
 
-//19
 otherstatement:
     expressionStmt
     | compoundStmt
@@ -202,56 +161,38 @@ otherstatement:
     | breakStmt
     ;
 
-//20
 compoundStmt:
     LBRACK localDeclarations statementList RBRACK
     ;
 
-//21
 localDeclarations:
     localDeclarations scopedVarDeclaration
-    | /* empty */ { int x = 0; }
+    | %empty {}
     ;
 
-//22
 statementList:
     statementList statement
-    | /* empty */ { int x = 0; }
+    | %empty {}
     ;
 
-//23
 expressionStmt:
     expression SEMICOLON
     | SEMICOLON
     ;
 
-//24
-/*
-selectionStmt:
-    IFCND LPAREN simpleExpression RPAREN statement
-    | IFCND LPAREN simpleExpression RPAREN statement ELSECND statement
-    ;
-*/
-
-//25
 iterationStmt:
     WHILECND LPAREN simpleExpression RPAREN statement
     ;
 
-//26
 returnStmt:
     RETURNCND expression SEMICOLON
     | RETURNCND SEMICOLON
     ;
 
-//27
 breakStmt:
     BREAKCND SEMICOLON
     ;
 
-/*------------------------------------*/
-
-//28
 expression:
     mutable EQ expression
     | mutable PLEQ expression
@@ -263,31 +204,26 @@ expression:
     | simpleExpression
     ;
 
-//29
 simpleExpression:
     simpleExpression ORCND andExpression
     | andExpression
     ;
 
-//30
 andExpression:
     andExpression ANDCND unaryRelExpression
     | unaryRelExpression
     ;
 
-//31
 unaryRelExpression:
     NOTCND unaryRelExpression
     | relExpression
     ;
 
-//32
 relExpression:
     sumExpression relop sumExpression
     | sumExpression
     ;
 
-//33
 relop:
     LSEQ
     | LS
@@ -297,82 +233,69 @@ relop:
     | NTEQ
     ;
 
-//34
 sumExpression:
     sumExpression sumop term
     | term
     ;
 
-//35
 sumop:
     PL
     | MI
     ;
 
-//36
 term:
     term mulop unaryExpression
     | unaryExpression
     ;
 
-//37
 mulop:
     MUL
     | DIV
     | PERC
     ;
 
-//38
 unaryExpression:
     unaryop unaryExpression
     | factor
     ;
 
-//39
 unaryop:
     MI
     | MUL
     | QM
     ;
 
-//40
 factor:
     immutable
     | mutable
     ;
 
-//41
 mutable:
     IDVAL
     | mutable LBOX expression RBOX
     | mutable DOT IDVAL
     ;
 
-//42
 immutable:
     LPAREN expression RPAREN
     | call
     | constant
     ;
 
-//43
 call:
     IDVAL LPAREN args RPAREN
     ;
 
-//44
 args:
     argList
-    | /* empty */ { int x = 0; }
+    | %empty {}
     ;
 
-//45
 argList:
     argList COMMA expression
     | expression
     ;
 
-//46
 constant:
     NUM
     | CHAR
@@ -380,30 +303,6 @@ constant:
     | BOOLF
     ;
 
-
-/*
-words:
-	words word |
-    word
-	;
-*/
-/*
-word:
-	CHAR { printf("%s", $1.str); }
-    | BOOL { printf("%s", $1.str); }
-    | KEY { printf("%s", $1.str); }
-    | IDVAL { printf("%s", $1.str); }
-    | NUM { printf("%s", $1.str); }
-    | BOOLT  { printf("%s", $1.str); }
-    | BOOLF { printf("%s", $1.str); }
-    | SEMICOLON  { printf("%s", $1.str); }| COLON { printf("%s", $1.str); } | RECORD { printf("%s", $1.str); } | LBRACK { printf("%s", $1.str); } | RBRACK { printf("%s", $1.str); } | LPAREN { printf("%s", $1.str); } | RPAREN { printf("%s", $1.str); }
-    | ANDCND { printf("%s", $1.str); } | BREAKCND { printf("%s", $1.str); } | COMMA { printf("%s", $1.str); } | DIEQ { printf("%s", $1.str); } | DIV { printf("%s", $1.str); } | DOT { printf("%s", $1.str); } | ELSECND { printf("%s", $1.str); } | EQ { printf("%s", $1.str); } | EQEQ {printf("%s", $1.str); }
-    | GT { printf("%s", $1.str); } | GTEQ { printf("%s", $1.str); } | IFCND { printf("%s", $1.str); } | LBOX { printf("%s", $1.str); } | RBOX {printf("%s", $1.str); } | LS { printf("%s", $1.str); } | LSEQ { printf("%s", $1.str); } | MI { printf("%s", $1.str); } | MIEQ { printf("%s", $1.str); } | MIMI { printf("%s", $1.str); } | MUEQ { printf("%s", $1.str); }
-    | MUL { printf("%s", $1.str); } | NOTCND { printf("%s", $1.str);} | NTEQ { printf("%s", $1.str); } | ORCND { printf("%s", $1.str); } | PERC { printf("%s", $1.str); } | PL { printf("%s", $1.str); } | PLEQ { printf("%s", $1.str); } | PLPL { printf("%s", $1.str); } | QM { printf("%s", $1.str); } | RETURNCND { printf("%s", $1.str); }
-    | INTCND { printf("%s", $1.str); } | CHARCND { printf("%s", $1.str); } | BOOLCND { printf("%s", $1.str); } | INCND { printf("%s", $1.str); }
-    | STATIC { printf("%s", $1.str); } | WHILECND { printf("%s", $1.str); }
-	;
-*/
 %%
 
 int main(int argc, char** argv) {
