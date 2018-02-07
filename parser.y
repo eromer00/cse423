@@ -12,12 +12,13 @@
 //Import exit functionality
 #include<stdlib.h>
 #include "scanType.h"
+#include "printTree.h"
 
 //Inform bison about flex things
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
-
+static TreeNode* syntaxTree;
 //Error function
 void yyerror(const char* s);
 %}
@@ -25,6 +26,7 @@ void yyerror(const char* s);
 //Use a union to hold possible token data types
 %union {
     Token token;
+    struct TreeNode* treeNode;
 }
 
 //Associate token types with union fields
@@ -37,23 +39,23 @@ void yyerror(const char* s);
 %token <token> STATIC WHILECND
 
 //Types for nonterminals
-
+%type <treeNode> program declarationList declaration recDeclaration varDeclaration ScopedVarDeclaration varDeclList varDeclInitialize varDeclId scopedTypeSpecifier typeSpecifier returnTypeSpecifier funDeclaration params paramList paramTypeList paramIdList paramId statement compoundStmt localDeclarations statementList expressionStmt iterationStmt returnStmt breakStmt expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
 
 
 %%
 program:
-    declarationList
+    declarationList {syntaxTree = $1;}
     ;
 
 declarationList:
-    declarationList declaration
-    | declaration
+    declarationList declaration {if($1!=NULL){insertSibling($1,$2);$$=$1;}else{$$=$2;} }
+    | declaration {$$=$1;}
     ;
 
 declaration:
-    varDeclaration 
-    | funDeclaration 
-    | recDeclaration
+    varDeclaration {$$=$1;}
+    | funDeclaration {$$=$1;}
+    | recDeclaration{$$=$1;}
     ;
 
 recDeclaration:
@@ -106,7 +108,7 @@ funDeclaration:
 
 params:
     paramList 
-    | %empty 
+    | %empty {}
     ;
 
 paramList:
@@ -143,12 +145,12 @@ compoundStmt:
 
 localDeclarations:
     localDeclarations scopedVarDeclaration 
-    | %empty
+    | %empty {}
     ;
 
 statementList:
     statementList statement 
-    | %empty
+    | %empty {}
     ;
 
 expressionStmt:
@@ -265,23 +267,66 @@ immutable:
 
 call:
     IDVAL LPAREN args RPAREN
+        {
+            TreeNode* t = newStmtNode(CALL);
+            t->attr.name = strdup($1.IDvalue);
+            t->lineno = $1.lineNumber;
+            insertChild(t, $3);
+            $$ = t;
+            free($4.IDValue);
+            free($2.IDValue);
+            free($1.IDValue);
+        }
     ;
 
 args:
-    argList 
-    | %empty
+    argList {$$=$1;}
+    | %empty {}
     ;
 
 argList:
-    argList COMMA expression 
-    | expression
+    argList COMMA expression         
+        {
+            if($1!=NULL) {
+                insertSibling($1,$3);
+                $$=$1;
+            }else{
+                $$ = $3;
+            }
+        }
+    | expression {$$=$1;}
+
     ;
 
 constant:
     NUM 
-    | CHAR 
-    | BOOLT 
-    | BOOLF
+        {
+            TreeNode* t = newExpNode(CONST);
+            t->attr.value = $1.value;
+            t->expType = NUMB;
+            $$ = t;
+        }
+    | CHAR        
+        {
+            TreeNode* t = newExpNode(CONST);
+            t->attr.value = $1.value;
+            t->expType = SINGLE;
+            $$ = t;
+        }
+    | BOOLT        
+        {
+            TreeNode* t = newExpNode(CONST);
+            t->attr.value = $1.value;
+            t->expType = TF;
+            $$ = t;
+        } 
+    | BOOLF        
+        {
+            TreeNode* t = newExpNode(CONST);
+            t->attr.value = $1.value;
+            t->expType = TF;
+            $$ = t;
+        }
     ;
 
 %%
