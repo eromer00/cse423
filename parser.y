@@ -28,98 +28,89 @@ void yyerror(const char* s);
 }
 
 //Associate token types with union fields
-%token <token> BOOL KEY CHAR IDVAL KEYCHAR NUM BOOLT BOOLF
+%token <token> BOOL KEY CHAR IDVAL NUM BOOLT BOOLF
 %token <token> SEMICOLON COLON RECORD LBRACK RBRACK LPAREN RPAREN
 %token <token> ANDCND BREAKCND COMMA DIEQ DIV DOT ELSECND EQ EQEQ
 %token <token> GT GTEQ IFCND LBOX RBOX LS LSEQ MI MIEQ MIMI MUEQ
 %token <token> MUL NOTCND NTEQ ORCND PERC PL PLEQ PLPL QM RETURNCND
-%token <token> INTCND CHARCND BOOLCND INCND
+%token <token> INTCND CHARCND BOOLCND INCND RECTYPE
 %token <token> STATIC WHILECND
 
 //Types for nonterminals
 
-%type <token> program declarationList declaration 
-%type <token> recDeclaration
-%type <token> varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclID scopedTypeSpecifier typeSpecifier returnTypeSpecifier 
-%type <token> funDeclaration params paramList paramTypeList paramIdList paramId 
-%type <token> statement matchstmt unmatchstmt compoundStmt localDeclarations statementList expressionStmt otherstatement iterationStmt returnStmt breakStmt 
-%type <token> expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
 
 
 %%
-
-
 program:
-    declarationList { printf("a1 "); }
+    declarationList
     ;
 
 declarationList:
-    declarationList declaration { printf("a2 "); }
-    | declaration { printf("b2 "); }
-    | %empty { printf("c2 "); }
+    declarationList declaration
+    | declaration
     ;
 
 declaration:
-    varDeclaration { printf("a3 "); }
-    | funDeclaration { printf("b3 "); }
-    | recDeclaration { printf("c3 "); }
+    varDeclaration 
+    | funDeclaration 
+    | recDeclaration
     ;
 
-
 recDeclaration:
-    RECORD IDVAL LBRACK localDeclarations RBRACK { printf("a4 "); }
-    ; 
+    RECORD IDVAL LBRACK localDeclarations RBRACK
+    ;
 
 varDeclaration:
-    typeSpecifier varDeclList { printf("a5 "); }
+    typeSpecifier varDeclList SEMICOLON
     ;
 
 scopedVarDeclaration:
-    scopedTypeSpecifier varDeclList SEMICOLON { printf("a6 "); }
+    scopedTypeSpecifier varDeclList SEMICOLON
     ;
 
 varDeclList:
-    varDeclList COMMA varDeclInitialize { printf("a7 "); }
-    | varDeclInitialize { printf("b7 "); }
+    varDeclList COMMA varDeclInitialize 
+    | varDeclInitialize
     ;
 
 varDeclInitialize:
-    varDeclID COLON simpleExpression { printf("a8 "); }
-    | varDeclID { printf("b8 "); }
+    varDeclId 
+    | varDeclId COLON simpleExpression
     ;
 
-varDeclID:
-    IDVAL LBOX NUM RBOX { printf("a9 "); }
-    | IDVAL { printf("b9 "); }
+varDeclId:
+    IDVAL 
+    | IDVAL LBOX NUM RBOX
     ;
 
 scopedTypeSpecifier:
-    STATIC typeSpecifier { printf("a10 "); }
-    | typeSpecifier { printf("b10 "); }
+    STATIC typeSpecifier 
+    | typeSpecifier
     ;
 
 typeSpecifier:
-    returnTypeSpecifier { printf("a11 "); }
+    returnTypeSpecifier 
+    | RECTYPE
     ;
 
 returnTypeSpecifier:
-    INTCND { printf("a12 "); }
-    | BOOLCND { printf("b12 "); }
-    | CHARCND { printf("c12 "); }
+    INTCND 
+    | BOOLCND
+    | CHARCND
     ;
 
 funDeclaration:
-    typeSpecifier IDVAL LPAREN params RPAREN statement { printf("a13 "); }
-    | IDVAL LPAREN params RPAREN statement { printf("b13 "); }
+    typeSpecifier IDVAL LPAREN params RPAREN statement 
+    | IDVAL LPAREN params RPAREN statement
     ;
 
 params:
-    paramList
-    | %empty {}
+    paramList 
+    | %empty 
     ;
 
 paramList:
-    paramList SEMICOLON paramTypeList
+    paramList SEMICOLON paramTypeList 
     | paramTypeList
     ;
 
@@ -128,35 +119,20 @@ paramTypeList:
     ;
 
 paramIdList:
-    paramIdList COMMA paramId
+    paramIdList COMMA paramId 
     | paramId
     ;
 
 paramId:
-    IDVAL LPAREN RPAREN
-    | IDVAL
+    IDVAL 
+    | IDVAL LBOX RBOX
     ;
 
 statement:
-    matchstmt
-    | unmatchstmt
-    ;
-
-matchstmt:
-    IFCND LPAREN simpleExpression RPAREN matchstmt ELSECND matchstmt
-    | otherstatement
-    ;
-
-unmatchstmt:
-    IFCND LPAREN simpleExpression RPAREN matchstmt ELSECND unmatchstmt
-    | IFCND LPAREN simpleExpression RPAREN matchstmt
-    | IFCND LPAREN simpleExpression RPAREN unmatchstmt
-    ;
-
-otherstatement:
-    expressionStmt
-    | compoundStmt
-    | iterationStmt
+    expressionStmt 
+    | compoundStmt 
+    | selectionStmt 
+    | iterationStmt 
     | returnStmt
     | breakStmt
     ;
@@ -166,18 +142,23 @@ compoundStmt:
     ;
 
 localDeclarations:
-    localDeclarations scopedVarDeclaration
-    | %empty {}
+    localDeclarations scopedVarDeclaration 
+    | %empty
     ;
 
 statementList:
-    statementList statement
-    | %empty {}
+    statementList statement 
+    | %empty
     ;
 
 expressionStmt:
-    expression SEMICOLON
+    expression SEMICOLON 
     | SEMICOLON
+    ;
+
+selectionStmt:
+    IFCND LPAREN simpleExpression RPAREN statement 
+    | IFCND LPAREN simpleExpression RPAREN statement ELSECND statement
     ;
 
 iterationStmt:
@@ -185,8 +166,8 @@ iterationStmt:
     ;
 
 returnStmt:
-    RETURNCND expression SEMICOLON
-    | RETURNCND SEMICOLON
+    RETURNCND SEMICOLON 
+    | RETURNCND expression SEMICOLON
     ;
 
 breakStmt:
@@ -194,91 +175,91 @@ breakStmt:
     ;
 
 expression:
-    mutable EQ expression
-    | mutable PLEQ expression
+    mutable EQ expression 
+    | mutable PLEQ expression 
     | mutable MIEQ expression
-    | mutable MUEQ expression
-    | mutable DIEQ expression
-    | mutable PLPL
+    | mutable MUEQ expression 
+    | mutable DIEQ expression 
+    | mutable PLPL 
     | mutable MIMI
     | simpleExpression
     ;
 
 simpleExpression:
-    simpleExpression ORCND andExpression
+    simpleExpression ORCND andExpression 
     | andExpression
     ;
 
 andExpression:
-    andExpression ANDCND unaryRelExpression
+    andExpression ANDCND unaryRelExpression 
     | unaryRelExpression
     ;
 
 unaryRelExpression:
-    NOTCND unaryRelExpression
+    NOTCND unaryRelExpression 
     | relExpression
     ;
 
 relExpression:
-    sumExpression relop sumExpression
+    sumExpression relop sumExpression 
     | sumExpression
     ;
 
 relop:
     LSEQ
-    | LS
-    | GT
-    | GTEQ
-    | EQEQ
+    | LS 
+    | GT 
+    | GTEQ 
+    | EQEQ 
     | NTEQ
     ;
 
 sumExpression:
-    sumExpression sumop term
+    sumExpression sumop term 
     | term
     ;
 
 sumop:
-    PL
+    PL 
     | MI
     ;
 
 term:
-    term mulop unaryExpression
+    term mulop unaryExpression 
     | unaryExpression
     ;
 
 mulop:
-    MUL
-    | DIV
+    MUL 
+    | DIV 
     | PERC
     ;
 
 unaryExpression:
-    unaryop unaryExpression
+    unaryop unaryExpression 
     | factor
     ;
 
 unaryop:
-    MI
-    | MUL
+    MI 
+    | MUL 
     | QM
     ;
 
 factor:
-    immutable
+    immutable 
     | mutable
     ;
 
 mutable:
-    IDVAL
-    | mutable LBOX expression RBOX
+    IDVAL 
+    | mutable LBOX expression RBOX 
     | mutable DOT IDVAL
     ;
 
 immutable:
-    LPAREN expression RPAREN
-    | call
+    LPAREN expression RPAREN 
+    | call 
     | constant
     ;
 
@@ -287,19 +268,19 @@ call:
     ;
 
 args:
-    argList
-    | %empty {}
+    argList 
+    | %empty
     ;
 
 argList:
-    argList COMMA expression
+    argList COMMA expression 
     | expression
     ;
 
 constant:
-    NUM
-    | CHAR
-    | BOOLT
+    NUM 
+    | CHAR 
+    | BOOLT 
     | BOOLF
     ;
 

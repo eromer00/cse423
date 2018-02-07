@@ -63,6 +63,7 @@ Token* newKEYtoken(int line, char* str, int keyvalue) {
     if(keyvalue == 0) {
         return t;
     } else {
+        /*
         switch(keyvalue) {
             case 1: t->str = "AND"; break;
             case 2: t->str = "OR"; break;
@@ -89,7 +90,8 @@ Token* newKEYtoken(int line, char* str, int keyvalue) {
             case 23: t->str = "RETURN"; break;
             case 24: t->str = "STATIC"; break;
             default: break;
-        }
+            
+        } */
 
         return t;
     }
