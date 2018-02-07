@@ -17,10 +17,10 @@
 #############################################
 
 #Group name
-GROUP = Spaghet_Code
+GROUP = TAgroup
 
 #Lab number
-LAB = 1
+LAB = 2
 
 #Output executable name
 BIN = c-
@@ -32,7 +32,7 @@ CC = gcc
 BASE = parser
 
 #Code files seperated by space
-FILES := scanType
+FILES := scanType printTree
 CFILES := $(FILES:=.c)
 OFILES := $(FILES:=.o)
 HFILES := $(FILES:=.h)
@@ -90,5 +90,5 @@ clean:
 
 #Keyword to type after make to create tarball of source code
 tar:
-	tar -cvf $(GROUP)_PA$(LAB)_.tar $(SRCS) makefile README
+	tar -cvf $(GROUP)_PA$(LAB)_.tar $(SRCS) makefile
 
