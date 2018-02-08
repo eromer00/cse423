@@ -88,7 +88,6 @@ break                { yylval.token = *newKEYtoken(line_num, strdup(yytext), 15)
 char                 { yylval.token = *newKEYtoken(line_num, strdup(yytext), 16); return CHARCND; }
 else                 { yylval.token = *newKEYtoken(line_num, strdup(yytext), 17); return ELSECND; }
 if                   { yylval.token = *newKEYtoken(line_num, strdup(yytext), 18); return IFCND; }
-in                   { yylval.token = *newKEYtoken(line_num, strdup(yytext), 19); return INCND; }
 int                  { yylval.token = *newKEYtoken(line_num, strdup(yytext), 20); return INTCND; }
 record               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 21); return RECORD; }
 while                { yylval.token = *newKEYtoken(line_num, strdup(yytext), 22); return WHILECND; }

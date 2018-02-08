@@ -40,7 +40,7 @@ typedef enum {VAR, FUNC, REC} DeclKind;
 * Break statement
 * Compound statement
 */
-typedef enum {IF, WHILE, RETURN, BREAK, COMP} StmtKind;
+typedef enum {IF, WHILE, RETURN, BREAK, COMP, CALL} StmtKind;
 
 /*
 * Kinds of expressions

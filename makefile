@@ -17,7 +17,7 @@
 #############################################
 
 #Group name
-GROUP = TAgroup
+GROUP = Spaghet_Code
 
 #Lab number
 LAB = 2
