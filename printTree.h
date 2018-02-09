@@ -10,7 +10,7 @@
 */
 
 //Our grammar only permits up to 25 children per node
-#define MAXCHILDREN 100
+#define MAXCHILDREN 25
 
 /*
 * Main kind of Tree Node
