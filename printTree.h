@@ -9,8 +9,8 @@
     Description: header file for tree printer
 */
 
-//Our grammar only permits up to 25 children per node
-#define MAXCHILDREN 25
+//Our grammar only permits up to 10 children per node
+#define MAXCHILDREN 10
 
 /*
 * Main kind of Tree Node
