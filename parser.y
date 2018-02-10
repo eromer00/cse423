@@ -19,6 +19,8 @@ extern int yyparse();
 extern int line_num;
 extern FILE* yyin;
 
+extern TreeNode* treeHead;
+
 //Error function
 void yyerror(const char* s);
 %}
@@ -39,19 +41,19 @@ void yyerror(const char* s);
 
 //Types for nonterminals
 
-%type <token> program declarationList declaration 
-%type <token> recDeclaration
-%type <token> varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclID scopedTypeSpecifier typeSpecifier returnTypeSpecifier 
-%type <token> funDeclaration params paramList paramTypeList paramIdList paramId 
-%type <token> statement matchstmt unmatchstmt compoundStmt localDeclarations statementList expressionStmt otherstatement iterationStmt returnStmt breakStmt 
-%type <token> expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
+%type <TreeNode*> program declarationList declaration 
+%type <TreeNode*> recDeclaration
+%type <TreeNode*> varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclID scopedTypeSpecifier typeSpecifier returnTypeSpecifier 
+%type <TreeNode*> funDeclaration params paramList paramTypeList paramIdList paramId 
+%type <TreeNode*> statement matchstmt unmatchstmt compoundStmt localDeclarations statementList expressionStmt otherstatement iterationStmt returnStmt breakStmt 
+%type <TreeNode*> expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
 
 
 %%
 
 
 program:
-    declarationList { printf("a1 (%d) \n", line_num); }
+    declarationList {treeHead = $1; printf("a1 (%d) \n", line_num); }
     ;
 
 declarationList:
