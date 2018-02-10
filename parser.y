@@ -12,6 +12,7 @@
 //Import exit functionality
 #include<stdlib.h>
 #include "scanType.h"
+#include "printTree.h"
 
 //Inform bison about flex things
 extern int yylex();
@@ -19,7 +20,7 @@ extern int yyparse();
 extern int line_num;
 extern FILE* yyin;
 
-extern TreeNode* treeHead;
+static TreeNode* syntaxTree;
 
 //Error function
 void yyerror(const char* s);
@@ -28,6 +29,7 @@ void yyerror(const char* s);
 //Use a union to hold possible token data types
 %union {
     Token token;
+    struct TreeNode* treeNode;
 }
 
 //Associate token types with union fields
@@ -41,31 +43,31 @@ void yyerror(const char* s);
 
 //Types for nonterminals
 
-%type <TreeNode*> program declarationList declaration 
-%type <TreeNode*> recDeclaration
-%type <TreeNode*> varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclID scopedTypeSpecifier typeSpecifier returnTypeSpecifier 
-%type <TreeNode*> funDeclaration params paramList paramTypeList paramIdList paramId 
-%type <TreeNode*> statement matchstmt unmatchstmt compoundStmt localDeclarations statementList expressionStmt otherstatement iterationStmt returnStmt breakStmt 
-%type <TreeNode*> expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
+%type <treeNode> program declarationList declaration 
+%type <treeNode> recDeclaration
+%type <treeNode> varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclID scopedTypeSpecifier typeSpecifier returnTypeSpecifier 
+%type <treeNode> funDeclaration params paramList paramTypeList paramIdList paramId 
+%type <treeNode> statement matchstmt unmatchstmt compoundStmt localDeclarations statementList expressionStmt otherstatement iterationStmt returnStmt breakStmt 
+%type <treeNode> expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
 
 
 %%
 
 
 program:
-    declarationList {treeHead = $1; printf("a1 (%d) \n", line_num); }
+    declarationList {syntaxTree = $1; printf("a1 (%d) \n", line_num); }
     ;
 
 declarationList:
-    declarationList declaration { printf("a2 (%d) \n", line_num);  }
-    | declaration { printf("b2 (%d) \n", line_num);  }
+    declarationList declaration { if($1!=NULL){insertSibling($1,$2);$$=$1;}else{$$=$2;} printf("a2 (%d) \n", line_num);  }
+    | declaration {$$=$1; printf("b2 (%d) \n", line_num);  }
     | %empty { printf("c2 (%d) \n", line_num);  }
     ;
 
 declaration:
-    varDeclaration { printf("a3 (%d) \n", line_num);  }
-    | funDeclaration { printf("b3 (%d) \n", line_num);  }
-    | recDeclaration { printf("c3 (%d) \n", line_num);  }
+    varDeclaration {$$=$1;printf("a3 (%d) \n", line_num);  }
+    | funDeclaration {$$=$1; printf("b3 (%d) \n", line_num);  }
+    | recDeclaration {$$=$1; printf("c3 (%d) \n", line_num);  }
     ;
 
 
@@ -287,23 +289,65 @@ immutable:
 
 call:
     IDVAL LPAREN args RPAREN
+        {
+        TreeNode* t = newStmtNode(CALL);
+        t->attr.name = strdup($1.IDvalue);
+        t->lineno = $1.lineNumber;
+        insertChild(t, $3);
+        $$ = t;
+        free($4.IDValue);
+        free($2.IDValue);
+        free($1.IDValue);
+        }
     ;
 
 args:
-    argList
+    argList {$$=$1}
     | %empty {}
     ;
 
 argList:
     argList COMMA expression
-    | expression
+        {
+            if($1!=NULL){
+                insertSibling($1, $3);
+                $$ = $1;
+            }else{
+                $$ = $3;
+            }
+        }
+    | expression {$$=$1;}
     ;
 
 constant:
     NUM
+        {
+		TreeNode* t = newExpNode(CONST);
+		t->attr.value = $1.value;
+		t->expType = NUMB;
+		$$ = t;
+	    }
     | CHAR
+        {
+		TreeNode* t = newExpNode(CONST);
+		t->attr.value = $1.value;
+		t->expType = SINGLE;
+		$$ = t;
+	    }
     | BOOLT
+        {
+		TreeNode* t = newExpNode(CONST);
+		t->attr.value = $1.value;
+		t->expType = TF;
+		$$ = t;
+	    }
     | BOOLF
+        {
+		TreeNode* t = newExpNode(CONST);
+		t->attr.value = $1.value;
+		t->expType = TF;
+		$$ = t;
+	    }
     ;
 
 %%
