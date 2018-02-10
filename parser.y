@@ -16,6 +16,7 @@
 //Inform bison about flex things
 extern int yylex();
 extern int yyparse();
+extern int line_num;
 extern FILE* yyin;
 
 //Error function
@@ -50,62 +51,62 @@ void yyerror(const char* s);
 
 
 program:
-    declarationList { printf("a1 "); }
+    declarationList { printf("a1 (%d) \n", line_num); }
     ;
 
 declarationList:
-    declarationList declaration { printf("a2 "); }
-    | declaration { printf("b2 "); }
-    | %empty { printf("c2 "); }
+    declarationList declaration { printf("a2 (%d) \n", line_num);  }
+    | declaration { printf("b2 (%d) \n", line_num);  }
+    | %empty { printf("c2 (%d) \n", line_num);  }
     ;
 
 declaration:
-    varDeclaration { printf("a3 "); }
-    | funDeclaration { printf("b3 "); }
-    | recDeclaration { printf("c3 "); }
+    varDeclaration { printf("a3 (%d) \n", line_num);  }
+    | funDeclaration { printf("b3 (%d) \n", line_num);  }
+    | recDeclaration { printf("c3 (%d) \n", line_num);  }
     ;
 
 
 recDeclaration:
-    RECORD IDVAL LBRACK localDeclarations RBRACK { printf("a4 "); }
+    RECORD IDVAL LBRACK localDeclarations RBRACK { printf("a4 (%d) \n", line_num);  }
     ; 
 
 varDeclaration:
-    typeSpecifier varDeclList { printf("a5 "); }
+    typeSpecifier varDeclList { printf("a5 (%d) \n", line_num);  }
     ;
 
 scopedVarDeclaration:
-    scopedTypeSpecifier varDeclList SEMICOLON { printf("a6 "); }
+    scopedTypeSpecifier varDeclList SEMICOLON { printf("a6 (%d) \n", line_num);  }
     ;
 
 varDeclList:
-    varDeclList COMMA varDeclInitialize { printf("a7 "); }
-    | varDeclInitialize { printf("b7 "); }
+    varDeclList COMMA varDeclInitialize { printf("a7 (%d) \n", line_num);  }
+    | varDeclInitialize { printf("b7 (%d) \n", line_num);  }
     ;
 
 varDeclInitialize:
-    varDeclID COLON simpleExpression { printf("a8 "); }
-    | varDeclID { printf("b8 "); }
+    varDeclID COLON simpleExpression { printf("a8 (%d) \n", line_num);  }
+    | varDeclID { printf("b8 (%d) \n", line_num);  }
     ;
 
 varDeclID:
-    IDVAL LBOX NUM RBOX { printf("a9 "); }
-    | IDVAL { printf("b9 "); }
+    IDVAL LBOX NUM RBOX { printf("a9 (%d) \n", line_num);  }
+    | IDVAL { printf("b9 (%d) \n", line_num);  }
     ;
 
 scopedTypeSpecifier:
-    STATIC typeSpecifier { printf("a10 "); }
-    | typeSpecifier { printf("b10 "); }
+    STATIC typeSpecifier { printf("a10 (%d) \n", line_num);  }
+    | typeSpecifier { printf("b10 (%d) \n", line_num);  }
     ;
 
 typeSpecifier:
-    returnTypeSpecifier { printf("a11 "); }
+    returnTypeSpecifier { printf("a11 (%d) \n", line_num);  }
     ;
 
 returnTypeSpecifier:
-    INTCND { printf("a12 "); }
-    | BOOLCND { printf("b12 "); }
-    | CHARCND { printf("c12 "); }
+    INTCND { printf("a12 (%d) \n", line_num); }
+    | BOOLCND { printf("b12 (%d) \n", line_num);  }
+    | CHARCND { printf("c12 (%d) \n", line_num);  }
     ;
 
 funDeclaration:

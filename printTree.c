@@ -16,6 +16,8 @@
 
 //Reference line number from parser
 extern int line_num;
+
+//declare treeHead
 TreeNode *treeHead = NULL;
 
 /*
