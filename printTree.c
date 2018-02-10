@@ -17,9 +17,6 @@
 //Reference line number from parser
 extern int line_num;
 
-//declare treeHead
-TreeNode *treeHead = NULL;
-
 /*
 * Track indentation level for AST printing?
 */
@@ -156,10 +153,10 @@ TreeNode* newExpNode(ExpKind kind) {
 	//Set return type to default
 	switch(kind){
 	    case OP:
-	    	t->expType = NUM;
+	    	t->expType = NUMB;
 	        break;
         case CONST:
-            t->expType = NUM;
+            t->expType = NUMB;
             break;
         case ID:
             t->expType = VOID; // we need to think about this
@@ -172,14 +169,35 @@ TreeNode* newExpNode(ExpKind kind) {
 /*
 * Insert the new child node into the given node
 */
-void insertChild(TreeNode *t, TreeNode *n){
-	
+void insertChild(TreeNode *tree, TreeNode *n){
+	int c;
+	if(tree != NULL){
+	    while(c < MAXCHILDREN){
+	        if(tree->child[c] == NULL){
+	            tree->child[c] = n;
+	            return;
+	        }
+	        c++;
+	    }
+	    yyerror("InsertChild: Out of space! Max number of children allocated!");
+	}else{
+	    yyerror("InsertChild: attempted to insert child to NULL parent!");
+	}
 }
 /*
 * Insert the new sibling node into the given node
 */
-void insertChild(TreeNode *t, TreeNode *n){
-	
+void insertSibling(TreeNode *tree, TreeNode *n){
+    TreeNode *t = tree;
+	if(t != NULL)
+	{
+	    while(t->sibling != NULL)
+		    t = t->sibling;
+
+	    t->sibling = n;
+	}
+	else
+		yyerror("InsertSibling: NULL param tree!");
 }
 
 /*

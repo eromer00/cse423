@@ -59,7 +59,7 @@ typedef enum {OP, CONST, ID} ExpKind;
 * True/False
 * Single character
 */
-typedef enum {VOID, NUM, TF, SINGLE} ExpType;
+typedef enum {VOID, NUMB, TF, SINGLE} ExpType;
 
 /*
 * Operation token
@@ -91,10 +91,10 @@ typedef enum {VOID, NUM, TF, SINGLE} ExpType;
 * colon -    :
 */
 typedef enum {
-	PLUS, PPLUS, DASH, DDASH, ASSIGN, PASSIGN, SASSIGN, 
-	MASSIGN, DASSIGN, ASTERISK, FSLASH, BNOT, BAND, BOR, EQEQ,
-	NEQ, LTEQ, LTHAN, GTEQ, GTHAN, QMARK, MOD, LSB, PERIOD,
-	COLON } OpKind;
+	plus, pplus, dash, ddash, assign, passign, sassign, 
+	massign, dassign, asterisk, fslash, bnot, band, bor, eqeq,
+	neq, lteq, lthan, gteq, gthan, qmark, mod, lsb, period,
+	colon } OpKind;
 
 /*
 * Structure to hold AST node properties
@@ -195,12 +195,12 @@ TreeNode* newStmtNode(StmtKind);
 /*
 * Insert node into Tree
 */
-void insertChild(TreeNode *t, TreeNode *n);
+void insertChild(TreeNode *tree, TreeNode *n);
 
 /*
 * Insert sibling node into Tree
 */
-void insertSibling(TreeNode *t, TreeNode *n);
+void insertSibling(TreeNode *tree, TreeNode *n);
 
 #endif
 
