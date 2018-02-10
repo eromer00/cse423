@@ -192,5 +192,15 @@ TreeNode* newExpNode(ExpKind);
 */
 TreeNode* newStmtNode(StmtKind);
 
+/*
+* Insert node into Tree
+*/
+void insertChild(TreeNode *t, TreeNode *n);
+
+/*
+* Insert sibling node into Tree
+*/
+void insertSibling(TreeNode *t, TreeNode *n);
+
 #endif
 

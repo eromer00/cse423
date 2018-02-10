@@ -170,6 +170,19 @@ TreeNode* newExpNode(ExpKind kind) {
 }
 
 /*
+* Insert the new child node into the given node
+*/
+void insertChild(TreeNode *t, TreeNode *n){
+	
+}
+/*
+* Insert the new sibling node into the given node
+*/
+void insertChild(TreeNode *t, TreeNode *n){
+	
+}
+
+/*
 * Print the AST
 */
 void printTree(FILE* output, TreeNode* tree) {
