@@ -20,6 +20,7 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 static TreeNode* syntaxTree;
+extern int line_num;
 //Error function
 void yyerror(const char* s);
 %}
@@ -78,7 +79,7 @@ varDeclaration:
         //TODO finish this typing
             TreeNode* t = $2;
             while(t != NULL){
-                t->recType = $1->attr.name;
+                //t->recType = $1->attr.name;
                 t = t->sibling;
             }
             free($3.str);
@@ -240,7 +241,7 @@ paramTypeList:
             //TODO Finish this typing
             TreeNode* t = $2;
             while(t != NULL){
-                t->recType = $1->attr.name;
+                //t->recType = strdup($1->attr.name);
                 t = t->sibling;
             }
             $$=$2;
@@ -811,6 +812,7 @@ int main(int argc, char** argv) {
     FILE *file = fopen(argv[1], "r");
     if(!file) {
         do{
+            printf("line: %d\n",line_num);
             yyparse();
         }while(!feof(yyin));
     } else {
