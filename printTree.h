@@ -39,8 +39,9 @@ typedef enum {VAR, FUNC, REC} DeclKind;
 * Return statement
 * Break statement
 * Compound statement
+* Function Call
 */
-typedef enum {IF, WHILE, RETURN, BREAK, COMP} StmtKind;
+typedef enum {IF, WHILE, RETURN, BREAK, COMP, CALL} StmtKind;
 
 /*
 * Kinds of expressions
@@ -153,6 +154,8 @@ typedef struct TreeNode {
 	* Holds custom type if rectype var
 	*/
 	char* recType;
+	
+	char* returnType; //type for functions
 
 	/*
 	* Special flags
