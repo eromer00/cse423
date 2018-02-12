@@ -16,6 +16,7 @@
 #include "scanType.h"
 #include "printTree.h"
 #include "recordType.h"
+#include "symbolTable.h"
 
 //Inform bison about flex things
 extern int yylex();
@@ -976,6 +977,7 @@ int main(int argc, char** argv) {
 
     printTree(stdout, syntaxTree);
     //printTree(outf, syntaxTree);
-
+    treeTraverse(syntaxTree);
 }
+
 
