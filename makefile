@@ -32,7 +32,7 @@ CC = gcc
 BASE = parser
 
 #Code files seperated by space
-FILES := scanType printTree recordType
+FILES := scanType printTree recordType symbolTable
 CFILES := $(FILES:=.c)
 OFILES := $(FILES:=.o)
 HFILES := $(FILES:=.h)
