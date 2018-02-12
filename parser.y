@@ -44,7 +44,7 @@ void yyerror(const char* s);
 %token <token> STATIC WHILECND
 
 //Types for nonterminals
-%type <treeNode> program declarationList declaration recDeclaration varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclId scopedTypeSpecifier typeSpecifier returnTypeSpecifier funDeclaration params paramList paramTypeList paramIdList paramId statement otherstatement matched unmatched compoundStmt localDeclarations statementList expressionStmt iterationStmt returnStmt breakStmt expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
+%type <treeNode> program declarationList declaration recDeclaration varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclId scopedTypeSpecifier typeSpecifier returnTypeSpecifier funDeclaration params paramList paramTypeList paramIdList paramId statement otherstatement matched unmatched iterationHeader compoundStmt localDeclarations statementList expressionStmt returnStmt breakStmt expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
 
 
 %%
@@ -53,6 +53,7 @@ program:
                     }
     ;
 
+//todo
 declarationList:
     declarationList declaration 
         {   if($1 != NULL) {
@@ -132,11 +133,7 @@ varDeclList:
     ;
 
 varDeclInitialize:
-    varDeclId 
-        {
-            $$ = $1; 
-        }
-    | varDeclId COLON simpleExpression 
+    varDeclId COLON simpleExpression 
         {
             if($1 != NULL) {
                 insertChild($1, $3);
@@ -145,23 +142,28 @@ varDeclInitialize:
                 $$ = $3;
             }
         }
+    | varDeclId 
+        {
+            $$ = $1; 
+        }
+    
     ;
 
 varDeclId:
-    IDVAL 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    | IDVAL LBOX NUM RBOX 
+    IDVAL LBOX NUM RBOX 
         {
             TreeNode *t = newDeclNode(VAR);
             t->attr.value = $1.val;
             t->isArray = 1;
             t->lineno = $1.line;
             t->attr.name = strdup($1.str);
+            $$ = t;
+        }
+    | IDVAL 
+        {
+            TreeNode *t = newDeclNode(VAR);
+            t->attr.name = strdup($1.str);
+            t->lineno = $1.line;
             $$ = t;
         }
     ;
@@ -304,16 +306,7 @@ paramIdList:
     ;
 
 paramId:
-    IDVAL 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->isParam = 1;
-            t->lineno = $1.line;
-
-            $$ = t;
-        }
-    | IDVAL LBOX RBOX 
+    IDVAL LBOX RBOX 
         {
             TreeNode *t = newDeclNode(VAR);
             t->attr.name = strdup($1.str);
@@ -323,29 +316,16 @@ paramId:
 
             $$ = t;
         }
-    ;
+    | IDVAL 
+        {
+            TreeNode *t = newDeclNode(VAR);
+            t->attr.name = strdup($1.str);
+            t->isParam = 1;
+            t->lineno = $1.line;
 
-otherstatement:
-    expressionStmt  
-        {
-            $$=$1;
+            $$ = t;
         }
-    | compoundStmt 
-        {
-            $$=$1;
-        }
-    | iterationStmt 
-        {
-            $$=$1;
-        }
-    | returnStmt 
-        {
-            $$=$1;
-        }
-    | breakStmt 
-        {
-            $$=$1; 
-        }
+
     ;
 
 statement:
@@ -366,11 +346,27 @@ matched:
             insertChild(t, $7);
             $$ = t;
         }
+    | iterationHeader matched
+        {
+            insertChild($1, $2);
+            $$ = $1;
+        }
     | otherstatement {$$=$1; }
     ;
 
 unmatched:
-    IFCND LPAREN simpleExpression RPAREN unmatched 
+    IFCND LPAREN simpleExpression RPAREN matched 
+        {
+            TreeNode *t = newStmtNode(IF);
+            t->attr.name = $1.str;
+            t->lineno = $1.line;
+    
+            insertChild(t, $3);
+            insertChild(t, $5);
+
+            $$ = t;
+        }
+    | IFCND LPAREN simpleExpression RPAREN unmatched 
         {
             TreeNode *t = newStmtNode(IF);
             t->attr.name = $1.str;
@@ -393,18 +389,45 @@ unmatched:
 
             $$ = t;
         }
-    | IFCND LPAREN simpleExpression RPAREN matched 
+    | iterationHeader unmatched 
         {
-            TreeNode *t = newStmtNode(IF);
+            insertChild($1, $2);
+
+            $$ = $1;
+        }
+    ;
+
+iterationHeader:
+    WHILECND LPAREN simpleExpression RPAREN
+        {
+            TreeNode *t = newStmtNode(WHILE);
             t->attr.name = $1.str;
             t->lineno = $1.line;
-    
-            insertChild(t, $3);
-            insertChild(t, $5);
 
+            insertChild(t, $3);
             $$ = t;
         }
     ;
+
+otherstatement:
+    expressionStmt  
+        {
+            $$=$1;
+        }
+    | compoundStmt 
+        {
+            $$=$1;
+        }
+    | returnStmt 
+        {
+            $$=$1;
+        }
+    | breakStmt 
+        {
+            $$=$1; 
+        }
+    ;
+
 
 compoundStmt:
     LBRACK localDeclarations statementList RBRACK 
@@ -451,19 +474,6 @@ expressionStmt:
     | SEMICOLON{$$=NULL; }
     ;
 
-
-iterationStmt:
-    WHILECND LPAREN simpleExpression RPAREN statement
-        {
-            TreeNode *t = newStmtNode(WHILE);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
-
-            insertChild(t, $3);
-            insertChild(t, $5);
-            $$ = t;
-        }
-    ;
 
 returnStmt:
     RETURNCND SEMICOLON 
@@ -619,9 +629,13 @@ unaryRelExpression:
 relExpression:
     sumExpression relop sumExpression 
         {
-            insertChild($2, $1);
-            insertChild($2, $3);
-            $$ = $2;
+            TreeNode *t = newExpNode(OP);
+            t->lineno = $2->lineno;
+            t->attr.op = $2->attr.op;
+            insertChild(t, $1);
+            insertChild(t, $3);
+            free($2);
+            $$ = t;
         }
     | sumExpression{
             $$=$1; }
@@ -678,13 +692,16 @@ relop:
         }
     ;
 
-//check if issues arise
 sumExpression:
     sumExpression sumop term 
         {
-            insertChild($2, $1);
-            insertChild($2, $3);
-            $$ = $1;
+            TreeNode *t = newExpNode(OP);
+            t->lineno = $2->lineno;
+            t->attr.op = $2->attr.op;
+            insertChild(t, $1);
+            insertChild(t, $3);
+            free($2);
+            $$ = t;
         }
     | term
         {
@@ -714,9 +731,13 @@ sumop:
 term:
     term mulop unaryExpression 
         {
-            insertChild($2, $1);
-            insertChild($2, $3);
-            $$ = $2;                       
+            TreeNode *t = newExpNode(OP);
+            t->lineno = $2->lineno;
+            t->attr.op = $2->attr.op;
+            insertChild(t, $1);
+            insertChild(t, $3);
+            free($2);
+            $$ = t;                    
         }
     | unaryExpression{
             $$=$1;}
@@ -752,8 +773,12 @@ mulop:
 unaryExpression:
     unaryop unaryExpression
         {
-            insertChild($1, $2);
-            $$ = $1;
+            TreeNode *t = newExpNode(OP);
+            t->lineno = $1->lineno;
+            t->attr.op = $1->attr.op;
+            insertChild(t, $2);
+            free($1);
+            $$ = t;
         }
     | factor{
             $$=$1; }
@@ -794,14 +819,7 @@ factor:
     ;
 
 mutable:
-    IDVAL 
-        {
-            TreeNode *t = newExpNode(ID);
-            t->attr.name = strdup($1.str);
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    | mutable LBOX expression RBOX 
+    mutable LBOX expression RBOX 
         {
             TreeNode *t = newExpNode(OP);
             t->attr.op = LSB;
@@ -828,6 +846,14 @@ mutable:
 
             $$ = t;
         }
+    | IDVAL 
+        {
+            TreeNode *t = newExpNode(ID);
+            t->attr.name = strdup($1.str);
+            t->lineno = $1.line;
+            $$ = t;
+        }
+    
     ;
 
 immutable:

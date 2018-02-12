@@ -386,6 +386,9 @@ void printTree(FILE* output, TreeNode* tree) {
               fprintf(output, "Assign: -= [line: %d]\n", tree->lineno);
               break;
             case MASSIGN:
+              fprintf(output, "Assign: *= [line: %d]\n", tree->lineno);
+              break;
+            case DASSIGN:
               fprintf(output, "Assign: /= [line: %d]\n", tree->lineno);
               break;
             case ASTERISK:
