@@ -15,6 +15,7 @@
 #include<unistd.h>
 #include "scanType.h"
 #include "printTree.h"
+#include "recordType.h"
 
 //Inform bison about flex things
 extern int yylex();
@@ -73,6 +74,7 @@ declaration:
 recDeclaration:
     RECORD IDVAL LBRACK localDeclarations RBRACK 
         {
+            addRecType($2.str);
             TreeNode *t = newDeclNode(REC);
             t->attr.name = strdup($2.str);
             insertChild(t, $4);
@@ -177,7 +179,7 @@ typeSpecifier:
         {
             TreeNode *t = newDeclNode(REC);
             t->attr.name = $1.str;
-            t->expType = VOID;
+            t->recType = strdup($1.str);
             t->lineno = $1.line;
             $$ = t;
         }
@@ -926,7 +928,7 @@ int main(int argc, char** argv) {
     }
 
     printTree(stdout, syntaxTree);
-    //printTree(outf, syntaxTree);
+    printTree(outf, syntaxTree);
 
 }
 

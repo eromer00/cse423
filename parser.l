@@ -21,9 +21,11 @@ extern int yylex();
 extern void yyerror(const char* s);
 
 #include "parser.tab.h"
+#include "recordType.h"
 
 //Count the lines
 int line_num = 1;
+extern RecordType *RecTypeList;
 
 //NOTE: Keywords and operators numbered 0-42 in order of apperance
 
@@ -36,6 +38,7 @@ int line_num = 1;
 %}
 
 letter [a-zA-Z]
+uletter [A-Z]
 digit [0-9]
 letdig {letter}|{digit}
 
@@ -93,7 +96,15 @@ record               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 21)
 while                { yylval.token = *newKEYtoken(line_num, strdup(yytext), 22); return WHILECND; }
 return               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 23); return RETURNCND; }
 static               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 24); return STATIC; } 
-
+{uletter}{letter}*   { 
+                       yylval.token = *newIDtoken(line_num, strdup(yytext));
+                       RecordType *r = RecTypeList;
+                       while(r != NULL){
+                           if(strcmp(yytext, r->name) == 0)return RECTYPE;
+                           r = r->next;
+                       } 
+                       return IDVAL;
+                     }
 {letter}{letdig}*    { yylval.token = *newIDtoken(line_num, strdup(yytext)); return IDVAL; }
 {digit}+             { yylval.token = *newNUMtoken(line_num, strdup(yytext), strtol(strdup(yytext), NULL, 10)); return NUM; }
 (.)                  { yyerror(yytext); }
