@@ -169,7 +169,7 @@ TreeNode* newExpNode(ExpKind kind) {
 * Insert the new child node into the given node
 */
 void insertChild(TreeNode *tree, TreeNode *n){
-	int c;
+	int c = 0;
 	if(tree != NULL){
 	    while(c < MAXCHILDREN){
 	        if(tree->child[c] == NULL){
@@ -329,9 +329,8 @@ void printTree(FILE* output, TreeNode* tree) {
   int sib = 0;
 
   //Check if we exist before printing
-	while (tree != NULL)
+	while (tree != NULL && (int *)tree > (int *) 0xFFFF)
 	{
-
 		//Statement node printing
 	  if (tree->nodekind == STMT)
 		{
