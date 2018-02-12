@@ -21,6 +21,7 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 static TreeNode* syntaxTree;
+extern OpKind ops;
 
 //Error function
 void yyerror(const char* s);
@@ -476,9 +477,9 @@ expression:
     mutable EQ expression 
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("EQ");
             t->lineno = $2.line;
-            t->attr.op = assign;
+            t->attr.op = ASSIGN;
+            t->attr.name = strdup("EQ");
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -486,9 +487,9 @@ expression:
     | mutable PLEQ expression 
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("PLEQ");
             t->lineno = $2.line;
-            t->attr.op = passign;
+            t->attr.op = PASSIGN;
+            t->attr.name = strdup("PLEQ");
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -496,9 +497,9 @@ expression:
     | mutable MIEQ expression
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("MIEQ");
             t->lineno = $2.line;
-            t->attr.op = sassign;
+            t->attr.op = SASSIGN;
+            t->attr.name = strdup("MIEQ");
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -506,9 +507,9 @@ expression:
     | mutable MUEQ expression 
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("MUEQ");
             t->lineno = $2.line;
-            t->attr.op = massign;
+            t->attr.op = MASSIGN;
+            t->attr.name = strdup("MUEQ");
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -516,9 +517,9 @@ expression:
     | mutable DIEQ expression 
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("DIEQ");
             t->lineno = $2.line;
-            t->attr.op = dassign;
+            t->attr.op = DASSIGN;
+            t->attr.name = strdup("DIEQ");
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -526,18 +527,18 @@ expression:
     | mutable PLPL 
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("PLPL");
             t->lineno = $2.line;
-            t->attr.op = pplus;
+            t->attr.op = PPLUS;
+            t->attr.name = strdup("PLPL");
             insertChild(t, $1);
             $$ = t;
         }
     | mutable MIMI
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("MIMI");
             t->lineno = $2.line;
-            t->attr.op = ddash;
+            t->attr.op = DDASH;
+            t->attr.name = strdup("MIMI");
             insertChild(t, $1);
             $$ = t;
         }
@@ -551,9 +552,9 @@ simpleExpression:
     simpleExpression ORCND andExpression
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("ORCND");
             t->lineno = $2.line;
-            t->attr.op = bor;
+            t->attr.op = BOR;
+            t->attr.name = strdup("ORCND");
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -568,9 +569,9 @@ andExpression:
     andExpression ANDCND unaryRelExpression
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.name = strdup("ANDCND");
             t->lineno = $2.line;
-            t->attr.op = band;
+            t->attr.op = BAND;
+            t->attr.name = strdup("ANDCND");
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -584,8 +585,8 @@ unaryRelExpression:
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = BNOT;
             t->attr.name = strdup("NOTCND");
-            t->attr.op = bnot;
             insertChild(t, $2);
             $$ = t;
         }
@@ -609,48 +610,48 @@ relop:
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = LTEQ;
             t->attr.name = strdup("LSEQ");
-            t->attr.op = lteq;
             $$ = t;
         }
     | LS
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = LTHAN;
             t->attr.name = strdup("LS");
-            t->attr.op = lthan;
             $$ = t;
         }
     | GT
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = GTHAN;
             t->attr.name = strdup("GT");
-            t->attr.op = gthan;
             $$ = t;
         }
     | GTEQ
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = GTHANEQ;
             t->attr.name = strdup("GTEQ");
-            t->attr.op = gteq;
             $$ = t;
         }
     | EQEQ
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = EQCP;
             t->attr.name = strdup("EQEQ");
-            t->attr.op = eqeq;
             $$ = t;
         }
     | NTEQ
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = NEQ;
             t->attr.name = strdup("NTEQ");
-            t->attr.op = neq;
             $$ = t;
         }
     ;
@@ -674,16 +675,16 @@ sumop:
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = PLUS;
             t->attr.name = strdup("PL");
-            t->attr.op = plus;
             $$ = t;
         }
     | MI
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
+            t->attr.op = DASH;
             t->attr.name = strdup("MI");
-            t->attr.op = dash;
             $$ = t;
         }
     ;
@@ -704,27 +705,24 @@ mulop:
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
-
+            t->attr.op = ASTERISK;
             t->attr.name = strdup("MUL");
-            t->attr.op = asterisk;
             $$ = t;
         }
     | DIV
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
-
+            t->attr.op = FSLASH;
             t->attr.name = strdup("DIV");
-            t->attr.op = fslash;
             $$ = t;
         }
     | PERC
         {
             TreeNode *t = newExpNode(OP);
             t->lineno = $1.line;
-
+            t->attr.op = MOD;
             t->attr.name = strdup("PERC");
-            t->attr.op = mod;
             $$ = t;
         }
     ;
@@ -743,25 +741,25 @@ unaryop:
     MI
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.op = dash;
-            t->attr.name = strdup("MI");
+            t->attr.op = DASH;
             t->lineno = $1.line;
+            t->attr.name = strdup("MI");
             $$ = t;
         }
     | MUL
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.op = asterisk;
-            t->attr.name = strdup("MUL");
+            t->attr.op = ASTERISK;
             t->lineno = $1.line;
+            t->attr.name = strdup("MUL");
             $$ = t;
         }
     | QM
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.op = qmark;
-            t->attr.name = strdup("QM");
+            t->attr.op = QMARK;
             t->lineno = $1.line;
+            t->attr.name = strdup("QM");
             $$ = t;
         }
     ;
@@ -784,7 +782,7 @@ mutable:
     | mutable LBOX expression RBOX 
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.op = lsb;
+            t->attr.op = LSB;
             t->lineno = $2.line;
             t->attr.name = strdup("LBOX");
 
@@ -795,7 +793,7 @@ mutable:
     | mutable DOT IDVAL
         {
             TreeNode *t = newExpNode(OP);
-            t->attr.op = period;
+            t->attr.op = PERIODK;
             t->attr.name = strdup("DOT");
             t->lineno = $3.line;
             TreeNode *t2 = newExpNode(ID);
@@ -856,37 +854,37 @@ constant:
     NUM 
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.name = strdup("NUM");
             t->attr.value = $1.val;
             t->lineno = $1.line;
             t->expType = NUMB;
+            t->attr.name = strdup("NUM");
             $$ = t; 
         }
     | CHAR        
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.name = strdup("CHAR");
             t->attr.value = $1.val;
             t->lineno = $1.line;
             t->expType = SINGLE;
+            t->attr.name = strdup("CHAR");
             $$ = t;
         }
     | BOOLT        
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.name = strdup("BOOLT");
             t->attr.value = $1.val;
             t->lineno = $1.line;
             t->expType = TF;
+            t->attr.name = strdup("BOOLT");
             $$ = t;
         } 
     | BOOLF        
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.name = strdup("BOOLF");
             t->attr.value = $1.val;
             t->lineno = $1.line;
             t->expType = TF;
+            t->attr.name = strdup("BOOLF");
             $$ = t;
         }
     ;
@@ -928,7 +926,7 @@ int main(int argc, char** argv) {
     }
 
     printTree(stdout, syntaxTree);
-    printTree(outf, syntaxTree);
+    //printTree(outf, syntaxTree);
 
 }
 

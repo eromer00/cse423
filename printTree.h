@@ -91,10 +91,10 @@ typedef enum {VOID, NUMB, TF, SINGLE} ExpType;
 * colon -    :
 */
 typedef enum {
-	plus, pplus, dash, ddash, assign, passign, sassign, 
-	massign, dassign, asterisk, fslash, bnot, band, bor, eqeq,
-	neq, lteq, lthan, gteq, gthan, qmark, mod, lsb, period,
-	colon } OpKind;
+	PLUS = 0, PPLUS, DASH, DDASH, ASSIGN, PASSIGN, SASSIGN, 
+	MASSIGN, DASSIGN, ASTERISK, FSLASH, BNOT, BAND, BOR, EQCP,
+	NEQ, LTEQ, LTHAN, GTHANEQ, GTHAN, QMARK, MOD, LSB, PERIODK,
+	COLONK } OpKind;
 
 /*
 * Structure to hold AST node properties

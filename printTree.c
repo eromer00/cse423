@@ -309,7 +309,7 @@ TreeNode* hardCode(){
   insertSibling(p->child[1],n);
 
   n = newExpNode(0);
-  n->attr.op=plus;
+  n->attr.op=PLUS;
   //n->expType=2;
   //n->isArray=0;
   n->lineno=14;
