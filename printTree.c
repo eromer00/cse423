@@ -439,7 +439,7 @@ void printTree(FILE* output, TreeNode* tree) {
           }
           break;
         case 1:
-          fprintf(output, "Const: %s [line: %d]\n", tree->attr.name, tree->lineno);
+          fprintf(output, "Const: %d [line: %d]\n", tree->attr.value, tree->lineno);
           break;
         case 2:
           fprintf(output, "Id: %s [line: %d]\n", tree->attr.name, tree->lineno);
@@ -468,23 +468,23 @@ void printTree(FILE* output, TreeNode* tree) {
           //checking the type of variable it is
           switch (tree->expType)
           {
-            //case the variable is void
-            case 0:
-              fprintf(output, "void [line: %d]", tree->lineno);
+            //case the variable is void, print recType
+            case VOID:
+              fprintf(output, "%s [line: %d]", tree->recType, tree->lineno);
               break;
 
             //case the variable is integer
-            case 1:
+            case NUMB:
               fprintf(output, "int [line: %d]", tree->lineno);
               break;
 
             //case the variable is bool
-            case 2:
+            case TF:
               fprintf(output, "bool [line: %d]", tree->lineno);
               break;
 
             //case the variable is a character
-            case 3:
+            case SINGLE:
               fprintf(output, "char [line: %d]", tree->lineno);
               break;
           }

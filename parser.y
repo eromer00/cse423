@@ -88,8 +88,8 @@ varDeclaration:
         {
             TreeNode * t = $2;
             while(t !=NULL){
-                if(!(t->expType))
-                    t->recType = $1->recType;
+                if(!($1->expType))
+                    t->recType = $1->attr.name;
                 else
                     t->expType = $1->expType;
                 t = t->sibling;
