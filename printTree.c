@@ -338,23 +338,23 @@ void printTree(FILE* output, TreeNode* tree) {
 		{
 			switch (tree->kind.stmt)
 			{
-        case 0:
+        case IF:
           fprintf(output, "If");
           break;
-        case 1:
+        case WHILE:
           fprintf(output, "While");
           break;
-        case 2:
+        case RETURN:
           fprintf(output, "Return");
           break;
-        case 3:
+        case BREAK:
           fprintf(output, "Break");
           break;
-        case 4:
+        case COMP:
           fprintf(output, "Compound");
           break;
-        case 5:
-          fprintf(output, "Call");
+        case CALL:
+          fprintf(output, "Call: %s", tree->attr.name);
           break;
 			}
       fprintf(output, " [line: %d]\n", tree->lineno);
@@ -362,86 +362,91 @@ void printTree(FILE* output, TreeNode* tree) {
 		//Expression node printing
 		else if (tree->nodekind == EXP){
       switch (tree->kind.exp){
-        case 0:
+        case OP:
           switch(tree->attr.op){
-            case 0:
+            case PLUS:
               fprintf(output, "Op: + [line: %d]\n", tree->lineno);
               break;
-            case 1:
+            case PPLUS:
               fprintf(output, "Assign: ++ [line: %d]\n", tree->lineno);
               break;
-            case 2:
+            case DASH:
               fprintf(output, "Op: - [line: %d]\n", tree->lineno);
               break;
-            case 3:
+            case DDASH:
               fprintf(output, "Assign: -- [line: %d]\n", tree->lineno);
               break;
-            case 4:
+            case ASSIGN:
               fprintf(output, "Assign: = [line: %d]\n", tree->lineno);
               break;
-            case 5:
+            case PASSIGN:
               fprintf(output, "Assign: += [line: %d]\n", tree->lineno);
               break;
-            case 6:
+            case SASSIGN:
               fprintf(output, "Assign: -= [line: %d]\n", tree->lineno);
               break;
-            case 7:
+            case MASSIGN:
               fprintf(output, "Assign: /= [line: %d]\n", tree->lineno);
               break;
-            case 8:
+            case ASTERISK:
               fprintf(output, "Op: * [line: %d]\n", tree->lineno);
               break;
-            case 9:
+            case FSLASH:
               fprintf(output, "Op: / [line: %d]\n", tree->lineno);
               break;
-            case 10:
-              fprintf(output, "Op: NOT [line: %d]\n", tree->lineno);
+            case BNOT:
+              fprintf(output, "Op: not [line: %d]\n", tree->lineno);
               break;
-            case 11:
-              fprintf(output, "Op: AND [line: %d]\n", tree->lineno);
+            case BAND:
+              fprintf(output, "Op: and [line: %d]\n", tree->lineno);
               break;
-            case 12:
-              fprintf(output, "Op: OR [line: %d]\n", tree->lineno);
+            case BOR:
+              fprintf(output, "Op: or [line: %d]\n", tree->lineno);
               break;
-            case 13:
+            case EQCP:
               fprintf(output, "Op: == [line: %d]\n", tree->lineno);
               break;
-            case 14:
+            case NEQ:
               fprintf(output, "Op: != [line: %d]\n", tree->lineno);
               break;
-            case 15:
+            case LTEQ:
               fprintf(output, "Op: <= [line: %d]\n", tree->lineno);
               break;
-            case 16:
+            case LTHAN:
               fprintf(output, "Op: < [line: %d]\n", tree->lineno);
               break;
-            case 17:
+            case GTHANEQ:
               fprintf(output, "Op: >= [line: %d]\n", tree->lineno);
               break;
-            case 18:
+            case GTHAN:
               fprintf(output, "Op: > [line: %d]\n", tree->lineno);
               break;
-            case 19:
+            case QMARK:
               fprintf(output, "Op: ? [line: %d]\n", tree->lineno);
               break;
-            case 20:
+            case MOD:
               fprintf(output, "Op: %% [line: %d]\n", tree->lineno);
               break;
-            case 21:
+            case LSB:
               fprintf(output, "Op: [ [line: %d]\n", tree->lineno);
               break;
-            case 22:
+            case PERIODK:
               fprintf(output, "Op: . [line: %d]\n", tree->lineno);
               break;
-            case 23:
+            case COLONK:
               fprintf(output, "Op: : [line: %d]\n", tree->lineno);
               break;
           }
           break;
-        case 1:
-          fprintf(output, "Const: %d [line: %d]\n", tree->attr.value, tree->lineno);
+        case CONST:
+          if(tree->expType == TF) 
+            fprintf(output, "Const: %s [line: %d]\n", tree->attr.name, tree->lineno);
+          else if (tree->expType == SINGLE)
+            fprintf(output, "Const: '%c' [line: %d]\n", tree->attr.value, tree->lineno);
+          else
+            fprintf(output, "Const: %d [line: %d]\n", tree->attr.value, tree->lineno);
           break;
-        case 2:
+        case ID:
           fprintf(output, "Id: %s [line: %d]\n", tree->attr.name, tree->lineno);
           break;
       }
@@ -470,7 +475,8 @@ void printTree(FILE* output, TreeNode* tree) {
           {
             //case the variable is void, print recType
             case VOID:
-              fprintf(output, "%s [line: %d]", tree->recType, tree->lineno);
+              //fprintf(output, "%s [line: %d]", tree->recType, tree->lineno);
+              fprintf(output, "record [line: %d]", tree->lineno);
               break;
 
             //case the variable is integer
@@ -498,29 +504,29 @@ void printTree(FILE* output, TreeNode* tree) {
           switch (tree->expType)
           {
             //case returns void
-            case 0:
+            case VOID:
               fprintf(output, "void [line: %d]", tree->lineno);
               break;
 
             //case return integer
-            case 1:
+            case NUMB:
               fprintf(output, "int [line: %d]", tree->lineno);
               break;
 
             //case returns bool
-            case 2:
+            case TF:
               fprintf(output, "bool [line: %d]", tree->lineno);
               break;
 
             //case returns char
-            case 3:
+            case SINGLE:
               fprintf(output, "char [line: %d]", tree->lineno);
               break;
           }
           break;
 
         case REC:
-          fprintf(output, "Record %s [line: %d]", tree->attr.name, tree->lineno);
+          fprintf(output, "Record %s  [line: %d]", tree->attr.name, tree->lineno);
           break;
 
 			}
@@ -536,7 +542,7 @@ void printTree(FILE* output, TreeNode* tree) {
 			if(tree->child[i] != NULL)
 			{
                 for( int j = 0; j < indent_level+1; j++){
-                  fprintf(output, "!    ");
+                  fprintf(output, "!   ");
                 }
                 fprintf(output, "Child: %d  ",i);
                 indent_level++;
@@ -551,7 +557,7 @@ void printTree(FILE* output, TreeNode* tree) {
     tree = tree->sibling;
     if(tree){
       for( int i = 0; i < indent_level; i++){
-        fprintf(output, "!    ");
+        fprintf(output, "!   ");
       }
       fprintf(output, "Sibling: %d  ", sib);
       sib++;

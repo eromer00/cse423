@@ -77,6 +77,8 @@ recDeclaration:
             addRecType($2.str);
             TreeNode *t = newDeclNode(REC);
             t->attr.name = strdup($2.str);
+            t->recType = t->attr.name;
+            t->isRecord = 1;
             insertChild(t, $4);
             t->lineno = $1.line;
             $$ = t;
@@ -88,10 +90,10 @@ varDeclaration:
         {
             TreeNode * t = $2;
             while(t !=NULL){
-                if(!($1->expType))
-                    t->recType = $1->attr.name;
-                else
+                if($1->expType)
                     t->expType = $1->expType;
+                else
+                    t->recType = $1->recType;
                 t = t->sibling;
             }
             $$=$2;
@@ -101,19 +103,15 @@ varDeclaration:
 scopedVarDeclaration:
     scopedTypeSpecifier varDeclList SEMICOLON 
         {
-            if($1 != NULL) {
-                TreeNode * t = $2;
-                while(t !=NULL){
-                    if(!(t->expType))
-                        t->recType = $1->recType;
-                    else
-                        t->expType = $1->expType;
-                    t = t->sibling;
-                }
-                $$=$2;
-            } else {
-                $$=$2;
-            } 
+            TreeNode * t = $2;
+            while(t !=NULL){
+                if($1->expType)
+                    t->expType = $1->expType;
+                else
+                    t->recType = $1->recType;
+                t = t->sibling;
+            }
+            $$=$2;
         }
     ;
 
@@ -190,6 +188,7 @@ typeSpecifier:
             TreeNode *t = newDeclNode(REC);
             t->attr.name = $1.str;
             t->recType = strdup($1.str);
+            t->isRecord = 1;
             t->lineno = $1.line;
             $$ = t;
         }
@@ -227,7 +226,10 @@ funDeclaration:
         {
             TreeNode *t = newDeclNode(FUNC);
             t->attr.name = strdup($2.str);
-            t->expType = $1->expType;
+            if($1->expType)
+                t->expType = $1->expType;
+            else
+                t->recType = $1->recType;
             t->isFunc = 1;
             t->lineno = $2.line;
             insertChild(t, $4);
@@ -273,9 +275,15 @@ paramList:
 paramTypeList:
     typeSpecifier paramIdList 
         {
-            $2->expType = $1->expType;
-            free($1);
-            $$ = $2;
+            TreeNode * t = $2;
+            while(t !=NULL){
+                if($1->expType)
+                    t->expType = $1->expType;
+                else
+                    t->recType = $1->recType;
+                t = t->sibling;
+            }
+            $$=$2;
         }
     ;
 
@@ -878,7 +886,7 @@ constant:
     | CHAR        
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.val;
+            t->attr.value = $1.ltr;
             t->lineno = $1.line;
             t->expType = SINGLE;
             t->attr.name = strdup("CHAR");
@@ -890,7 +898,7 @@ constant:
             t->attr.value = $1.val;
             t->lineno = $1.line;
             t->expType = TF;
-            t->attr.name = strdup("BOOLT");
+            t->attr.name = strdup("true");
             $$ = t;
         } 
     | BOOLF        
@@ -899,7 +907,7 @@ constant:
             t->attr.value = $1.val;
             t->lineno = $1.line;
             t->expType = TF;
-            t->attr.name = strdup("BOOLF");
+            t->attr.name = strdup("false");
             $$ = t;
         }
     ;
