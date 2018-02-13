@@ -329,7 +329,7 @@ void printTree(FILE* output, TreeNode* tree) {
   int sib = 0;
 
   //Check if we exist before printing
-	while (tree != NULL && (int *)tree > (int *) 0xFFFF)
+	while (tree != NULL)
 	{
 		//Statement node printing
 	  if (tree->nodekind == STMT)
@@ -533,13 +533,13 @@ void printTree(FILE* output, TreeNode* tree) {
 		{
 			if(tree->child[i] != NULL)
 			{
-        for( int j = 0; j < indent_level+1; j++){
-          fprintf(output, "!    ");
-        }
-        fprintf(output, "Child: %d  ",i);
-        indent_level++;
-				printTree(output, tree->child[i] );
-        indent_level--;
+                for( int j = 0; j < indent_level+1; j++){
+                  fprintf(output, "!    ");
+                }
+                fprintf(output, "Child: %d  ",i);
+                indent_level++;
+				        printTree(output, tree->child[i] );
+                indent_level--;
 			}
 
 			//...waht if child0 doesnt exist, but other children do tho?

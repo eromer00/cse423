@@ -86,12 +86,12 @@ recDeclaration:
 varDeclaration:
     typeSpecifier varDeclList SEMICOLON 
         {
-            if($1 != NULL) {
-                insertChild($1,$2);
-                $$=$1;
-            } else {
-                $$=$2;
-            } 
+            TreeNode * t = $2;
+            while(t !=NULL){
+                t->recType = $1->attr.name;
+                t = t->sibling;
+            }
+            $$=$2;
         }
     ;
 
@@ -416,19 +416,17 @@ localDeclarations:
 statementList:
     statementList statement 
         {
-            if($1 != NULL) {
-                insertSibling($1,$2);
-                $$ = $1;
-            } else {
-                $$ = $1;
+        if($1 != NULL){
+            insertSibling($1,$2);
+            $$ = $1;
             }
+        else $$ = $2;
         }
     | %empty {$$ = NULL; }
     ;
 
 expressionStmt:
-    expression SEMICOLON {
-            $$=$1; }
+    expression SEMICOLON { $$=$1; }
     | SEMICOLON{
             $$=NULL; }
     ;
