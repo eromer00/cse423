@@ -88,7 +88,10 @@ varDeclaration:
         {
             TreeNode * t = $2;
             while(t !=NULL){
-                t->recType = $1->attr.name;
+                if(!(t->expType))
+                    t->recType = $1->recType;
+                else
+                    t->expType = $1->expType;
                 t = t->sibling;
             }
             $$=$2;
@@ -99,8 +102,15 @@ scopedVarDeclaration:
     scopedTypeSpecifier varDeclList SEMICOLON 
         {
             if($1 != NULL) {
-                insertChild($1,$2);
-                $$=$1;
+                TreeNode * t = $2;
+                while(t !=NULL){
+                    if(!(t->expType))
+                        t->recType = $1->recType;
+                    else
+                        t->expType = $1->expType;
+                    t = t->sibling;
+                }
+                $$=$2;
             } else {
                 $$=$2;
             } 
@@ -310,34 +320,40 @@ paramId:
 otherstatement:
     expressionStmt  
         {
+            printf("expression %p\n", $1);
             $$=$1;
         }
     | compoundStmt 
         {
+            printf("compound %p\n", $1);
             $$=$1;
         }
     | iterationStmt 
         {
+            printf("iteration %p\n", $1);
             $$=$1;
         }
     | returnStmt 
         {
+            printf("return %p\n", $1);
             $$=$1;
         }
     | breakStmt 
         {
+            printf("break %p\n", $1);
             $$=$1; 
         }
     ;
 
 statement:
-    matched {$$=$1;}
-    | unmatched {$$=$1; }
+    matched { printf("matched %p\n", $1); $$=$1;}
+    | unmatched { printf("umatched %p\n", $1);$$=$1; }
     ;
 
 matched:
     IFCND LPAREN simpleExpression RPAREN matched ELSECND matched 
         {
+            
             TreeNode *t = newStmtNode(IF);
             t->attr.name = $1.str;
             t->lineno = $1.line;
@@ -345,10 +361,10 @@ matched:
             insertChild(t, $3);
             insertChild(t, $5);
             insertChild(t, $7);
-
+            printf("if: %p\n", t);
             $$ = t;
         }
-    | otherstatement {$$=$1; }
+    | otherstatement {printf("other: %p\n", $1);$$=$1; }
     ;
 
 unmatched:
@@ -396,6 +412,7 @@ compoundStmt:
             t->lineno = $1.line;
             insertChild(t, $2);
             insertChild(t, $3);
+            $$ = t;
         }
     ;
 
@@ -417,6 +434,8 @@ statementList:
     statementList statement 
         {
         if($1 != NULL){
+            TreeNode *t = $1;
+            TreeNode *t2 = $2;
             insertSibling($1,$2);
             $$ = $1;
             }
@@ -427,8 +446,7 @@ statementList:
 
 expressionStmt:
     expression SEMICOLON { $$=$1; }
-    | SEMICOLON{
-            $$=NULL; }
+    | SEMICOLON{$$=NULL; }
     ;
 
 
