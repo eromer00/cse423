@@ -19,6 +19,8 @@ extern int line_num;
 /*
 * Track indentation level for AST printing?
 */
+int num_errors = 0;
+int num_warnings = 0;
 int indent_level = 0;
 
 //Reference parser error function
@@ -452,7 +454,7 @@ void printTree(FILE* output, TreeNode* tree) {
       switch (tree->kind.decl)
 			{
         //case it is a variable
-        case 0:
+        case VAR:
           if( tree->isParam ){
             fprintf(output, "Param ");
           }
@@ -489,7 +491,7 @@ void printTree(FILE* output, TreeNode* tree) {
           break;
 
         //case the declaration is for a function
-        case 1:
+        case FUNC:
           fprintf(output, "Func %s returns type ", tree->attr.name);
 
           //checking what type the function returns`
@@ -517,7 +519,7 @@ void printTree(FILE* output, TreeNode* tree) {
           }
           break;
 
-        case 2:
+        case REC:
           fprintf(output, "Record %s [line: %d]", tree->attr.name, tree->lineno);
           break;
 
@@ -556,6 +558,11 @@ void printTree(FILE* output, TreeNode* tree) {
     }
 	}
 	//END WHILE
+
+  if(indent_level==0){
+    fprintf(output, "Number of warnings: %d\n",num_warnings);
+    fprintf(output, "Number of errors: %d\n",num_errors);
+  }
 
 	return;
 }
