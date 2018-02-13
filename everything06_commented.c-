@@ -3,7 +3,7 @@
 // Test all the basic elements of C- F16
 //
 //
-//int gromit, shaun[77];
+int gromit, shaun[77];
 
 wallace(int wrong, trousers, sheep)
 {
@@ -117,11 +117,11 @@ record Point {
 }
 
 record Line {
-    //Point x, y;
+    Point x, y;
 }
 
-//Point p, q;
-//Line l;
+Point p, q;
+Line l;
 
 setp(){//Point p){//; int x[], y; Point P[]; Line l) {
     x[666];

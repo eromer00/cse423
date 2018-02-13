@@ -142,18 +142,18 @@ varDeclInitialize:
 varDeclId:
     IDVAL 
         {
-            TreeNode *t = newExpNode(ID);
+            TreeNode *t = newDeclNode(VAR);
             t->attr.name = strdup($1.str);
             t->lineno = $1.line;
             $$ = t;
         }
     | IDVAL LBOX NUM RBOX 
         {
-            TreeNode *t = newExpNode(ID);
-            t->attr.name = strdup($1.str);
+            TreeNode *t = newDeclNode(VAR);
             t->attr.value = $1.val;
             t->isArray = 1;
             t->lineno = $1.line;
+            t->attr.name = strdup($1.str);
             $$ = t;
         }
     ;
@@ -288,18 +288,20 @@ paramIdList:
 paramId:
     IDVAL 
         {
-            TreeNode *t = newExpNode(ID);
+            TreeNode *t = newDeclNode(VAR);
             t->attr.name = strdup($1.str);
+            t->isParam = 1;
             t->lineno = $1.line;
 
             $$ = t;
         }
     | IDVAL LBOX RBOX 
         {
-            TreeNode *t = newExpNode(ID);
+            TreeNode *t = newDeclNode(VAR);
             t->attr.name = strdup($1.str);
             t->lineno = $1.line;
             t->isArray = 1;
+            t->isParam = 1;
 
             $$ = t;
         }
@@ -787,6 +789,7 @@ mutable:
             t->attr.op = LSB;
             t->lineno = $2.line;
             t->attr.name = strdup("LBOX");
+            t->isArray = 1;
 
             insertChild(t, $1);
             insertChild(t, $3);
@@ -928,7 +931,7 @@ int main(int argc, char** argv) {
     }
 
     printTree(stdout, syntaxTree);
-    printTree(outf, syntaxTree);
+    //printTree(outf, syntaxTree);
 
 }
 
