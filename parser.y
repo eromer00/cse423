@@ -320,34 +320,29 @@ paramId:
 otherstatement:
     expressionStmt  
         {
-            printf("expression %p\n", $1);
             $$=$1;
         }
     | compoundStmt 
         {
-            printf("compound %p\n", $1);
             $$=$1;
         }
     | iterationStmt 
         {
-            printf("iteration %p\n", $1);
             $$=$1;
         }
     | returnStmt 
         {
-            printf("return %p\n", $1);
             $$=$1;
         }
     | breakStmt 
         {
-            printf("break %p\n", $1);
             $$=$1; 
         }
     ;
 
 statement:
-    matched { printf("matched %p\n", $1); $$=$1;}
-    | unmatched { printf("umatched %p\n", $1);$$=$1; }
+    matched { $$=$1;}
+    | unmatched {$$=$1; }
     ;
 
 matched:
@@ -361,10 +356,9 @@ matched:
             insertChild(t, $3);
             insertChild(t, $5);
             insertChild(t, $7);
-            printf("if: %p\n", t);
             $$ = t;
         }
-    | otherstatement {printf("other: %p\n", $1);$$=$1; }
+    | otherstatement {$$=$1; }
     ;
 
 unmatched:

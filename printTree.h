@@ -96,6 +96,25 @@ typedef enum {
 	NEQ, LTEQ, LTHAN, GTHANEQ, GTHAN, QMARK, MOD, LSB, PERIODK,
 	COLONK } OpKind;
 
+
+/*
+* Union to hold node's subtype
+*/
+typedef struct {
+	DeclKind decl;
+	StmtKind stmt;
+	ExpKind exp;
+} Kind;
+
+/*
+* Node's main payload
+*/
+typedef struct {
+	OpKind op;
+	int value;
+	unsigned char cvalue;
+	char* name;
+} Attr;
 /*
 * Structure to hold AST node properties
 * Essentially chained in a large linked list
@@ -123,26 +142,8 @@ typedef struct TreeNode {
 	*/
 	NodeKind nodekind;
 
-	/*
-	* Union to hold node's subtype
-	*/
-	union
-	{
-		DeclKind decl;
-		StmtKind stmt;
-		ExpKind exp;
-	} kind;
-
-	/*
-	* Node's main payload
-	*/
-	union
-	{
-		OpKind op;
-		int value;
-		unsigned char cvalue;
-		char* name;
-	} attr;
+	Attr attr;
+	Kind kind;
 
 	/*
 	* Return type of expression
