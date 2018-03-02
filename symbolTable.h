@@ -54,5 +54,6 @@ void printScope(Scope *sc);
 void printSymbol(Map *x);
 
 void treeTraverse(TreeNode* tree);
+int scopeNum;
 
 #endif

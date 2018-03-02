@@ -19,6 +19,8 @@ SymbolTable *initST() {
     st->current = global;
     st->head = global;
     st->tail = global;
+    
+    scopeNum = 1;
 
     return st;
 }
@@ -39,7 +41,7 @@ Scope *newScope(int name, int lineno) {
 
     
     sc->next = NULL;
-
+    scopeNum++;
     return sc;
 }
 
@@ -355,7 +357,7 @@ void treeTraverse(TreeNode* tree) {
 					 * Create a new scope for the parameters and compound statement
 					 */
 					//Name the new scope
-                    //tempScope = newScope(symtable->depth, tree->lineno);
+                    tempScope = newScope(scopeNum, tree->lineno);
 					//Create the scope
                     
 					//Indicate new scope entry
@@ -442,12 +444,11 @@ void treeTraverse(TreeNode* tree) {
 			newCompound = 0;
 
 			//Ensure global scope is not exited
-            /*
-			if(stable->current->parent != NULL)
+			if(symtable->current->parent != NULL)
 			{
-				stable->current = stable->current->parent;
-				stable->depth--;
-			} */
+				symtable->current = symtable->current->parent;
+				symtable->depth--;
+			}
 		}
 
 		//Point to the next node in the AST
