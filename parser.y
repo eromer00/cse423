@@ -942,7 +942,7 @@ constant:
 %%
 
 int main(int argc, char** argv) {
-    int c; 
+    int c;
     while((c = getopt(argc, argv, "d:")) != -1) {
         switch(c) {
             case 'd':
@@ -977,7 +977,10 @@ int main(int argc, char** argv) {
 
     printTree(stdout, syntaxTree);
     //printTree(outf, syntaxTree);
+    symtable = initST();
     treeTraverse(syntaxTree);
+    printSymbolTable();
+    free(symtable);
 }
 
 

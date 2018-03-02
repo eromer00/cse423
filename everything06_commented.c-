@@ -8,6 +8,7 @@ int gromit, shaun[77];
 wallace(int wrong, trousers, sheep)
 {
     bool close:true, shave:false;
+    bool close:true;
    
     1729;
     close;

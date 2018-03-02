@@ -34,9 +34,10 @@ Scope *newScope(int name, int lineno) {
 
     symtable->depth++;
     symtable->tail->next = sc;
+    sc->parent = symtable->tail;
     symtable->tail = sc;
 
-    sc->parent = NULL;
+    
     sc->next = NULL;
 
     return sc;
@@ -129,7 +130,7 @@ void treeTraverse(TreeNode* tree) {
 	Map* search;
 
 	//Temp scope for searching
-	Scope* tempScope;
+	Scope* tempScope = symtable->current;
 
 	//Temp tree node for searching
 	TreeNode* tempNode = NULL;
@@ -291,14 +292,17 @@ void treeTraverse(TreeNode* tree) {
 				case VAR:
 
 					//Check if it was previously declared in our scope
-
+                    search = findSymbol(tempScope, tree->attr.name);
+                    asdf = (search != NULL) ? 1 : 0;
 					//Not found in our scope
 					if(asdf == 0)
 					{
 						//Variable declaration does not exist in current scope, need to add it
-
+                        search = newMap(tree->attr.name, (void *) tree->child[0], tree->lineno);
+                        
 						//Insert into current scope
-
+                        insertSymbol(tempScope, search);
+                        
 						//Save name if we are initializing to prevent recursive definition
 						if(tree->child[0] != NULL)
 						{
@@ -313,6 +317,7 @@ void treeTraverse(TreeNode* tree) {
 					//The variable name was previously declared
 					else
 					{
+					printf("DECLARED VAR\n");
 					}
                     printf("'VAR'\n");
 				    break;
@@ -323,31 +328,36 @@ void treeTraverse(TreeNode* tree) {
 					lastFunDec = tree;
 
 					//Build the function symbol data string
-					
+					//TODO
 					//Set compound type if it exists
 					if(tree->child[1] != NULL)
 						tree->child[1]->expType = VOID;
 
 					//Check if it was previously declared in global scope
-
+                    search = findSymbol(tempScope, tree->attr.name);
+                    asdf = (search != NULL) ? 1 : 0;
+                    
 					if(asdf == 0)
 					{
 						//Function declaration does not exist in current scope, need to add it
-
-						//Add to current scope
+                        search = newMap(tree->attr.name, (void *) tree->child[0], tree->lineno);
+                        
+						//Insert into current scope
+                        insertSymbol(tempScope, search);
 					}
 					//The variable name was previously declared
 					else
 					{
+					printf("DECLARED FUNCTION\n");
 					}
 
 					/*
 					 * Create a new scope for the parameters and compound statement
 					 */
 					//Name the new scope
-
+                    //tempScope = newScope(symtable->depth, tree->lineno);
 					//Create the scope
-
+                    
 					//Indicate new scope entry
 					newCompound = 1;
 
@@ -364,16 +374,19 @@ void treeTraverse(TreeNode* tree) {
 					//Build the record symbol data string
 
 					//Check if it was previously declared in our scope
-
+                    search = findSymbol(tempScope, tree->attr.name);
+                    asdf = (search != NULL) ? 1 : 0;
 					//Not found in our scope
 					if(asdf == 0)
 					{
 						//Variable declaration does not exist in current scope, need to add it
-
+                        search = newMap(tree->attr.name, (void *) tree->child[0], tree->lineno);
+                        
 						//Insert into current scope
+                        insertSymbol(tempScope, search);
 					}
 					//The variable name was previously declared
-					else {}
+					else {printf("DECLARED RECORD!\n");}
                     printf("'RECORD'\n");
                     break;
 
@@ -387,7 +400,7 @@ void treeTraverse(TreeNode* tree) {
 		}
 		//Bad tree node
 		else
-			//yyerror("Unknown node");
+			printf("Unknown node\n");
 
 		//If children exist traverse the child trees
 		for (int i = 0; i < MAXCHILDREN; i++)
