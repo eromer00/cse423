@@ -117,6 +117,7 @@ void printSymbol(Map *x) {
 *
 * tree - Root node to start at
 */
+int firstCmp = 0;
 void treeTraverse(TreeNode* tree) {
 
     int asdf = 0;
@@ -158,7 +159,7 @@ void treeTraverse(TreeNode* tree) {
 	//Flag to indicate repeat fundec
 	int noNewFunc = 0;
 
-    int firstCmp = 0;
+    //int firstCmp = 0;
 
 	//Check if we exist
 	while (tree != NULL)
