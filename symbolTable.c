@@ -204,9 +204,9 @@ void treeTraverse(TreeNode* tree) {
 					if(!firstCmp)
 					{
 						//Name the new scope
-
+    
 						//Create the scope
-
+                        tempScope = newScope(scopeNum, tree->lineno);
 						//Indicate new scope entry
 						newCompound = 1;
 
