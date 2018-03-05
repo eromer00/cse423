@@ -19,12 +19,13 @@ extern int line_num;
 /*
 * Track indentation level for AST printing?
 */
-int num_errors = 0;
-int num_warnings = 0;
+static int num_errors = 0;
+static int num_warnings = 0;
 int indent_level = 0;
 
 //Reference parser error function
 void yyerror(const char* s);
+
 
 /*
 * Allocate new Statement node
@@ -576,37 +577,279 @@ void printTree(FILE* output, TreeNode* tree) {
 	return;
 }
 
-/*
-void printTree(FILE* output, TreeNode* tree, int indent, int sibl) {
-    int i, cld;
-    if(tree != NULL) {
-        if(indent > 0) printf("!");
-        for(i = 0; i < 4 * indent; i++) {
-            printf(" ");
-        }
 
-        printf("%s\n", tree->attr.name);
-        if(tree->sibling != NULL) {
-            if(indent > 0) printf("!");
-            for(i = 0; i < 4 * indent; i++) {
-                printf(" ");
-            }
-            printf("Sibling%s\n", tree->sibling->attr.name);
-            printTree(output, tree->sibling, indent, sibl + 1);
-        }
-        cld = 0;
-        while(cld < MAXCHILDREN) {
-            if(tree->child[cld] != NULL) {
-                if(indent > 0) printf("!");
-                for(i = 0; i < 4 * indent; i++) {
-                    printf(" ");
-                }
-                printf("Child[%d]:%s\n", cld, tree->child[cld]->attr.name);
-                printTree(output, tree->child[cld], indent + 1, 0);
-            } else {
-                break;
-            }
-        }
+/*
+* Print the AST with typing
+*/
+void printPTree(FILE* output, TreeNode* tree) {
+  //printf("HERE\n");
+  int sib = 0;
+
+  //Check if we exist before printing
+	while (tree != NULL)
+	{
+		//Statement node printing
+	  if (tree->nodekind == STMT)
+		{
+			switch (tree->kind.stmt)
+			{
+        case IF:
+          fprintf(output, "If %s", typeHelper(0));
+          break;
+        case WHILE:
+          fprintf(output, "While %s", typeHelper(0));
+          break;
+        case RETURN:
+          fprintf(output, "Return %s", typeHelper(0));
+          break;
+        case BREAK:
+          fprintf(output, "Break %s", typeHelper(0));
+          break;
+        case COMP:
+          fprintf(output, "Compound %s", typeHelper(0));
+          break;
+        case CALL:
+          fprintf(output, "Call: %s %s", tree->attr.name, typeHelper(0));
+          break;
+			}
+      fprintf(output, " [line: %d]\n", tree->lineno);
+		}
+		//Expression node printing
+		else if (tree->nodekind == EXP){
+      switch (tree->kind.exp){
+        case OP:
+          switch(tree->attr.op){
+            case PLUS:
+              fprintf(output, "Op: + %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case PPLUS:
+              fprintf(output, "Assign: ++ %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case DASH:
+              fprintf(output, "Op: - %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case DDASH:
+              fprintf(output, "Assign: -- %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case ASSIGN:
+              fprintf(output, "Assign: = %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case PASSIGN:
+              fprintf(output, "Assign: += %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case SASSIGN:
+              fprintf(output, "Assign: -= %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case MASSIGN:
+              fprintf(output, "Assign: *= %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case DASSIGN:
+              fprintf(output, "Assign: /= %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case ASTERISK:
+              fprintf(output, "Op: * %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case FSLASH:
+              fprintf(output, "Op: / %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case BNOT:
+              fprintf(output, "Op: not %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case BAND:
+              fprintf(output, "Op: and %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case BOR:
+              fprintf(output, "Op: or %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case EQCP:
+              fprintf(output, "Op: == %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case NEQ:
+              fprintf(output, "Op: != %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case LTEQ:
+              fprintf(output, "Op: <= %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case LTHAN:
+              fprintf(output, "Op: < %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case GTHANEQ:
+              fprintf(output, "Op: >= %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case GTHAN:
+              fprintf(output, "Op: > %s [line: %d]\n", typeHelper(2), tree->lineno);
+              break;
+            case QMARK:
+              fprintf(output, "Op: ? %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case MOD:
+              fprintf(output, "Op: %% %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case LSB:
+              fprintf(output, "Op: [ %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case PERIODK:
+              fprintf(output, "Op: . %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+            case COLONK:
+              fprintf(output, "Op: : %s [line: %d]\n", typeHelper(1), tree->lineno);
+              break;
+          }
+          break;
+        case CONST:
+          if(tree->expType == TF) 
+            fprintf(output, "Const: %s %s [line: %d]\n", tree->attr.name, typeHelper(2), tree->lineno);
+          else if (tree->expType == SINGLE)
+            fprintf(output, "Const: '%c' %s [line: %d]\n", tree->attr.value, typeHelper(3), tree->lineno);
+          else
+            fprintf(output, "Const: %d %s [line: %d]\n", tree->attr.value, typeHelper(1), tree->lineno);
+          break;
+        case ID:
+          fprintf(output, "Id: %s %s[line: %d]\n", tree->attr.name, typeHelper(tree->expType), tree->lineno);
+          break;
+      }
     }
-} */
-//END printTREE
+
+		//Declaration node printing
+		else if (tree->nodekind == DECL){
+
+      //checking what kind of declaration we are working with
+      switch (tree->kind.decl)
+			{
+        //case it is a variable
+        case VAR:
+          if( tree->isParam ){
+            fprintf(output, "Param ");
+          }
+          else{
+            fprintf(output, "Var ");
+          }
+          if( !tree->isArray )
+            fprintf(output, "%s of type ", tree->attr.name);
+          else
+            fprintf(output, "%s is array of type ", tree->attr.name);
+          //checking the type of variable it is
+          switch (tree->expType)
+          {
+            //case the variable is void, print recType
+            case VOID:
+              //fprintf(output, "%s [line: %d]", tree->recType, tree->lineno);
+              fprintf(output, "record [line: %d]", tree->lineno);
+              break;
+
+            //case the variable is integer
+            case NUMB:
+              fprintf(output, "int %s [line: %d]", typeHelper(1), tree->lineno);
+              break;
+
+            //case the variable is bool
+            case TF:
+              fprintf(output, "bool %s [line: %d]", typeHelper(3), tree->lineno);
+              break;
+
+            //case the variable is a character
+            case SINGLE:
+              fprintf(output, "char %s [line: %d]", typeHelper(3), tree->lineno);
+              break;
+          }
+          break;
+
+        //case the declaration is for a function
+        case FUNC:
+          fprintf(output, "Func %s returns type ", tree->attr.name);
+
+          //checking what type the function returns`
+          switch (tree->expType)
+          {
+            //case returns void
+            case VOID:
+              fprintf(output, "void %s [line: %d]", typeHelper(0), tree->lineno);
+              break;
+
+            //case return integer
+            case NUMB:
+              fprintf(output, "int %s [line: %d]", typeHelper(1), tree->lineno);
+              break;
+
+            //case returns bool
+            case TF:
+              fprintf(output, "bool %s [line: %d]", typeHelper(2), tree->lineno);
+              break;
+
+            //case returns char
+            case SINGLE:
+              fprintf(output, "char %s [line: %d]", typeHelper(3), tree->lineno);
+              break;
+          }
+          break;
+
+        case REC:
+          fprintf(output, "Record %s  %s [line: %d]", tree->attr.name, typeHelper(tree->expType), tree->lineno);
+          break;
+
+			}
+      printf("\n");
+    }
+		else
+			yyerror("Unknown node");
+
+//Print kids after we finish
+    int increment = 1;
+		for (int i = 0; i < MAXCHILDREN; i++)
+		{
+			if(tree->child[i] != NULL)
+			{
+                for( int j = 0; j < indent_level+1; j++){
+                  fprintf(output, "!   ");
+                }
+                fprintf(output, "Child: %d  ",i);
+                indent_level++;
+				        printPTree(output, tree->child[i] );
+                indent_level--;
+			}
+
+			//...waht if child0 doesnt exist, but other children do tho?
+		}
+
+		//Point to the next node in the AST
+    tree = tree->sibling;
+    if(tree){
+      for( int i = 0; i < indent_level; i++){
+        fprintf(output, "!   ");
+      }
+      fprintf(output, "Sibling: %d  ", sib);
+      sib++;
+    }
+	}
+	//END WHILE
+
+  if(indent_level==0){
+    fprintf(output, "Number of warnings: %d\n",num_warnings);
+    fprintf(output, "Number of errors: %d\n",num_errors);
+  }
+
+	return;
+}
+
+
+void increment_errors() {
+    num_errors++;
+}
+
+
+char *typeHelper(int x) {
+    char *result;
+    switch(x) {
+    case 0: result = "[type void]";
+        break;
+    case 1: result = "[type int]";
+        break;
+    case 2: result = "[type bool]";
+        break;
+    case 3: result = "[type char]";
+        break;
+    default: result = "undefined";
+        break;
+    }
+    return result;
+}

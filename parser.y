@@ -16,7 +16,7 @@
 #include "scanType.h"
 #include "printTree.h"
 #include "recordType.h"
-#include "symbolTable.h"
+#include "semantics.h"
 
 //Inform bison about flex things
 extern int yylex();
@@ -158,6 +158,7 @@ varDeclId:
             t->isArray = 1;
             t->lineno = $1.line;
             t->attr.name = strdup($1.str);
+            t->attr.value = $3.val;
             $$ = t;
         }
     | IDVAL 
@@ -826,8 +827,8 @@ mutable:
             t->attr.op = LSB;
             t->lineno = $2.line;
             t->attr.name = strdup("LBOX");
-            t->isArray = 1;
-
+            //t->isArray = 1;
+            $1->isArray = 1;
             insertChild(t, $1);
             insertChild(t, $3);
             $$ = t;
@@ -841,7 +842,7 @@ mutable:
             TreeNode *t2 = newExpNode(ID);
             t2->attr.name = $3.str;
             t2->lineno = $3.line;
-
+            $1->isArray = 1;
             insertChild(t, $1);
             insertChild(t, t2);
 
@@ -941,22 +942,31 @@ constant:
 
 %%
 
+/* NOTE - use only one command line argument at a time, otherwise it may erase file data */
 int main(int argc, char** argv) {
     int c;
-    while((c = getopt(argc, argv, "d:")) != -1) {
+    int p = 0;
+    int type = 0;
+    while((c = getopt(argc, argv, "dpP:")) != -1) {
         switch(c) {
             case 'd':
                 yydebug = 1;
                 break;
+            case 'P':
+                type = 1;
+                break;
+            case 'p':
+                p = 1;
+                break;
             default:
-                yydebug = 0;
+                yydebug = 0; p = 0; type = 0;
                 break;
         }
     }
-    
+    printf("%d %d %d\n", yydebug, p, type);
     FILE *file;
     FILE *outf;
-    if(yydebug == 1) {
+    if(yydebug == 1 | p == 1 | type == 1) {
         file = fopen(argv[2], "r");
         outf = fopen(argv[3], "w");
     } else {
@@ -975,11 +985,13 @@ int main(int argc, char** argv) {
 	    }while(!feof(yyin));
     }
 
-    printTree(stdout, syntaxTree);
-    //printTree(outf, syntaxTree);
     symtable = initST();
     treeTraverse(syntaxTree);
-    printSymbolTable();
+
+
+    if(p == 1) printTree(stdout, syntaxTree);
+    if(type == 1) printPTree(stdout, syntaxTree);
+
     free(symtable);
 }
 

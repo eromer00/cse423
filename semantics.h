@@ -52,6 +52,10 @@ Map *stackSearch(char *str);
 void printSymbolTable();
 void printScope(Scope *sc);
 void printSymbol(Map *x);
+void printErrorMessage(int lineno, int lineno2, char *str1, char *str2, char *str3, int err);
+void operatorCheck(TreeNode* tree);
+char *getOp(int val);
+char *getType(TreeNode *tree);
 
 void treeTraverse(TreeNode* tree);
 int scopeNum;

@@ -177,7 +177,9 @@ typedef struct TreeNode {
 * Print the AST
 */
 void printTree(FILE* out, TreeNode* tree);
-
+void printPTree(FILE* output, TreeNode* tree);
+char *typeHelper(int x);
+void increment_errors();
 /*
 * Allocate new Declaration node
 */
