@@ -26,7 +26,7 @@ LAB = 4
 BIN = c-
 
 #Use the C compiler
-CC = gcc
+CC = g++
 
 #Base code file name for the class
 BASE = parser
