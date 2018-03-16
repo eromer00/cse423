@@ -325,6 +325,32 @@ Symbol* stackSearch(char* string) {
 	return(sym); 
 }
 
+Scope* stackReturn(char* string) {
+
+	//Temp symbol
+	Symbol* sym = NULL;
+
+	//Starting in the current scope
+	Scope* sc = stable->current;
+
+	//Check up the scope stack until global
+	while(sc != NULL)
+	{
+		//Search for matching symbol being returned
+		sym = findSymbol(sc, string);
+
+		if(sym == NULL)
+			sc = sc->parent;
+		else
+			break;
+	}
+    if(sym == NULL) 
+    {printf("fuck\n");return NULL;}
+    else {
+	return(sc); 
+    }
+}
+
 /*
  * Checks a node for ID type
  *
@@ -1999,9 +2025,18 @@ void scopeAndType(TreeNode* tree) {
 
 	//Type check the tree
 	treeTraverse(tree);
-
+    /*
+    Scope *tmp = stable->head;
+    while(tmp != NULL) {
+        printScope(stdout, tmp);
+        tmp = tmp->next;
+    }*/
+    //printSymbolTable(stdout);
 	//Check for main in global
-
+    if(stackSearch("main") == NULL) {
+        printf("ERROR(LINKER): Procedure main is not defined.\n");
+        ERROR;
+    }
 	return;
 }
 
@@ -2012,7 +2047,8 @@ void scopeAndType(TreeNode* tree) {
 */
 void treeTraverse(TreeNode* tree) {
 
-
+    TreeNode *tmp = tree;
+    int testvar = 0;
 	//String buffer to combine type strings inside of
 	char tempType[25];
 
@@ -2108,6 +2144,10 @@ void treeTraverse(TreeNode* tree) {
 					//Set type to Void
 					tree->expType = VOID;
 				break;
+
+                case CALL:
+                    callCheck = 1;
+                break;
 
 				//Bad statement
 				default:
@@ -2250,7 +2290,6 @@ void treeTraverse(TreeNode* tree) {
 
 							//ID not found, function not known
 							case -2:
-
 								tree->expType = Unknown;
 							break;
 
@@ -2414,7 +2453,7 @@ void treeTraverse(TreeNode* tree) {
 							break;
 
 							case SINGLE:
-								strcat(tempType, "SINGLE");
+								strcat(tempType, "char");
 							break;
 
 							case Unknown:
@@ -2507,7 +2546,7 @@ void treeTraverse(TreeNode* tree) {
 						break;
 
 						case SINGLE:
-							strcat(tempType, "SINGLE");
+							strcat(tempType, "char");
 
 							//Indicate a check for SINGLE return
 							funcRetType = 3;
@@ -2562,6 +2601,7 @@ void treeTraverse(TreeNode* tree) {
 					if(tree->child[1] != NULL)
 						//Indicate no scope change for the coming compound statement
 						firstCmp = 1;
+                    
 				break;
 
 				//Record
@@ -2667,6 +2707,71 @@ void treeTraverse(TreeNode* tree) {
 		//Finished child types, check call parameters
 		if(callCheck)
 		{
+            Symbol *tmpsym;
+            Symbol *save;
+            TreeNode *tmp1 = tree;
+            if((tmpsym = stackSearch(tree->attr.name)) == NULL) {
+                printError(32, tree->lineno, tree->attr.name, "", "", 0, 0);
+            } else {
+                save = tmpsym;
+                
+                printf("a-line[%d],name:%s\n", tmp1->lineno, tmp1->attr.name);
+                tmp1 = tree->child[0];
+                while(tmp1 != NULL) {
+                    if(1) {
+                        //print error
+                    }
+                    printf("a-|___line[%d],name:%s %d\n", tmp1->lineno, tmp1->attr.name, tmp1->expType);
+                    tmp1 = tmp1->sibling;
+                } 
+                tmpsym = tmpsym->nextSym;
+                Scope *scp = stable->head;
+                while(scp != NULL) {
+                    if(strcmp(scp->name, tmpsym->name) == 0) {break;}
+                    else {scp = scp->next;}
+                }
+                
+                tmpsym = scp->firstSym;
+                tmp1 = tree->child[0];
+
+                int count1 = 0;
+                int count2 = 0;
+                int varcheck = 1;
+                while(tmpsym != NULL) {
+                    count1++; tmpsym = tmpsym->nextSym;
+                }
+                while(tmp1 != NULL) {
+                    count2++; tmp1 = tmp1->sibling;
+                }
+                
+                if(count1 < count2) {
+                    printError(31,tree->lineno,tree->attr.name,"","",save->line,0);
+                } else if(count1 > count2) {
+					printError(27,tree->lineno,tree->attr.name,"","",save->line,0);
+                }
+                
+                tmpsym = scp->firstSym;
+                tmp1 = tree->child[0];
+        
+                while(tmpsym != NULL && tmp1 != NULL) {
+                    //tmpsym, function to analyze
+                    //tmp1, call to function
+
+                    //array
+                    if(tmpsym->data[0] == 'A') {
+                    
+                    }                     
+                    //get rid of compounds for checking
+                    else if(strcmp(tmpsym->data, tmpsym->name) != 0) {
+                        if(tmp1->expType != typeCharToInt(tmpsym->data[0])) {
+					        printError(28,tree->lineno,tmpsym->data,save->name,typeHelperSemantic(tmp1->expType),varcheck, save->line);
+                        }
+                    }
+                    tmpsym = tmpsym->nextSym;
+                    tmp1 = tmp1->sibling;
+                    varcheck++;
+                }
+            }
 			//Reset flag
 			callCheck = 0;
 		}
@@ -2710,5 +2815,23 @@ void treeTraverse(TreeNode* tree) {
 	//END WHILE
 
 	return;
+}
+
+
+char *typeHelperSemantic(int x) {
+    char *result;
+    switch(x) {
+    case 0: result = "void";
+        break;
+    case 1: result = "int";
+        break;
+    case 2: result = "bool";
+        break;
+    case 3: result = "char";
+        break;
+    default: result = "undefined";
+        break;
+    }
+    return result;
 }
 //END treeTraverse

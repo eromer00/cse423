@@ -997,6 +997,9 @@ int main(int argc, char** argv) {
     if(p == 1) printTree(stdout, syntaxTree);
     if(type == 1) printPTree(stdout, syntaxTree);
 
+    fprintf(stdout, "Number of warnings: %d\n",numWarnings);
+    fprintf(stdout, "Number of errors: %d\n",numErrors);
+  
 }
 
 

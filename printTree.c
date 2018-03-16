@@ -569,10 +569,6 @@ void printTree(FILE* output, TreeNode* tree) {
 	}
 	//END WHILE
 
-  if(indent_level==0){
-    fprintf(output, "Number of warnings: %d\n",num_warnings);
-    fprintf(output, "Number of errors: %d\n",num_errors);
-  }
 
 	return;
 }
@@ -823,10 +819,7 @@ void printPTree(FILE* output, TreeNode* tree) {
 	}
 	//END WHILE
 
-  if(indent_level==0){
-    fprintf(output, "Number of warnings: %d\n",num_warnings);
-    fprintf(output, "Number of errors: %d\n",num_errors);
-  }
+
 
 	return;
 }

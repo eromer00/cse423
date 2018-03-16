@@ -118,6 +118,7 @@ Symbol* findSymbol(Scope* s, char* string);
  * string - Symbol name to search for
  */
 Symbol* stackSearch(char* string);
+Scope* stackReturn(char* string);
 
 /*
 * Insert symbol into scope
@@ -204,6 +205,9 @@ void scopeAndType(TreeNode* tree);
 * tree - Root node to start at
 */
 void treeTraverse(TreeNode* tree);
+
+
+char *typeHelperSemantic(int x);
 
 #endif
 
