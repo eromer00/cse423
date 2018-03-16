@@ -20,7 +20,7 @@
 GROUP = Spaghet_Code
 
 #Lab number
-LAB = 3
+LAB = 4
 
 #Output executable name
 BIN = c-
@@ -32,7 +32,7 @@ CC = gcc
 BASE = parser
 
 #Code files seperated by space
-FILES := scanType printTree recordType semantics
+FILES := scanType printTree recordType semantic
 CFILES := $(FILES:=.c)
 OFILES := $(FILES:=.o)
 HFILES := $(FILES:=.h)

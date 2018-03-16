@@ -16,7 +16,7 @@
 #include "scanType.h"
 #include "printTree.h"
 #include "recordType.h"
-#include "semantics.h"
+#include "semantic.h"
 
 //Inform bison about flex things
 extern int yylex();
@@ -24,6 +24,12 @@ extern int yyparse();
 extern FILE* yyin;
 static TreeNode* syntaxTree;
 extern OpKind ops;
+
+//Track warnings and errors
+#define WARN numWarnings++
+#define ERROR numErrors++
+int numWarnings = 0;
+int numErrors = 0;
 
 //Error function
 void yyerror(const char* s);
@@ -963,7 +969,7 @@ int main(int argc, char** argv) {
                 break;
         }
     }
-    printf("%d %d %d\n", yydebug, p, type);
+    //printf("%d %d %d\n", yydebug, p, type);
     FILE *file;
     FILE *outf;
     if(yydebug == 1 | p == 1 | type == 1) {
@@ -985,14 +991,12 @@ int main(int argc, char** argv) {
 	    }while(!feof(yyin));
     }
 
-    symtable = initST();
-    treeTraverse(syntaxTree);
+    scopeAndType(syntaxTree);
 
 
     if(p == 1) printTree(stdout, syntaxTree);
     if(type == 1) printPTree(stdout, syntaxTree);
 
-    free(symtable);
 }
 
 

@@ -59,7 +59,7 @@ typedef enum {OP, CONST, ID} ExpKind;
 * True/False
 * Single character
 */
-typedef enum {VOID=0, NUMB, TF, SINGLE} ExpType;
+typedef enum {VOID=0, NUMB, TF, SINGLE, Unknown} ExpType;
 
 /*
 * Operation token
