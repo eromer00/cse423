@@ -66,6 +66,8 @@ TreeNode* lastFunDec = NULL;
 //Flag for parameter checking
 int paramCheck = 0;
 
+int warncheck = 0;
+
 //Reference parser error function
 void yyerror(const char* s);
 
@@ -535,9 +537,20 @@ void printWarning(int warnum, int line, char* s1, char* s2, char* s3, int i1) {
 	//Print error header
 
 	//Display the correct error message
-
+    printf("WARNING(%d): ",line);
 	//Increase warning count
+    switch(warnum) {
+    
+    case 0:
+        printf("Expecting to return %s but function '%s' has no return statement.\n", s1, s2);
+    break;
 
+    default:
+        yyerror("Bad warning function call");
+    break;
+
+    }
+    WARN;
 	return;
 }
 
@@ -635,6 +648,7 @@ void printError(int errnum, int line, char* s1, char* s2, char* s3, int i1, int 
             printf("Cannot use array as test condition in %s statement.\n", s1);
         break;
 
+        //defunct, don't use
         case 18:
             printf("Array index is an unindexed array.\n");
         break;
@@ -667,6 +681,7 @@ void printError(int errnum, int line, char* s1, char* s2, char* s3, int i1, int 
             printf("Cannot have a break statement outside of loop.\n");
         break;
 
+        //redundant case, do not use
         case 26:
             printf("Cannot use function '%s' as a variable.\n", s1);
         break;
@@ -2092,28 +2107,31 @@ void treeTraverse(TreeNode* tree) {
 			{
 				case IF:
 					//Check if TF test provided
-
+                    boolCheck = 1;
 					//Set all ifs to Void
+                    tree->expType = VOID;
 				break;
 
 				case WHILE:
 					//Check if TF test provided
-
+                    boolCheck = 1;
 					//Indicate entering loop
-
+                    newCompound = 1;
 					//Set all whiles to Void
+                    tree->expType = VOID;
 				break;
 
 				case BREAK:
 
 					//Check if in loop
-
+                    retCheck = 1;
 					//Set all breaks to Void
+                    tree->expType = VOID;
 				break;
 
 				//Return statement
 				case RETURN:
-
+                    retCheck = 1;
 				break;
 
 				//Compound statement
@@ -2601,6 +2619,15 @@ void treeTraverse(TreeNode* tree) {
 					if(tree->child[1] != NULL)
 						//Indicate no scope change for the coming compound statement
 						firstCmp = 1;
+
+                    //check that function has return statement
+                    int ret = 0;
+                    TreeNode *chk = tree;
+                    warncheck = 0;
+                    checkWarning(chk);
+                    if(warncheck == 0) {
+                        printWarning(0, tree->lineno, typeHelperSemantic(tree->expType), tree->attr.name, "", 0);
+                    }
                     
 				break;
 
@@ -2714,16 +2741,7 @@ void treeTraverse(TreeNode* tree) {
                 printError(32, tree->lineno, tree->attr.name, "", "", 0, 0);
             } else {
                 save = tmpsym;
-                
-                printf("a-line[%d],name:%s\n", tmp1->lineno, tmp1->attr.name);
-                tmp1 = tree->child[0];
-                while(tmp1 != NULL) {
-                    if(1) {
-                        //print error
-                    }
-                    printf("a-|___line[%d],name:%s %d\n", tmp1->lineno, tmp1->attr.name, tmp1->expType);
-                    tmp1 = tmp1->sibling;
-                } 
+
                 tmpsym = tmpsym->nextSym;
                 Scope *scp = stable->head;
                 while(scp != NULL) {
@@ -2759,12 +2777,22 @@ void treeTraverse(TreeNode* tree) {
 
                     //array
                     if(tmpsym->data[0] == 'A') {
-                    
+                        if(tmp1->expType != typeCharToInt(tmpsym->data[6])) {
+                            if(tmp1->isArray) {
+					            printError(28,tree->lineno,tmpsym->data,save->name,typeHelperSemantic(tmp1->expType),varcheck, save->line);
+                            } else {
+					            printError(30,tree->lineno,save->name, "", "", varcheck, save->line);
+                            }
+                        }
                     }                     
                     //get rid of compounds for checking
                     else if(strcmp(tmpsym->data, tmpsym->name) != 0) {
                         if(tmp1->expType != typeCharToInt(tmpsym->data[0])) {
-					        printError(28,tree->lineno,tmpsym->data,save->name,typeHelperSemantic(tmp1->expType),varcheck, save->line);
+                            if(tmp1->isArray) {
+					            printError(29,tree->lineno,save->name, "", "", varcheck, save->line);
+                            } else {
+					            printError(28,tree->lineno,tmpsym->data,save->name,typeHelperSemantic(tmp1->expType),varcheck, save->line);
+                            }
                         }
                     }
                     tmpsym = tmpsym->nextSym;
@@ -2778,9 +2806,59 @@ void treeTraverse(TreeNode* tree) {
 
 		//Return stmt check after children finish
 		if(retCheck)
-		{
+		{   
+            TreeNode *tmp1 = tree;
 			//Reset flag
 			retCheck = 0;
+            Scope *scp = stable->head;
+            Symbol *sym = scp->firstSym;
+            int line = -1;
+            //check for break statements
+            if(strcmp("break", tree->attr.name) == 0) {
+                while(sym != NULL) {
+                    //printf("sym_%d_%s_%s\n", sym->line, sym->name, sym->data);
+                    if(strcmp(sym->data, sym->name) == 0) {line = sym->line;}
+                    sym = sym->nextSym;
+                }
+                if(line >= tree->lineno) printError(25,tree->lineno,"", "", "", 0, 0);
+            } 
+            //check for return statements
+            else {
+                Symbol *tmpsym = NULL;
+                while(sym != NULL) {
+                    if(sym->data[0] == 'F') {
+                        tmpsym = sym;
+                    }
+                    sym = sym->nextSym;
+                }
+                if(tmpsym != NULL) {
+                    int test = -1;
+                    switch(typeCharToInt(tmpsym->data[9])) {
+                    case 0: test = 0;
+                        break;
+                    case 1: test = 1;
+                        break;
+                    case 2: test = 2;
+                        break;
+                    case 3: test = 3;
+                        break;
+                    default:
+                        break;
+                    }
+                    if(test == 0) {
+                        if(tmp1->child[0]) printError(22,tree->lineno,tmpsym->name, "", "", tmpsym->line, 0);
+                    } else if(test != 0 && tmp1->child[0] == NULL) {
+                        printError(24,tree->lineno,tmpsym->name, typeHelperSemantic(test), "", tmpsym->line, 0);
+                    } else {
+                        if(tmp1->child[0] != NULL) {
+                            if(tmp1->child[0]->expType != test) 
+                            printError(23,tree->lineno,tmpsym->name, typeHelperSemantic(test), typeHelperSemantic(tmp1->child[0]->expType), tmpsym->line, 0);
+                        }
+                    }
+                } else {
+                    //printError(25,tree->lineno,"", "", "", 0, 0);
+                }
+            }
 
 			//Set all returns to Void
 			tree->expType = VOID;
@@ -2817,6 +2895,31 @@ void treeTraverse(TreeNode* tree) {
 	return;
 }
 
+void checkWarning(TreeNode *tree) {
+    
+    int i;
+
+    while(tree != NULL) {
+        /*
+        if(tree->attr.name != NULL)
+        printf("warn[%d],%s\n", tree->lineno, tree->attr.name);
+        else
+        printf("warn[%d],%d\n", tree->lineno, tree->attr.op); */
+
+        if(tree->kind.stmt == RETURN) {
+            //printf("FOUND A RETURN\n");
+            warncheck = 1;
+        } 
+            for(i = 0; i < MAXCHILDREN; i++) {
+                if(tree->child[i] != NULL) {
+                    //printf("____");
+                    checkWarning(tree->child[i]);
+                }
+            }
+        
+        tree = tree->sibling;
+    }
+}
 
 char *typeHelperSemantic(int x) {
     char *result;

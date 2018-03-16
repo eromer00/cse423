@@ -208,6 +208,7 @@ void treeTraverse(TreeNode* tree);
 
 
 char *typeHelperSemantic(int x);
+void checkWarning(TreeNode *tree);
 
 #endif
 
