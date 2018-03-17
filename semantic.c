@@ -324,7 +324,7 @@ Symbol* stackSearch(char* string) {
 			break;
 	}
 
-	return(sym); 
+	return(sym);
 }
 
 Scope* stackReturn(char* string) {
@@ -346,10 +346,10 @@ Scope* stackReturn(char* string) {
 		else
 			break;
 	}
-    if(sym == NULL) 
+    if(sym == NULL)
     {printf("fuck\n");return NULL;}
     else {
-	return(sc); 
+	return(sc);
     }
 }
 
@@ -540,7 +540,7 @@ void printWarning(int warnum, int line, char* s1, char* s2, char* s3, int i1) {
     printf("WARNING(%d): ",line);
 	//Increase warning count
     switch(warnum) {
-    
+
     case 0:
         printf("Expecting to return %s but function '%s' has no return statement.\n", s1, s2);
     break;
@@ -1910,7 +1910,7 @@ void operatorCheck(TreeNode* tree) {
 		case LTHAN:
 		case GTHANEQ:
 		case GTHAN:
-			
+
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
 			{
@@ -2301,7 +2301,7 @@ void treeTraverse(TreeNode* tree) {
 									break;
 								}
 
-								//Indicate call param check 
+								//Indicate call param check
 								callCheck = 1;
 							break;
 
@@ -2358,7 +2358,6 @@ void treeTraverse(TreeNode* tree) {
 
 								break;
 							}
-							
 						}
 
 						//Set var type
@@ -2514,6 +2513,11 @@ void treeTraverse(TreeNode* tree) {
 						{
 							//Indicate need to check child
 							varInitCheck = 1;
+							if (tree->expType != tree->child[0]->expType){
+                                printError(21,tree->lineno,tree->attr.name,typeHelperSemantic(tree->expType),typeHelperSemantic(tree->child[0]->expType),0,0);
+
+                                break;
+                            }
 							//Save reference to parent symbol
 							varInitSym = z;
 
@@ -2633,7 +2637,7 @@ void treeTraverse(TreeNode* tree) {
                     if(warncheck == 0) {
                         printWarning(0, tree->lineno, typeHelperSemantic(tree->expType), tree->attr.name, "", 0);
                     }
-                    
+
 				break;
 
 				//Record
@@ -2678,7 +2682,7 @@ void treeTraverse(TreeNode* tree) {
 		{
 			if(tree->child[i] != NULL)
 			{
-				//Indicate a parameter check if currently in a function				
+				//Indicate a parameter check if currently in a function
 
 				//Check child only if it exists
 				treeTraverse(tree->child[i]);
@@ -2715,6 +2719,8 @@ void treeTraverse(TreeNode* tree) {
 		*/
 		if(varDecInitConst)
 		{
+      if ( tree->expType == 1 )
+        printError(20,tree->lineno,tree->attr.name,"","",0,0);
 			//Reset flag
 			varDecInitConst = 0;
 		}
@@ -2753,7 +2759,7 @@ void treeTraverse(TreeNode* tree) {
                     if(strcmp(scp->name, tmpsym->name) == 0) {break;}
                     else {scp = scp->next;}
                 }
-                
+
                 tmpsym = scp->firstSym;
                 tmp1 = tree->child[0];
 
@@ -2766,16 +2772,16 @@ void treeTraverse(TreeNode* tree) {
                 while(tmp1 != NULL) {
                     count2++; tmp1 = tmp1->sibling;
                 }
-                
+
                 if(count1 < count2) {
                     printError(31,tree->lineno,tree->attr.name,"","",save->line,0);
                 } else if(count1 > count2) {
 					printError(27,tree->lineno,tree->attr.name,"","",save->line,0);
                 }
-                
+
                 tmpsym = scp->firstSym;
                 tmp1 = tree->child[0];
-        
+
                 while(tmpsym != NULL && tmp1 != NULL) {
                     //tmpsym, function to analyze
                     //tmp1, call to function
@@ -2789,7 +2795,7 @@ void treeTraverse(TreeNode* tree) {
 					            printError(30,tree->lineno,save->name, "", "", varcheck, save->line);
                             }
                         }
-                    }                     
+                    }
                     //get rid of compounds for checking
                     else if(strcmp(tmpsym->data, tmpsym->name) != 0) {
                         if(tmp1->expType != typeCharToInt(tmpsym->data[0])) {
@@ -2811,7 +2817,7 @@ void treeTraverse(TreeNode* tree) {
 
 		//Return stmt check after children finish
 		if(retCheck)
-		{   
+		{
             TreeNode *tmp1 = tree;
 			//Reset flag
 			retCheck = 0;
@@ -2826,7 +2832,7 @@ void treeTraverse(TreeNode* tree) {
                     sym = sym->nextSym;
                 }
                 if(line >= tree->lineno) printError(25,tree->lineno,"", "", "", 0, 0);
-            } 
+            }
             //check for return statements
             else {
                 Symbol *tmpsym = NULL;
@@ -2856,7 +2862,7 @@ void treeTraverse(TreeNode* tree) {
                         printError(24,tree->lineno,tmpsym->name, typeHelperSemantic(test), "", tmpsym->line, 0);
                     } else {
                         if(tmp1->child[0] != NULL) {
-                            if(tmp1->child[0]->expType != test) 
+                            if(tmp1->child[0]->expType != test)
                             printError(23,tree->lineno,tmpsym->name, typeHelperSemantic(test), typeHelperSemantic(tmp1->child[0]->expType), tmpsym->line, 0);
                         }
                     }
@@ -2906,7 +2912,7 @@ void treeTraverse(TreeNode* tree) {
 }
 
 void checkWarning(TreeNode *tree) {
-    
+
     int i;
 
     while(tree != NULL) {
@@ -2919,14 +2925,14 @@ void checkWarning(TreeNode *tree) {
         if(tree->kind.stmt == RETURN) {
             //printf("FOUND A RETURN\n");
             warncheck = 1;
-        } 
+        }
             for(i = 0; i < MAXCHILDREN; i++) {
                 if(tree->child[i] != NULL) {
                     //printf("____");
                     checkWarning(tree->child[i]);
                 }
             }
-        
+
         tree = tree->sibling;
     }
 }
