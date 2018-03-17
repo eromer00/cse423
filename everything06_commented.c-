@@ -125,7 +125,7 @@ Point p, q;
 Line l;
 
 setp(){//Point p){//; int x[], y; Point P[]; Line l) {
-    x[666];
+    x[666] + 1;
     p.x;
     p.x.y;       // sematic failure
     P[666].y;  

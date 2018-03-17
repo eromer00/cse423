@@ -753,7 +753,7 @@ void operatorCheck(TreeNode* tree) {
 					if(gsym->data[6] != 'i')
 						printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
 
-					tree->child[0]->isArray = 1;
+					tree->isArray = 1;
 				break;
 
 				//LHS is not an array
@@ -767,6 +767,7 @@ void operatorCheck(TreeNode* tree) {
 				case 2:
 					if(gsym->data[9] != 'i')
 						printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+					if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -794,7 +795,8 @@ void operatorCheck(TreeNode* tree) {
 					if(gsym->data[6] != 'i')
 						printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
 
-					tree->child[1]->isArray = 1;
+					if(!tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 				break;
 
 				//RHS is not an array
@@ -802,12 +804,15 @@ void operatorCheck(TreeNode* tree) {
 					//Check if RHS type matches INT
 					if(gsym->data[0] != 'i')
 						printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+					if(tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 				break;
 
 				//RHS is a function
 				case 2:
 					if(gsym->data[9] != 'i')
 						printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+					if(tree->child[1]->isFunc)printError(26,tree->lineno,tree->child[1]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -892,6 +897,7 @@ void operatorCheck(TreeNode* tree) {
 				//LHS is a function
 				case 2:
 					//Indicate array status
+					if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					tree->isArray = 0;
 				break;
 
@@ -934,6 +940,8 @@ void operatorCheck(TreeNode* tree) {
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
 
 					//Check if LHS was also array
+					if(!tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 
 				break;
 
@@ -951,6 +959,8 @@ void operatorCheck(TreeNode* tree) {
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
 
 					//Check if LHS was also not array
+					if(tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 
 				break;
 
@@ -967,8 +977,10 @@ void operatorCheck(TreeNode* tree) {
 					else if( (gsym->data[9] == 'c') && ((tree->expType == NUMB) || (tree->expType == TF)) && tree->child[1]->isFunc)
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
 
+                    if(tree->child[1]->isFunc)printError(26,tree->lineno,tree->child[1]->attr.name,0,0,0,0);
 					//Check if LHS was also not array
-					if(tree->isArray != 0)
+					if(tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 				break;
 
 				//Not an ID
@@ -982,6 +994,8 @@ void operatorCheck(TreeNode* tree) {
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[tree->child[1]->expType],0,0);
 
 					//Check if LHS was also not array
+					if(tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 				break;
 
 				//ID not found
@@ -1062,7 +1076,7 @@ void operatorCheck(TreeNode* tree) {
 
 				//LHS is a function
 				case 2:
-
+                    if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1119,12 +1133,14 @@ void operatorCheck(TreeNode* tree) {
 						tree->expType = SINGLE;
 					else
 						tree->expType = Unknown;
+					tree->isArray = 0;
 				break;
 
 				//LHS is a function
 				case 2:
 					//Cannot index function
 					printError(7,tree->lineno,tree->child[0]->attr.name,"","",0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1225,6 +1241,7 @@ void operatorCheck(TreeNode* tree) {
 					case 2:
 						if(gsym->data[9] != 'i')
 							printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+						if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					break;
 
 					//Not an ID
@@ -1254,7 +1271,7 @@ void operatorCheck(TreeNode* tree) {
 						if(gsym->data[6] != 'i')
 							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
 
-						tree->child[0]->isArray = 1;
+						tree->isArray = 1;
 					break;
 
 					//LHS is not an array
@@ -1262,12 +1279,14 @@ void operatorCheck(TreeNode* tree) {
 						//Check if LHS type matches INT
 						if(gsym->data[0] != 'i')
 							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+						tree->isArray = 0;
 					break;
 
 					//LHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
 							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+						if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					break;
 
 					//Not an ID
@@ -1295,7 +1314,8 @@ void operatorCheck(TreeNode* tree) {
 						if(gsym->data[6] != 'i')
 							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
 
-						tree->child[1]->isArray = 1;
+						if(!tree->isArray)
+		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 					break;
 
 					//RHS is not an array
@@ -1303,12 +1323,15 @@ void operatorCheck(TreeNode* tree) {
 						//Check if RHS type matches INT
 						if(gsym->data[0] != 'i')
 							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+						if(tree->isArray)
+		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 					break;
 
 					//RHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
 							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+						if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					break;
 
 					//Not an ID
@@ -1361,6 +1384,7 @@ void operatorCheck(TreeNode* tree) {
 					//Operand is a function
 					case 2:
 						printError(14,tree->lineno,opString[tree->attr.op],"","",0,0);
+						printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					break;
 
 					//Not an ID
@@ -1389,7 +1413,7 @@ void operatorCheck(TreeNode* tree) {
 						if(gsym->data[6] != 'i')
 							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
 
-						tree->child[0]->isArray = 1;
+						tree->isArray = 1;
 					break;
 
 					//LHS is not an array
@@ -1397,12 +1421,14 @@ void operatorCheck(TreeNode* tree) {
 						//Check if LHS type matches INT
 						if(gsym->data[0] != 'i')
 							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+						tree->isArray = 0;
 					break;
 
 					//LHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
 							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+						printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					break;
 
 					//Not an ID
@@ -1430,7 +1456,8 @@ void operatorCheck(TreeNode* tree) {
 						if(gsym->data[6] != 'i')
 							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
 
-						tree->child[1]->isArray = 1;
+						if(!tree->isArray)
+		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 					break;
 
 					//RHS is not an array
@@ -1438,12 +1465,15 @@ void operatorCheck(TreeNode* tree) {
 						//Check if RHS type matches INT
 						if(gsym->data[0] != 'i')
 							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+						if(tree->isArray)
+		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 					break;
 
 					//RHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
 							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+						printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					break;
 
 					//Not an ID
@@ -1501,6 +1531,7 @@ void operatorCheck(TreeNode* tree) {
 					//Check if type matches INT
 					if(gsym->data[9] != 'i')
 						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1552,6 +1583,7 @@ void operatorCheck(TreeNode* tree) {
 					//Check if type matches INT
 					if(gsym->data[9] != 'i')
 						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1625,23 +1657,7 @@ void operatorCheck(TreeNode* tree) {
 
 				//LHS is a function
 				case 2:
-					//Indicate array
-					tree->isArray = 0;
-
-					//Set node expType to array type
-					if(gsym->data[9] == 'i')
-						tree->expType = NUMB;
-					else if(gsym->data[9] == 'v')
-					{
-						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
-						tree->expType = VOID;
-					}
-					else if(gsym->data[9] == 'b')
-						tree->expType = TF;
-					else if(gsym->data[9] == 'c')
-						tree->expType = SINGLE;
-					else
-						tree->expType = Unknown;
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1682,6 +1698,8 @@ void operatorCheck(TreeNode* tree) {
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Unknown],0,0);
 
 					//Check if also array
+					if(!tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 				break;
 
 				//RHS is not an array
@@ -1698,20 +1716,13 @@ void operatorCheck(TreeNode* tree) {
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Unknown],0,0);
 
 					//Check if also not array
+					if(tree->isArray)
+		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
 				break;
 
 				//RHS is a function
 				case 2:
-					if(gsym->data[9] == 'v')
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
-					else if( (gsym->data[9] == 'i') && (tree->expType != NUMB) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[9] == 'b') && (tree->expType != TF) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[TF],0,0);
-					else if( (gsym->data[9] == 'c') && (tree->expType != SINGLE) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
-					else if( (gsym->data[9] == 'u') && (tree->expType != Unknown) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Unknown],0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 
 					//Check if also not array
 				break;
@@ -1769,6 +1780,7 @@ void operatorCheck(TreeNode* tree) {
 					//Check if operand type matches INT
 					if(gsym->data[9] != 'b')
 						printError(15,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+9,0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1821,6 +1833,7 @@ void operatorCheck(TreeNode* tree) {
 					//Check if operand type matches INT
 					if(gsym->data[9] != 'b')
 						printError(2,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+9,0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1863,6 +1876,7 @@ void operatorCheck(TreeNode* tree) {
 				case 2:
 					if(gsym->data[9] != 'b')
 						printError(3,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+9,0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1927,13 +1941,8 @@ void operatorCheck(TreeNode* tree) {
 
 				//LHS is a function
 				case 2:
-					//Set node expType to LHS
-					if(gsym->data[9] == 'i')
-						tree->expType = NUMB;
-					else if(gsym->data[9] == 'c')
-						tree->expType = SINGLE;
-					else
-						printError(2,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+9,0,0);
+				    printError(2,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+9,0,0);
+					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1982,12 +1991,7 @@ void operatorCheck(TreeNode* tree) {
 
 				//RHS is a function
 				case 2:
-					if( (gsym->data[9] != 'i') && (gsym->data[9] != 'c') )
-						printError(3,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+9,0,0);
-					else if( (gsym->data[9] == 'i') && (tree->expType == SINGLE) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[9] == 'c') && (tree->expType == NUMB) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+					printError(26,tree->lineno,tree->child[1]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -2354,6 +2358,7 @@ void treeTraverse(TreeNode* tree) {
 
 								break;
 							}
+							
 						}
 
 						//Set var type
@@ -2869,6 +2874,11 @@ void treeTraverse(TreeNode* tree) {
 		 */
 		if(boolCheck)
 		{
+		    if(tree->child[0]->expType != TF){
+		        printError(16,tree->lineno,tree->attr.name,typeHelperSemantic(tree->child[0]->expType),0,0,0);
+		        if(strcmp("LBOX",tree->child[0]->attr.name) == 0)
+		            printError(17,tree->lineno,tree->attr.name,0,0,0,0);   
+		    }
 			//Reset flag
 			boolCheck = 0;
 		}

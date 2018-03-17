@@ -9,7 +9,7 @@ wallace(int wrong, trousers, sheep)
 {
     bool close:true, shave:false;
    
-    1729;
+    1729 + shaun;
     close;
     11*22+33*44;
     close = shave;
