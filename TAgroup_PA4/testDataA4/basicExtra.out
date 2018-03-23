@@ -1,0 +1,25 @@
+WARNING(4): Expecting to return type char but function 'toads' has no return statement.
+ERROR(15): '<' requires operands of type char or type int but lhs is of type bool.
+ERROR(15): '<' requires operands of type char or type int but rhs is of type bool.
+ERROR(15): The operation '<' does not work with arrays.
+ERROR(16): The operation '<' does not work with arrays.
+ERROR(19): '<' requires operands of type char or type int but lhs is of type bool.
+ERROR(19): '<' requires operands of type char or type int but rhs is of type bool.
+ERROR(20): '/' requires operands of type int but lhs is of type bool.
+ERROR(21): '/' requires operands of type int but rhs is of type bool.
+ERROR(22): '%' requires operands of type int but lhs is of type bool.
+ERROR(23): '%' requires operands of type int but rhs is of type bool.
+ERROR(24): '-' requires operands of type int but lhs is of type bool.
+ERROR(25): '-' requires operands of type int but rhs is of type bool.
+ERROR(26): '<' requires operands of type char or type int but lhs is of type void.
+ERROR(26): '<' requires operands of type char or type int but rhs is of type void.
+ERROR(28): '<' requires operands of type char or type int but lhs is of type void.
+ERROR(29): '<' requires operands of type char or type int but rhs is of type void.
+ERROR(31): Symbol 'k' is not defined.
+ERROR(32): Symbol 'k' is not defined.
+ERROR(33): Symbol 'k' is not defined.
+ERROR(33): Symbol 'k' is not defined.
+ERROR(34): Function 'k' is not defined.
+ERROR(35): 'i' is a simple variable and cannot be called.
+Number of warnings: 1
+Number of errors: 22

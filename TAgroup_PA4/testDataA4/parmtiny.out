@@ -1,0 +1,30 @@
+WARNING(1): Expecting to return type char but function 'emu' has no return statement.
+ERROR(8): Expecting type char in parameter 2 of call to 'emu' defined on line 1 but got type int.
+ERROR(8): Expecting type char in parameter 3 of call to 'emu' defined on line 1 but got type bool.
+ERROR(9): Expecting type char in parameter 2 of call to 'emu' defined on line 1 but got type int.
+ERROR(9): Expecting type char in parameter 3 of call to 'emu' defined on line 1 but got type bool.
+ERROR(10): '+' requires operands of type int but lhs is of type char.
+ERROR(10): Expecting type char in parameter 1 of call to 'emu' defined on line 1 but got type int.
+ERROR(10): Symbol 'parrot' is not defined.
+ERROR(10): 'and' requires operands of type bool but rhs is of type int.
+ERROR(10): Expecting type char in parameter 3 of call to 'emu' defined on line 1 but got type bool.
+ERROR(11): '+' requires operands of type int but lhs is of type char.
+ERROR(11): Expecting type char in parameter 1 of call to 'emu' defined on line 1 but got type int.
+ERROR(11): Expecting type char in parameter 2 of call to 'emu' defined on line 1 but got type int.
+ERROR(11): Expecting type char in parameter 3 of call to 'emu' defined on line 1 but got type bool.
+ERROR(11): 'and' requires operands of type bool but rhs is of type int.
+ERROR(11): Expecting type char in parameter 3 of call to 'emu' defined on line 1 but got type bool.
+ERROR(12): Too few parameters passed for function 'emu' defined on line 1.
+ERROR(13): Expecting type char in parameter 2 of call to 'emu' defined on line 1 but got type int.
+ERROR(13): Too few parameters passed for function 'emu' defined on line 1.
+ERROR(14): Expecting type char in parameter 2 of call to 'emu' defined on line 1 but got type int.
+ERROR(14): Expecting type char in parameter 3 of call to 'emu' defined on line 1 but got type bool.
+ERROR(15): Expecting type char in parameter 2 of call to 'emu' defined on line 1 but got type int.
+ERROR(15): Expecting type char in parameter 3 of call to 'emu' defined on line 1 but got type bool.
+ERROR(15): Too many parameters passed for function 'emu' defined on line 1.
+ERROR(15): '+' requires operands of type int but lhs is of type char.
+ERROR(16): Function 'zot' is not defined.
+ERROR(16): '+' requires operands of type int but lhs is of type char.
+ERROR(16): 'and' requires operands of type bool but rhs is of type int.
+Number of warnings: 1
+Number of errors: 27

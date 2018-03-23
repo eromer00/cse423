@@ -1,0 +1,72 @@
+DEFINED
+printf("ERROR(%d): Symbol '%s' is already defined at line %d.\n",
+
+BOOLEAN TEST
+printf("ERROR(%d): Expecting Boolean test condition in %s statement but got %s.\n",
+printf("ERROR(%d): Cannot use array as test condition in %s statement.\n",
+
+INDEX
+printf("ERROR(%d): Cannot index nonarray '%s'.\n",
+printf("ERROR(%d): Cannot index nonarray.\n",
+printf("ERROR(%d): Array '%s' should be indexed by type int but got %s.\n",
+printf("ERROR(%d): Array index is the unindexed array '%s'.\n",
+printf("ERROR(%d): Array index is an unindexed array.\n",
+
+BINARY OP
+printf("ERROR(%d): '%s' requires operands of %s but lhs is of %s.\n",
+printf("ERROR(%d): '%s' requires operands of %s but rhs is of %s.\n",
+printf("ERROR(%d): '%s' requires operands of the same type but lhs is %s and rhs is %s.\n",
+printf("ERROR(%d): The operation '%s' does not work with arrays.\n",
+printf("ERROR(%d): The operation '%s' only works with arrays.\n",
+printf("ERROR(%d):  %s  requires that either both or neither operands be arrays.\n",
+
+UNARY OP
+printf("ERROR(%d): Unary '%s' requires an operand of %s but was given %s.\n",
+printf("ERROR(%d): The operation '%s' does not work with arrays.\n",
+
+case DeclK:
+case VarK:
+
+printf("ERROR(%d): Initializer for variable '%s' is not a constant expression.\n",
+printf("ERROR(%d): Variable '%s' is of %s but is being initialized with an expression of %s.\n",
+
+case ParamK:
+case FuncK:
+
+printf("WARNING(%d): Expecting to return %s but function '%s' has no return statement.\n",
+
+case StmtK:
+case CompoundK:
+case ReturnK:
+
+printf("ERROR(%d): Function '%s' at line %d is expecting no return value, but return has return value.\n",
+printf("ERROR(%d): Function '%s' at line %d is expecting to return %s but instead returns %s.\n",
+printf("ERROR(%d): Cannot return an array.\n",
+printf("ERROR(%d): Function '%s' at line %d is expecting to return %s but return has no return value.\n",
+
+case WhileK:
+case BreakK:
+
+printf("ERROR(%d): Cannot have a break statement outside of loop.\n",
+
+case IfK:
+case ExpK:
+case AssignK:
+case OpK:
+case ConstantK:
+case IdK:
+printf("ERROR(%d): Cannot use function '%s' as a variable.\n",
+printf("ERROR(%d): Symbol '%s' is not defined.\n",
+
+case CallK:
+
+printf("ERROR(%d): Too few parameters passed for function '%s' defined on line %d.\n",
+printf("ERROR(%d): Expecting %s in parameter %i of call to '%s' defined on line %d but got %s.\n",
+printf("ERROR(%d): Expecting array in parameter %i of call to '%s' defined on line %d.\n",
+printf("ERROR(%d): Not expecting array in parameter %i of call to '%s' defined on line %d.\n",
+printf("ERROR(%d): Too many parameters passed for function '%s' defined on line %d.\n",
+printf("ERROR(%d): '%s' is a simple variable and cannot be called.\n",
+printf("ERROR(%d): Function '%s' is not defined.\n",
+
+LINKER
+printf("ERROR(LINKER): Procedure main is not defined.\n");

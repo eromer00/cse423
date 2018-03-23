@@ -1,0 +1,14 @@
+ERROR(5): Symbol 'x' is already defined at line 5.
+ERROR(5): Symbol 'x' is already defined at line 5.
+WARNING(5): Expecting to return type int but function 'ski' has no return statement.
+ERROR(10): Too few parameters passed for function 'check2' defined on line 2.
+ERROR(15): Too many parameters passed for function 'check2' defined on line 2.
+ERROR(19): Cannot use function 'ski' as a variable.
+ERROR(19): Cannot use function 'ski' as a variable.
+ERROR(20): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(20): '=' requires that either both or neither operands be arrays.
+ERROR(20): Array index is an unindexed array.
+ERROR(20): Expecting array in parameter 1 of call to 'ski' defined on line 5.
+ERROR(20): Too few parameters passed for function 'ski' defined on line 5.
+Number of warnings: 1
+Number of errors: 11

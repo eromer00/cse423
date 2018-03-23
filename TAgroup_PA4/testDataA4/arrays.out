@@ -1,0 +1,39 @@
+ERROR(14): '=' requires operands of the same type but lhs is type int and rhs is type char.
+ERROR(15): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(16): '=' requires that either both or neither operands be arrays.
+ERROR(18): '=' requires that either both or neither operands be arrays.
+ERROR(19): '=' requires that either both or neither operands be arrays.
+ERROR(20): '=' requires that either both or neither operands be arrays.
+ERROR(21): '=' requires operands of the same type but lhs is type int and rhs is type char.
+ERROR(21): '=' requires that either both or neither operands be arrays.
+ERROR(22): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(22): '=' requires that either both or neither operands be arrays.
+ERROR(24): '=' requires that either both or neither operands be arrays.
+ERROR(25): '=' requires that either both or neither operands be arrays.
+ERROR(26): '=' requires that either both or neither operands be arrays.
+ERROR(27): '=' requires operands of the same type but lhs is type int and rhs is type char.
+ERROR(27): '=' requires that either both or neither operands be arrays.
+ERROR(28): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(28): '=' requires that either both or neither operands be arrays.
+ERROR(30): '==' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(30): '==' requires that either both or neither operands be arrays.
+ERROR(31): '==' requires operands of the same type but lhs is type bool and rhs is type int.
+ERROR(31): '==' requires that either both or neither operands be arrays.
+ERROR(33): '!=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(33): '!=' requires that either both or neither operands be arrays.
+ERROR(34): '!=' requires operands of the same type but lhs is type bool and rhs is type int.
+ERROR(34): '!=' requires that either both or neither operands be arrays.
+ERROR(36): The operation '>' does not work with arrays.
+ERROR(37): The operation '<' does not work with arrays.
+ERROR(38): The operation '>=' does not work with arrays.
+ERROR(39): The operation '<=' does not work with arrays.
+ERROR(43): The operation '>' does not work with arrays.
+ERROR(44): The operation '>' does not work with arrays.
+ERROR(46): The operation '?' does not work with arrays.
+ERROR(49): The operation '*' only works with arrays.
+ERROR(50): Cannot index nonarray 'x'.
+ERROR(51): Cannot index nonarray 'x'.
+ERROR(51): The operation '*' only works with arrays.
+ERROR(53): The operation '*' only works with arrays.
+Number of warnings: 0
+Number of errors: 37

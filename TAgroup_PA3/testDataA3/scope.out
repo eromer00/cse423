@@ -1,0 +1,27 @@
+ERROR(7): Symbol 'bat' is not defined.
+ERROR(8): 'or' requires operands of type bool but lhs is of type int.
+ERROR(8): 'or' requires operands of type bool but rhs is of type int.
+ERROR(14): Symbol 'b' is not defined.
+ERROR(24): Symbol 'b' is not defined.
+ERROR(25): Symbol 'c' is not defined.
+ERROR(29): Symbol 'b' is not defined.
+ERROR(30): Symbol 'c' is not defined.
+ERROR(40): Symbol 'x' is not defined.
+ERROR(44): Symbol 'p' is not defined.
+ERROR(45): Symbol 'q' is not defined.
+ERROR(45): Symbol 'r' is not defined.
+ERROR(46): Symbol 's' is not defined.
+ERROR(46): Symbol 't' is not defined.
+ERROR(47): Symbol 'u' is not defined.
+ERROR(47): Symbol 'cow' is not defined.
+ERROR(47): Symbol 'v' is not defined.
+ERROR(48): Symbol 'abraxsis' is not defined.
+ERROR(49): Symbol 'a' is not defined.
+ERROR(54): Symbol 'g' is already defined at line 2.
+ERROR(56): Symbol 'g' is already defined at line 2.
+ERROR(58): Symbol 'x' is not defined.
+ERROR(61): Symbol 'g' is already defined at line 2.
+ERROR(62): Symbol 'ant' is already defined at line 3.
+ERROR(LINKER): Procedure main is not defined.
+Number of warnings: 0
+Number of errors: 25

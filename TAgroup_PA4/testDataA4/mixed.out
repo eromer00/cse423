@@ -1,0 +1,5 @@
+ERROR(24): Symbol 'thelma' is already defined at line 13.
+ERROR(28): Expecting array in parameter 2 of call to 'thelma' defined on line 13.
+WARNING(24): Expecting to return type int but function 'thelma' has no return statement.
+Number of warnings: 1
+Number of errors: 2

@@ -1,0 +1,9 @@
+ERROR(7): Symbol 'aspergillus' is not defined.
+ERROR(7): Symbol 'fungus' is not defined.
+ERROR(8): '=' requires operands of the same type but lhs is type char and rhs is type int.
+ERROR(9): Cannot use function 'dog' as a variable.
+ERROR(10): Cannot use function 'dog' as a variable.
+ERROR(13): Function 'dog' at line 4 is expecting to return type int but instead returns type char.
+ERROR(LINKER): Procedure main is not defined.
+Number of warnings: 0
+Number of errors: 7

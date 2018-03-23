@@ -1,0 +1,8 @@
+ERROR(9): Symbol 'gx' is not defined.
+ERROR(11): Symbol 'xx' is not defined.
+ERROR(14): Symbol 'main' is already defined at line 4.
+ERROR(25): Symbol 'x' is already defined at line 25.
+ERROR(25): Function 'dog' is not defined.
+ERROR(27): Symbol 'g' is already defined at line 2.
+Number of warnings: 0
+Number of errors: 6

@@ -1,0 +1,7 @@
+ERROR(4): The operation '+' does not work with arrays.
+ERROR(5): '=' requires that either both or neither operands be arrays.
+ERROR(5): Array index is an unindexed array.
+ERROR(6): Cannot index nonarray.
+ERROR(7): '=' requires that either both or neither operands be arrays.
+Number of warnings: 0
+Number of errors: 5
