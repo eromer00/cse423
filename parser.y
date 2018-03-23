@@ -1,11 +1,1291 @@
 %{
 
+/**
+ *
+ * @date Spring 2018
+ * @author Omar Soliman
+ * @title Bison Parser
+ *    _____
+ *   /\   /\
+ *  /  \ /  \
+ * |    xmst |
+ *  \  / \  /
+ *   \/___\/
+ *
+ **/
+
+#define YYPARSER
+
+//System library import
+#include<stdio.h>
+#include<getopt.h>
+#include<string.h>
+
+//User defined structures
+#include "scanType.h"
+#include "printTree.h"
+#include "semantic.h"
+
+//Enable detailed error messages
+#define YYERROR_VERBOSE 1
+
+//AST print options
+#define NOTYPES 0
+#define TYPES 1
+
+//Inform bison about flex things
+extern int yylex();
+extern int yyparse();
+extern FILE* yyin;
+extern int line_num;
+
+//Track warnings and errors
+#define WARN numWarnings++
+#define ERROR numErrors++
+int numWarnings = 0;
+int numErrors = 0;
+
+//Main AST to parse into
+static TreeNode* syntaxTree;
+
+//Reference parser error function
+void yyerror(const char* s);
+
+%}
+
+
+//Use a union to hold possible token data types
+%union {
+    Token token;
+    struct TreeNode* treeNode;
+}
+
+//Associate token types with union fields
+%token <token> BOOL KEY CHAR IDVAL NUM BOOLT BOOLF
+%token <token> SEMICOLON COLON RECORD LBRACK RBRACK LPAREN RPAREN
+%token <token> ANDCND BREAKCND COMMA DIEQ DIV DOT ELSECND EQ EQEQ
+%token <token> GT GTEQ IFCND LBOX RBOX LS LSEQ MI MIEQ MIMI MUEQ
+%token <token> MUL NOTCND NTEQ ORCND PERC PL PLEQ PLPL QM RETURNCND
+%token <token> INTCND CHARCND BOOLCND INCND RECTYPE
+%token <token> STATIC WHILECND
+
+//Types for nonterminals
+%type <treeNode> program declarationList declaration recDeclaration varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclId scopedTypeSpecifier typeSpecifier returnTypeSpecifier funDeclaration params paramList paramTypeList paramIdList paramId statement otherstatement matched unmatched iterationHeader compoundStmt localDeclarations statementList expressionStmt returnStmt breakStmt expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
+
+
+
+//Grammar starting point
+%start program
+
+%%
+
+program:
+	declarationList { syntaxTree = $1; }
+	;
+
+declarationList:
+	declarationList declaration
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $2;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $2;
+		}
+	}
+	| %empty { $$ = NULL; }
+	;
+
+declaration:
+	varDeclaration { $$ = $1; }
+	| funDeclaration { $$ = $1; }
+	| recDeclaration { $$ = $1; }
+	;
+
+recDeclaration:
+	RECORD RECTYPE LBRACK localDeclarations RBRACK
+	{
+		TreeNode* t = newDeclNode(recDec);
+		TreeNode* i = t;
+
+		int c = 0;
+
+		t->isRecord = 1;
+		t->attr.name = strdup($2.str);
+		t->lineno = $1.line;
+
+		while(1) {
+
+			if(i->child[c] != NULL)
+			{
+				i = i->child[++c];
+			}
+			else
+			{
+				i->child[c] = $4;
+				break;
+			}
+		}
+
+		$$ = t;
+	}
+	;
+
+varDeclaration:
+	typeSpecifier varDeclList SEMICOLON
+	{
+		TreeNode* t = $2;
+
+		while(1) {
+
+			t->expType = $1->expType;
+			t->isRecord = $1->isRecord;
+
+			if(t->isRecord)
+				t->recType = $1->recType;
+
+			if(t->sibling != NULL)
+				t = t->sibling;
+			else
+				break;
+		}
+
+		free($1);
+		$$ = $2;
+	}
+	;
+
+scopedVarDeclaration:
+	scopedTypeSpecifier varDeclList SEMICOLON
+	{
+		TreeNode* t = $2;
+
+		while(1) {
+
+			t->isStatic = $1->isStatic;
+			t->expType = $1->expType;
+			t->isRecord = $1->isRecord;
+
+			if(t->isRecord)
+				t->recType = $1->recType;
+
+
+			if(t->sibling != NULL)
+				t = t->sibling;
+			else
+				break;
+		}
+
+		free($1);
+		$$ = $2;
+	}
+	;
+
+varDeclList:
+	varDeclList COMMA varDeclInitialize
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+	}
+	| varDeclInitialize { $$ = $1; }
+	;
+
+varDeclInitialize:
+	varDeclId COLON simpleExpression
+	{
+		$1->child[0] = $3;
+		$$ = $1;
+	}
+	| varDeclId { $$ = $1; }
+	;
+
+varDeclId:
+	IDVAL LBOX NUM RBOX
+	{
+		TreeNode* t = newDeclNode(varDec);
+
+		t->attr.name = strdup($1.str);
+
+		t->isArray = 1;
+		t->size = $3.val + 1;
+
+		$$ = t;
+	}
+	| IDVAL
+	{
+		TreeNode* t = newDeclNode(varDec);
+
+		t->attr.name = strdup($1.str);
+
+		t->lineno = $1.line;
+
+		t->size = 1;
+
+		$$ = t;
+	}
+	;
+
+scopedTypeSpecifier:
+	STATIC typeSpecifier
+	{
+		$2->isStatic = 1;
+		$$ = $2;
+	}
+	| typeSpecifier
+	{
+		$1->isStatic = 0;
+		$$ = $1;
+	}
+	;
+
+typeSpecifier:
+	returnTypeSpecifier { $$ = $1; }
+	| RECTYPE
+	{
+		TreeNode* t = newDeclNode(varDec);
+
+		t->isRecord = 1;
+		t->recType = strdup($1.str);
+
+		$$ = t;
+	}
+	;
+
+returnTypeSpecifier:
+	INTCND
+	{
+		TreeNode* t = newDeclNode(varDec);
+
+		t->expType = Integer;
+
+		$$ = t;
+	}
+	| BOOLCND
+	{
+
+		TreeNode* t = newDeclNode(varDec);
+
+		t->expType = Boolean;
+
+		$$ = t;
+	}
+	| CHARCND
+	{
+
+		TreeNode* t = newDeclNode(varDec);
+
+		t->expType = Char;
+
+		$$ = t;
+	}
+	;
+
+funDeclaration:
+	typeSpecifier IDVAL LPAREN params RPAREN statement
+	{
+		TreeNode* t = newDeclNode(funDec);
+
+		t->child[0] = $4;
+		t->child[1] = $6;
+
+		t->lineno = $2.line;
+
+		t->attr.name = strdup($2.str);
+
+		t->expType = $1->expType;
+
+		free($1);
+		$$ = t;
+	}
+	| IDVAL LPAREN params RPAREN statement
+	{
+
+		TreeNode* t = newDeclNode(funDec);
+
+		t->child[0] = $3;
+		t->child[1] = $5;
+
+		t->attr.name = strdup($1.str);
+		t->lineno = $1.line;
+
+		t->expType = Void;
+
+		$$ = t;
+	}
+	;
+
+params:
+	paramList { $$ = $1; }
+	| %empty { $$ = NULL; }
+	;
+
+paramList:
+	paramList SEMICOLON paramTypeList
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+	}
+	| paramTypeList { $$ = $1; }
+	;
+
+paramTypeList:
+	typeSpecifier paramIdList
+	{
+		TreeNode* t = $2;
+
+		while(1) {
+
+			t->expType = $1->expType;
+			t->isRecord = $1->isRecord;
+
+			if(t->isRecord)
+				t->recType = $1->recType;
+
+			if(t->sibling != NULL)
+				t = t->sibling;
+			else
+				break;
+		}
+
+		free($1);
+		$$ = $2;
+	}
+	;
+
+paramIdList:
+	paramIdList COMMA paramId
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+
+	}
+	| paramId { $$ = $1; }
+	;
+
+paramId:
+	IDVAL LBOX RBOX
+	{
+		TreeNode* t = newDeclNode(varDec);
+
+		t->attr.name = strdup($1.str);
+
+		t->size = 1;
+
+		t->lineno = $1.line;
+
+		t->isArray = 1;
+		t->isParam = 1;
+
+		$$ = t;
+	}
+	| IDVAL
+	{
+		TreeNode* t = newDeclNode(varDec);
+
+		t->attr.name = strdup($1.str);
+
+		t->size = 1;
+
+		t->lineno = $1.line;
+
+		t->isParam = 1;
+
+		$$ = t;
+	}
+	;
+
+statement:
+	matched  { $$ = $1; }
+	| unmatched  { $$ = $1; }
+	;
+
+matched:
+	IFCND LPAREN simpleExpression RPAREN matched ELSECND matched
+	{
+		TreeNode* t = newStmtNode(IfK);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $3;
+		t->child[1] = $5;
+		t->child[2] = $7;
+
+		$$ = t;
+	}
+	| iterationHeader matched
+	{
+		TreeNode* t = $1;
+
+		t->child[1] = $2;
+
+		$$ = $1;
+	}
+	| otherstatement { $$ = $1; }
+	;
+
+unmatched:
+	IFCND LPAREN simpleExpression RPAREN matched
+	{
+		TreeNode* t = newStmtNode(IfK);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $3;
+		t->child[1] = $5;
+
+		$$ = t;
+	} 
+	| IFCND LPAREN simpleExpression RPAREN unmatched
+	{
+		TreeNode* t = newStmtNode(IfK);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $3;
+		t->child[1] = $5;
+
+		$$ = t;
+	}
+	| IFCND LPAREN simpleExpression RPAREN matched ELSECND unmatched
+	{
+		TreeNode* t = newStmtNode(IfK);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $3;
+		t->child[1] = $5;
+		t->child[2] = $7;
+
+		$$ = t;
+	}
+	| iterationHeader unmatched
+	{
+		TreeNode* t = $1;
+
+		t->child[1] = $2;
+
+		$$ = $1;
+	}
+	;
+
+iterationHeader:
+	WHILECND LPAREN simpleExpression RPAREN
+	{
+		TreeNode* t = newStmtNode(RepeatK);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $3;
+
+		$$ = t;
+	}
+	;
+
+otherstatement:
+	expressionStmt { $$ = $1; }
+	| compoundStmt { $$ = $1; }
+	| returnStmt { $$ = $1; }
+	| breakStmt { $$ = $1; }
+	;
+
+compoundStmt:
+	LBRACK localDeclarations statementList RBRACK
+	{
+		TreeNode* t = newStmtNode(CompoundK);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $2;
+		t->child[1] = $3;
+
+		$$ = t;
+	}
+	;
+
+localDeclarations:
+	localDeclarations scopedVarDeclaration
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $2;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $2;
+		}
+	}
+	| %empty { $$ = NULL; }
+	;
+
+statementList:
+	statementList statement
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $2;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $2;
+		}
+	}
+	| %empty { $$ = NULL; }
+	;
+
+expressionStmt:
+	expression SEMICOLON { $$ = $1; }
+	| SEMICOLON { $$ = NULL; }
+	;
+
+returnStmt:
+	RETURNCND SEMICOLON
+	{
+		TreeNode* t = newStmtNode(ReturnK);
+
+		$$ = t;
+	}
+	| RETURNCND expression SEMICOLON
+	{
+		TreeNode* t = newStmtNode(ReturnK);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $2;
+
+		$$ = t;
+	}
+	;
+
+breakStmt:
+	BREAKCND SEMICOLON
+	{
+		TreeNode* t = newStmtNode(BreakK);
+
+		$$ = t;
+	}
+	;
+
+expression:
+	mutable EQ expression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = assign;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| mutable PLEQ expression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = passign;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| mutable MIEQ expression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = sassign;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| mutable MUEQ expression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = massign;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| mutable DIEQ expression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = dassign;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| mutable PLPL
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+
+		t->attr.op = pplus;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| mutable MIMI
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+
+		t->attr.op = ddash;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| simpleExpression { $$ = $1; }
+	;
+
+simpleExpression:
+	simpleExpression ORCND andExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = bOR;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| andExpression { $$ = $1; }
+	;
+
+andExpression:
+	andExpression ANDCND unaryRelExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = bAND;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| unaryRelExpression { $$ = $1; }
+	;
+
+unaryRelExpression:
+	NOTCND unaryRelExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $2;
+
+		t->attr.op = bNOT;
+
+		t->lineno = $1.line;
+
+		$$ = t;
+	}
+	| relExpression { $$ = $1; }
+	;
+
+relExpression:
+	sumExpression relop sumExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = $2->attr.op;
+
+		t->lineno = $2->lineno;
+
+		free($2);
+		$$ = t;
+	}
+	| sumExpression { $$ = $1; }
+	;
+
+relop:
+	LSEQ
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = lteq;
+
+		$$ = t;
+	}
+	| LS
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = lthan;
+
+		$$ = t;
+	}
+	| GT
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = gthan;
+
+		$$ = t;
+	}
+	| GTEQ
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = gteq;
+
+		$$ = t;
+	}
+	| EQEQ
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = eqeq;
+
+		$$ = t;
+	}
+	| NTEQ
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = neq;
+
+		$$ = t;
+	}
+	;
+
+sumExpression:
+	sumExpression sumop term
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = $2->attr.op;
+
+		t->lineno = $2->lineno;
+
+		free($2);
+		$$ = t;
+	}
+	| term { $$ = $1; }
+	;
+
+sumop:
+	PL
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = plus;
+
+		$$ = t;
+	}
+	| MI
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = dash;
+
+		$$ = t;
+	}
+	;
+
+term:
+	term mulop unaryExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = $2->attr.op;
+
+		t->lineno = $2->lineno;
+
+		free($2);
+		$$ = t;
+	}
+	| unaryExpression { $$ = $1; }
+	;
+
+mulop:
+	MUL
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = asterisk;
+
+		$$ = t;
+	}
+	| DIV
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = fslash;
+
+		$$ = t;
+	}
+	| PERC
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = mod;
+
+		$$ = t;
+	}
+	;
+
+unaryExpression:
+	unaryop unaryExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $2;
+
+		t->attr.op = $1->attr.op;
+
+		t->lineno = $1->lineno;
+
+		free($1);
+		$$ = t;
+	}
+	| factor { $$ = $1; }
+	;
+
+unaryop:
+	MI
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = dash;
+
+		$$ = t;
+	}
+	| MUL
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = asterisk;
+
+		$$ = t;
+	}
+	| QM
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->attr.op = qmark;
+
+		$$ = t;
+	}
+	;
+
+factor:
+	immutable { $$ = $1; }
+	| mutable { $$ = $1; }
+	;
+
+mutable:
+	mutable LBOX expression RBOX
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		t->child[0] = $1;
+		t->child[1] = $3;
+
+		t->attr.op = lsb;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| mutable DOT IDVAL
+	{
+		TreeNode* t = newExpNode(OpK);
+
+		TreeNode* x = newExpNode(IdK);
+		x->attr.name = strdup($3.str);
+
+		t->child[0] = $1;
+		t->child[1] = x;
+
+		t->attr.op = period;
+
+		t->lineno = $2.line;
+
+		$$ = t;
+	}
+	| IDVAL
+	{
+		TreeNode* t = newExpNode(IdK);
+
+		t->attr.name = strdup($1.str);
+
+		t->lineno = $1.line;
+
+		$$ = t;
+	}
+	;
+
+immutable:
+	LPAREN expression RPAREN { $$ = $2; }
+	| call { $$ = $1; }
+	| constant { $$ = $1; }
+	;
+
+call:
+	IDVAL LPAREN args RPAREN
+	{
+		TreeNode* t = newExpNode(ExpK);
+
+		t->attr.name = strdup($1.str);
+
+		t->lineno = $1.line;
+
+		t->child[0] = $3;
+
+		t->isFunc = 1;
+
+		$$ = t;
+	}
+	;
+
+args:
+	argList { $$ = $1; }
+	| %empty { $$ = NULL; }
+	;
+
+argList:
+	argList COMMA expression
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+
+	}
+	| expression {  $$ = $1; }
+	;
+
+constant:
+	NUM
+	{
+		TreeNode* t = newExpNode(ConstK);
+
+		t->attr.val = $1.val;
+		t->expType = Integer;
+
+		$$ = t;
+	}
+	| CHAR
+	{
+		TreeNode* t = newExpNode(ConstK);
+
+		t->attr.cval = $1.ltr;
+		t->expType = Char;
+
+		$$ = t;
+	}
+	| BOOLT
+	{
+		TreeNode* t = newExpNode(ConstK);
+
+		t->attr.val = $1.val;
+		t->expType = Boolean;
+
+		$$ = t;
+	}
+	| BOOLF
+	{
+		TreeNode* t = newExpNode(ConstK);
+
+		t->attr.val = $1.val;
+		t->expType = Boolean;
+
+		$$ = t;
+	}
+	;
+
+%%
+
 /*
-    Group: Spaghet_Code
-    Members: Erik Romero, Carlos Rubio, Franz Chavez
-    File: parser.y
-    Description: bison program to parse the tokenized c- language from flex
+* MAIN FUNCTION
 */
+int main(int argc, char* argv[]) {
+
+	//AST printing flags
+	int printSyntaxTree = 0;
+	int printAnnotatedSyntaxTree = 0;
+
+	/*
+	* Command line option variables
+	*
+	* c - val of flag
+	* long_options - array of word-sized options
+	* option_index - location in arg list
+	*/
+	int c;
+	struct option long_options[] = {};
+	int option_index = 0;
+
+	//Check for command line args
+	do {
+		/*
+		* The string "" arg should contain all acceptable options
+		*
+		* d - debug on
+		* p - print AST
+		* P - print annotated AST
+		*/
+		c = getopt_long(argc, argv, "dpP", long_options, &option_index);
+		switch(c)
+		{
+			//Long option present
+			case 0:
+				break;
+			//Debug parser
+			case 'd':
+				yydebug = 1;
+				break;
+			//Print AST
+			case 'p':
+				printSyntaxTree = 1;
+				break;
+			//Print Extra AST
+			case 'P':
+				printAnnotatedSyntaxTree = 1;
+				break;
+			//No more options
+			case -1:
+				break;
+			//Unknown option
+			default:
+				return(-1);
+				break;
+		}
+	}while(c != -1);
+
+	//File name has also been provided
+	if(optind < argc)
+	{
+		//Open file handle to read input
+		FILE* myfile = fopen(argv[optind],"r");
+
+		//Check if input file opened
+		if(!myfile) {
+			fprintf(stderr,"Couldn't open file %s.\n",argv[optind]);
+			return(-1);
+		}
+
+		//Tell bison to read from file stream
+		yyin = myfile;
+	}
+	//No file name given
+	else
+	{
+		//Tell bison to read from STDIN
+		yyin = stdin;
+	}
+
+	//Parse input until EOF
+	do
+	{
+		yyparse();
+	}
+	while(!feof(yyin));
+
+	//Check for no syntax errors
+	if(!numErrors)
+	{
+		//Print AST if requested
+		if(printSyntaxTree)
+			printTree(syntaxTree, NOTYPES);
+
+		//Add prototypes to AST
+		syntaxTree = addProto(syntaxTree);
+
+		//Check AST scopes and types
+		scopeAndType(syntaxTree);
+
+		//Print Extra AST if requested
+		if(printAnnotatedSyntaxTree)
+		{
+			printTree(syntaxTree, TYPES);
+
+//Print problem count
+		}
+	}
+
+	//Close read-in file
+	fclose(yyin);
+}
+
+/*
+* Parser error function
+*
+* s - String to include in error function
+*/
+void yyerror(const char* s) {
+
+	fprintf(stdout, "ERROR(%d): %s\n",line_num, s);
+
+	ERROR;
+
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+%{
+
+
+//    Group: Spaghet_Code
+//    Members: Erik Romero, Carlos Rubio, Franz Chavez
+//    File: parser.y
+//    Description: bison program to parse the tokenized c- language from flex
+
 
 //Import input/output functions
 #include<stdio.h>
@@ -160,11 +1440,11 @@ varDeclId:
     IDVAL LBOX NUM RBOX 
         {
             TreeNode *t = newDeclNode(VAR);
-            t->attr.value = $1.val;
+            t->attr.val = $1.val;
             t->isArray = 1;
             t->lineno = $1.line;
             t->attr.name = strdup($1.str);
-            t->attr.value = $3.val;
+            t->attr.val = $3.val;
             $$ = t;
         }
     | IDVAL 
@@ -911,7 +2191,7 @@ constant:
     NUM 
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.val;
+            t->attr.val = $1.val;
             t->lineno = $1.line;
             t->expType = NUMB;
             t->attr.name = strdup("NUM");
@@ -920,7 +2200,7 @@ constant:
     | CHAR        
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.ltr;
+            t->attr.val = $1.ltr;
             t->lineno = $1.line;
             t->expType = SINGLE;
             t->attr.name = strdup("CHAR");
@@ -929,7 +2209,7 @@ constant:
     | BOOLT        
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.val;
+            t->attr.val = $1.val;
             t->lineno = $1.line;
             t->expType = TF;
             t->attr.name = strdup("true");
@@ -938,7 +2218,7 @@ constant:
     | BOOLF        
         {
             TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.val;
+            t->attr.val = $1.val;
             t->lineno = $1.line;
             t->expType = TF;
             t->attr.name = strdup("false");
@@ -948,7 +2228,7 @@ constant:
 
 %%
 
-/* NOTE - use only one command line argument at a time, otherwise it may erase file data */
+// NOTE - use only one command line argument at a time, otherwise it may erase file data
 int main(int argc, char** argv) {
     int c;
     int p = 0;
@@ -997,7 +2277,7 @@ int main(int argc, char** argv) {
     if(p == 1) printTree(stdout, syntaxTree);
     if(type == 1) printPTree(stdout, syntaxTree);
 
-    /* adding IO routines after printing */
+    // adding IO routines after printing
     //output
     TreeNode *tmp1 = newDeclNode(FUNC);
         tmp1->expType = 0;
@@ -1072,5 +2352,5 @@ int main(int argc, char** argv) {
     fprintf(stdout, "Number of errors: %d\n",numErrors);
   
 }
-
+*/
 

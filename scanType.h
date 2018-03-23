@@ -9,18 +9,33 @@
  *
  **/
 
+typedef enum {idtoken, numtoken, chartoken, rectoken, booltoken, keytoken} TokenClass;
 
 /*
 * Structure to hold Token data
 */
 
 typedef struct {
+    TokenClass tokenType;
     int line;
     char* str;
     char ltr;
     int val;
 } Token;
 
+/*
+* Linked list of RECTYPEs
+* Allows us to maintain list of custom types
+*/
+typedef struct RType {
+
+	//Record type name
+	char* rtype;
+
+	//Pointer to another record type
+	struct RType* next;
+
+} RType;
 
 /*
 * Function to allocate character constant token
@@ -65,6 +80,30 @@ Token* newNUMtoken(int line, char* str, int val);
 * val - Numerical value
 */
 Token* newBOOLtoken(int line, char* str, int val);
+
+
+/*
+* Function to allocate character constant token
+*
+* line - Token line number
+* str - User supplied string record was found in
+*/
+Token* newRECtoken(int line, char* str);
+
+/*
+* Create rectype linked list
+*
+* Returns new linked list for rectypes
+*/
+RType *newRType(void);
+
+/*
+* Add rectype to list
+*
+* r - Rectype list
+* s - New rectype
+*/
+void addRType(RType *r, char *s);
 
 /*
  * Error message

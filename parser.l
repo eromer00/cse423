@@ -7,6 +7,8 @@
     Description: flex program to tokenize the c- language
 */
 
+
+
 //Import input/output functions
 #include<stdio.h>
 //Import standard library functions
@@ -16,33 +18,28 @@
 //Import file functions
 #include "scanType.h"
 
-extern int yylex();
-
-extern void yyerror(const char* s);
-
 #include "parser.tab.h"
-#include "recordType.h"
 
 //Count the lines
 int line_num = 1;
-extern RecordType *RecTypeList;
 
+extern int numWarnings;
+#define WARN numWarnings++
+
+static RType *rType;
+
+extern int yylex();
+
+extern void yyerror(const char* s);
 //NOTE: Keywords and operators numbered 0-42 in order of apperance
 
-/*
-        long m = 1, n;
-        n = strtol($1, NULL, 10);
-        if(n > 0xffffffff) { n = ~n; n &= 0xffffffff; m = n; m = ~m; }
-        else { m = n; }
-*/
+
 %}
 
-letter [a-zA-Z]
-uletter [A-Z]
-digit [0-9]
-letdig {letter}|{digit}
+%x recname
 
 %%
+
 \/\/.*               ;
 [ \t]                ;
 [\n]                 { line_num++; } 
@@ -92,21 +89,55 @@ char                 { yylval.token = *newKEYtoken(line_num, strdup(yytext), 16)
 else                 { yylval.token = *newKEYtoken(line_num, strdup(yytext), 17); return ELSECND; }
 if                   { yylval.token = *newKEYtoken(line_num, strdup(yytext), 18); return IFCND; }
 int                  { yylval.token = *newKEYtoken(line_num, strdup(yytext), 20); return INTCND; }
-record               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 21); return RECORD; }
+record               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 21); BEGIN(recname); return RECORD; }
 while                { yylval.token = *newKEYtoken(line_num, strdup(yytext), 22); return WHILECND; }
 return               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 23); return RETURNCND; }
 static               { yylval.token = *newKEYtoken(line_num, strdup(yytext), 24); return STATIC; } 
-{uletter}{letter}*   { 
-                       yylval.token = *newIDtoken(line_num, strdup(yytext));
-                       RecordType *r = RecTypeList;
-                       while(r != NULL){
-                           if(strcmp(yytext, r->name) == 0)return RECTYPE;
-                           r = r->next;
-                       } 
-                       return IDVAL;
-                     }
-{letter}{letdig}*    { yylval.token = *newIDtoken(line_num, strdup(yytext)); return IDVAL; }
-{digit}+             { yylval.token = *newNUMtoken(line_num, strdup(yytext), strtol(strdup(yytext), NULL, 10)); return NUM; }
+
+<recname>\/\/.*     ;
+<recname>[ \t]      ;
+<recname>\n         { line_num++; }
+<recname>[a-zA-Z][a-zA-Z0-9]*   {
+                        yylval.token = *newRECtoken(line_num, strdup(yytext));
+                        if(!rType) {
+                            rType = newRType();
+                        }
+                        addRType(rType, strdup(yytext));
+                        BEGIN(INITIAL);
+                        return RECTYPE;
+                    }
+<recname>.          {   BEGIN(INITIAL);
+                        yyerror(strdup(yytext));
+                    }
+
+[a-zA-Z][a-zA-Z0-9]*	{
+				//Check if there is a RECTYPE list before searching it
+				if(rType)
+				{
+					RType* i = rType;
+
+					//Empty rtype nodes will have a NULL sibling
+					while(i->next != NULL)
+					{
+						//Check if ID is already a RECTYPE in the RECTYPE list
+						if(!(strcmp(i->rtype,yytext)))
+						{
+							//ID was found in the RECTYPE list
+							yylval.token = *newRECtoken(line_num, yytext);
+							return RECTYPE;
+						}
+						else
+						{
+							i = i->next;
+						}
+					}
+				}
+
+				//ID was not a RECTYPE
+				yylval.token = *newIDtoken(line_num, yytext);
+				return IDVAL;
+			}
+[0-9]+              { yylval.token = *newNUMtoken(line_num, strdup(yytext), strtol(strdup(yytext), NULL, 10)); return NUM; }
 (.)                  { yyerror(yytext); }
 
 %%
