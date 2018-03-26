@@ -31,7 +31,7 @@ void yyerror(const char* s);
 * Allocate new Statement node
 */
 TreeNode* newStmtNode(StmtKind kind) {
-
+	int i;
 	//Allocate memory for node
 	TreeNode *t = (TreeNode*) malloc(sizeof(TreeNode));
 
@@ -40,7 +40,7 @@ TreeNode* newStmtNode(StmtKind kind) {
 		yyerror("Failure to allocate STMT node\n");
 
 	//Initialize children to NULL
-	for (int i = 0; i < MAXCHILDREN; i++)
+	for (i = 0; i < MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -75,7 +75,7 @@ TreeNode* newStmtNode(StmtKind kind) {
 * Allocate new Decl node
 */
 TreeNode* newDeclNode(DeclKind kind) {
-
+	int i;
 	//Allocate memory for node
 	TreeNode *t = (TreeNode*) malloc(sizeof(TreeNode));
 
@@ -84,7 +84,7 @@ TreeNode* newDeclNode(DeclKind kind) {
 		yyerror("Failure to allocate STMT node\n");
 
 	//Initialize children to NULL
-	for (int i = 0; i < MAXCHILDREN; i++)
+	for (i = 0; i < MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -119,7 +119,7 @@ TreeNode* newDeclNode(DeclKind kind) {
 * Allocate new Expression node
 */
 TreeNode* newExpNode(ExpKind kind) {
-
+	int i;
 	//Allocate memory for node
 	TreeNode *t = (TreeNode*) malloc(sizeof(TreeNode));
 
@@ -128,7 +128,7 @@ TreeNode* newExpNode(ExpKind kind) {
 		yyerror("Failure to allocate STMT node\n");
 
 	//Initialize children to NULL
-	for (int i = 0; i < MAXCHILDREN; i++)
+	for (i = 0; i < MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -443,7 +443,7 @@ void printTree(FILE* output, TreeNode* tree) {
           }
           break;
         case CONST:
-          if(tree->expType == TF) 
+          if(tree->expType == TF)
             fprintf(output, "Const: %s [line: %d]\n", tree->attr.name, tree->lineno);
           else if (tree->expType == SINGLE)
             fprintf(output, "Const: '%c' [line: %d]\n", tree->attr.value, tree->lineno);
@@ -541,11 +541,12 @@ void printTree(FILE* output, TreeNode* tree) {
 
 //Print kids after we finish
     int increment = 1;
-		for (int i = 0; i < MAXCHILDREN; i++)
+		int i, j;
+		for (i = 0; i < MAXCHILDREN; i++)
 		{
 			if(tree->child[i] != NULL)
 			{
-                for( int j = 0; j < indent_level+1; j++){
+                for(j = 0; j < indent_level+1; j++){
                   fprintf(output, "!   ");
                 }
                 fprintf(output, "Child: %d  ",i);
@@ -560,7 +561,7 @@ void printTree(FILE* output, TreeNode* tree) {
 		//Point to the next node in the AST
     tree = tree->sibling;
     if(tree){
-      for( int i = 0; i < indent_level; i++){
+      for(i = 0; i < indent_level; i++){
         fprintf(output, "!   ");
       }
       fprintf(output, "Sibling: %d  ", sib);
@@ -693,7 +694,7 @@ void printPTree(FILE* output, TreeNode* tree) {
           }
           break;
         case CONST:
-          if(tree->expType == TF) 
+          if(tree->expType == TF)
             fprintf(output, "Const: %s %s [line: %d]\n", tree->attr.name, typeHelper(2), tree->lineno);
           else if (tree->expType == SINGLE)
             fprintf(output, "Const: '%c' %s [line: %d]\n", tree->attr.value, typeHelper(3), tree->lineno);
@@ -791,11 +792,12 @@ void printPTree(FILE* output, TreeNode* tree) {
 
 //Print kids after we finish
     int increment = 1;
-		for (int i = 0; i < MAXCHILDREN; i++)
+		int i, j;
+		for (i = 0; i < MAXCHILDREN; i++)
 		{
 			if(tree->child[i] != NULL)
 			{
-                for( int j = 0; j < indent_level+1; j++){
+                for(j = 0; j < indent_level+1; j++){
                   fprintf(output, "!   ");
                 }
                 fprintf(output, "Child: %d  ",i);
@@ -810,7 +812,7 @@ void printPTree(FILE* output, TreeNode* tree) {
 		//Point to the next node in the AST
     tree = tree->sibling;
     if(tree){
-      for( int i = 0; i < indent_level; i++){
+      for(i = 0; i < indent_level; i++){
         fprintf(output, "!   ");
       }
       fprintf(output, "Sibling: %d  ", sib);

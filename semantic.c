@@ -68,6 +68,8 @@ int paramCheck = 0;
 
 int warncheck = 0;
 
+//char* buf;
+
 //Reference parser error function
 void yyerror(const char* s);
 
@@ -129,6 +131,7 @@ int typeCharToInt(char c) {
 
 	int i = 4;
 
+
 	switch(c)
 	{
 		case 'i':
@@ -157,7 +160,10 @@ int typeCharToInt(char c) {
 		break;
 
 		default:
-			yyerror("Bad attempt at typechar to int");
+
+			// sprintf(buf, "ERROR(%d): Syntax error, bad attempt at typechar to int", numErrors);
+			// yyerror(buf);
+			yyerror("bad attempt at typechar to int");
 		break;
 	}
 
@@ -171,8 +177,11 @@ SymbolTable* initST(void) {
 
 	//Allocate symbol table
 	SymbolTable* st = malloc(sizeof(SymbolTable));
-	if(st == NULL)
+	if(st == NULL){
+		// sprintf(buf, "ERROR(%d): Failed to allocate symbol table.", numErrors);
+		// yyerror(buf);
 		yyerror("Failed to allocate symbol table.");
+	}
 
 	//Set symbol table depth to nothing
 	st->depth = 0;
@@ -2068,6 +2077,7 @@ void treeTraverse(TreeNode* tree) {
 
     TreeNode *tmp = tree;
     int testvar = 0;
+		int i;
 	//String buffer to combine type strings inside of
 	char tempType[25];
 
@@ -2678,7 +2688,7 @@ void treeTraverse(TreeNode* tree) {
 			yyerror("Unknown node");
 
 		//If children exist traverse the child trees
-		for (int i = 0; i < MAXCHILDREN; i++)
+		for (i = 0; i < MAXCHILDREN; i++)
 		{
 			if(tree->child[i] != NULL)
 			{
@@ -2884,7 +2894,7 @@ void treeTraverse(TreeNode* tree) {
 		    if(tree->child[0]->expType != TF){
 		        printError(16,tree->lineno,tree->attr.name,typeHelperSemantic(tree->child[0]->expType),0,0,0);
 		        if(strcmp("LBOX",tree->child[0]->attr.name) == 0)
-		            printError(17,tree->lineno,tree->attr.name,0,0,0,0);   
+		            printError(17,tree->lineno,tree->attr.name,0,0,0,0);
 		    }
 			//Reset flag
 			boolCheck = 0;
