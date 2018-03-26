@@ -29,7 +29,7 @@ extern OpKind ops;
 //Track warnings and errors
 #define WARN numWarnings++
 #define ERROR numErrors++
-#define YYERROR_VERBOSE
+#define YYERROR_VERBOSE 1
 int numWarnings = 0;
 int numErrors = 0;
 
