@@ -654,7 +654,7 @@ void printError(int errnum, int line, char* s1, char* s2, char* s3, int i1, int 
         break;
 
         case 19:
-            printf(" %s  requires that either both or neither operands be arrays.\n", s1);
+            printf("'%s' requires that either both or neither operands be arrays.\n", s1);
         break;
 
         case 20:
@@ -2704,6 +2704,7 @@ void treeTraverse(TreeNode* tree) {
 			 * Function declares a nonvoid type
 			 * No return statement is found
 			 */
+			 //TODO
 
 			//Reset flags
 			funcRetType = -1;

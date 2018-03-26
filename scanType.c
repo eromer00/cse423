@@ -14,7 +14,7 @@
 
 //Reference parser error function
 extern int line_num;
-void yyerror(const char* s);
+//void yyerror(const char* s);
 
 
 Token* newCHARtoken(int line, char ltr, char* str) {
@@ -131,10 +131,10 @@ Token* newBOOLtoken(int line, char* str, int val) {
 }
 
 
-void yyerror(const char* s) {
+/*void yyerror(const char* s) {
 
 	//An error has occurred
 	printf("ERROR(%d): Invalid or misplaced input character: \"%s\"\n", line_num, s);
 
-}
+}*/
 

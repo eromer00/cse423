@@ -15,6 +15,7 @@
 #include<unistd.h>
 #include "scanType.h"
 #include "printTree.h"
+#include "yyerror.h"
 #include "recordType.h"
 #include "semantic.h"
 
@@ -28,6 +29,7 @@ extern OpKind ops;
 //Track warnings and errors
 #define WARN numWarnings++
 #define ERROR numErrors++
+#define YYERROR_VERBOSE
 int numWarnings = 0;
 int numErrors = 0;
 
@@ -74,9 +76,10 @@ declarationList:
     ;
 
 declaration:
-    varDeclaration {$$ = $1; }
+    error {$$=NULL;}
+    | varDeclaration {$$ = $1; }
     | funDeclaration {$$ = $1; }
-    | recDeclaration{$$ = $1; }
+    | recDeclaration {$$ = $1; }
     ;
 
 recDeclaration:
@@ -105,7 +108,10 @@ varDeclaration:
                 t = t->sibling;
             }
             $$=$2;
+            yyerrok;
         }
+    //TODO| error varDeclList SEMICOLON { $$ = NULL; yyerrok;}
+	| typeSpecifier error SEMICOLON { $$ = NULL; yyerrok; }
     ;
 
 scopedVarDeclaration:
@@ -120,7 +126,10 @@ scopedVarDeclaration:
                 t = t->sibling;
             }
             $$=$2;
+            yyerrok;
         }
+    | error varDeclList SEMICOLON { $$ = $2; yyerrok; }
+	| scopedTypeSpecifier error SEMICOLON { $$ = NULL; yyerrok; }
     ;
 
 varDeclList:
@@ -132,11 +141,14 @@ varDeclList:
             } else {
                 $$ = $3;
             }
+            yyerrok;
         }
     | varDeclInitialize 
         {
             $$ = $1;
         }
+    | varDeclList COMMA error { $$ = $1; }
+	//TODO| error { $$ = NULL; }
     ;
 
 varDeclInitialize:
@@ -153,6 +165,8 @@ varDeclInitialize:
         {
             $$ = $1; 
         }
+    | error COLON simpleExpression { $$ = NULL; yyerrok; }
+	| varDeclId COLON error { $$ = NULL; }
     
     ;
 
@@ -174,6 +188,8 @@ varDeclId:
             t->lineno = $1.line;
             $$ = t;
         }
+    | IDVAL LBOX error { $$ = NULL; }
+	| error RBOX { $$ = NULL; yyerrok; }
     ;
 
 scopedTypeSpecifier:
@@ -256,6 +272,11 @@ funDeclaration:
             insertChild(t, $5);
             $$ = t;
         }
+    | typeSpecifier error { $$ = NULL; }
+	| typeSpecifier IDVAL LPAREN error { $$ = NULL; }
+	| typeSpecifier IDVAL LPAREN params RPAREN error { $$ = NULL; }
+	| IDVAL LPAREN error { $$ = NULL; }
+	| IDVAL LPAREN params RPAREN error { $$ = NULL; }
     ;
 
 params:
@@ -275,11 +296,14 @@ paramList:
             } else {
                 $$ = $3;            
             }
+            yyerrok;
         }
     | paramTypeList 
         {
             $$=$1;
         }
+    | paramList SEMICOLON error { $$ = $1; }
+	| error { $$ = NULL; }
     ;
 
 paramTypeList:
@@ -295,6 +319,7 @@ paramTypeList:
             }
             $$=$2;
         }
+    | typeSpecifier error { $$ = NULL; }
     ;
 
 paramIdList:
@@ -306,11 +331,14 @@ paramIdList:
             } else {
                 $$ = $3;
             }
+            yyerrok;
         }
     | paramId 
         {
             $$=$1;
         }
+    | paramIdList COMMA error { $$ = NULL; }
+	//TODO| error { $$ = NULL; }
     ;
 
 paramId:
@@ -333,6 +361,7 @@ paramId:
 
             $$ = t;
         }
+    | error RBOX { $$ = NULL; yyerrok; }
 
     ;
 
@@ -360,6 +389,9 @@ matched:
             $$ = $1;
         }
     | otherstatement {$$=$1; }
+    | IFCND LPAREN error { $$ = NULL; }
+	| IFCND error RPAREN matched ELSECND matched { $$ = NULL; yyerrok; }
+	//TODO| error { $$ = NULL; }
     ;
 
 unmatched:
@@ -403,6 +435,10 @@ unmatched:
 
             $$ = $1;
         }
+    | IFCND error { $$ = NULL; }
+	| IFCND error RPAREN matched { $$ = NULL; yyerrok; }
+	| IFCND error RPAREN unmatched { $$ = NULL; yyerrok; }
+	| IFCND error RPAREN matched ELSECND unmatched { $$ = NULL; yyerrok; }
     ;
 
 iterationHeader:
@@ -415,6 +451,9 @@ iterationHeader:
             insertChild(t, $3);
             $$ = t;
         }
+    | WHILECND error { $$ = NULL; }
+	| WHILECND error RPAREN { $$ = NULL; yyerrok; }
+	| WHILECND LPAREN error RPAREN { $$ = NULL; yyerrok; }
     ;
 
 otherstatement:
@@ -446,7 +485,29 @@ compoundStmt:
             insertChild(t, $2);
             insertChild(t, $3);
             $$ = t;
+            yyerrok;
         }
+    //TODO one of these causes a shift reduce error
+    | LBRACK localDeclarations error RBRACK
+	{
+		TreeNode* t = newStmtNode(COMP);
+		t->lineno = $1.line;
+		t->child[0] = $2;
+		t->child[1] = NULL;
+		$$ = t;
+
+		yyerrok;	
+	}
+    | LBRACK error statementList RBRACK
+	{
+		TreeNode* t = newStmtNode(COMP);
+		t->lineno = $1.line;
+		t->child[0] = NULL;
+		t->child[1] = $3;
+		$$ = t;
+
+		yyerrok;	
+	}
     ;
 
 localDeclarations:
@@ -478,8 +539,8 @@ statementList:
     ;
 
 expressionStmt:
-    expression SEMICOLON { $$=$1; }
-    | SEMICOLON{$$=NULL; }
+    expression SEMICOLON { $$=$1; yyerrok;}
+    | SEMICOLON{$$=NULL; yyerrok;}
     ;
 
 
@@ -490,6 +551,7 @@ returnStmt:
             t->attr.name = $1.str;
             t->lineno = $1.line;
             $$ = t;
+            yyerrok;
         }
     | RETURNCND expression SEMICOLON
         {
@@ -499,6 +561,7 @@ returnStmt:
 
             insertChild(t, $2);
             $$ = t;
+            yyerrok;
         }
     ;
 
@@ -510,6 +573,7 @@ breakStmt:
             t->lineno = $1.line;
 
             $$ = t;
+            yyerrok;
         }
     ;
 
@@ -586,6 +650,13 @@ expression:
         {
             $$ = $1;
         }
+    //TODO causes shift/reduce errors
+    | error PLPL { $$ = NULL; yyerrok; }
+	| error MIMI { $$ = NULL; yyerrok; }
+	| error PLEQ error { $$ = NULL; yyerrok; }
+	| error MIEQ error { $$ = NULL; yyerrok; }
+	| error MUEQ error { $$ = NULL; yyerrok; }
+	| error DIEQ error { $$ = NULL; yyerrok; }
     ;
 
 simpleExpression:
@@ -603,6 +674,7 @@ simpleExpression:
         {
             $$ = $1;
         }
+    | simpleExpression ORCND error { $$ = NULL; }
     ;
 
 andExpression:
@@ -618,6 +690,7 @@ andExpression:
         }
     | unaryRelExpression{
             $$=$1; }
+    | andExpression ANDCND error { $$ = NULL; }
     ;
 
 unaryRelExpression:
@@ -632,6 +705,8 @@ unaryRelExpression:
         }
     | relExpression{
             $$=$1; }
+    | NOTCND error {$$ = NULL;}
+    
     ;
 
 relExpression:
@@ -647,6 +722,8 @@ relExpression:
         }
     | sumExpression{
             $$=$1; }
+    | sumExpression relop error { $$ = NULL; }
+	| error relop sumExpression { $$ = NULL;  yyerrok; }
     ;
 
 relop:
@@ -715,6 +792,7 @@ sumExpression:
         {
             $$=$1;
         }
+    | sumExpression sumop error { $$ = NULL; yyerrok; }
     ;
 
 sumop:
@@ -749,6 +827,7 @@ term:
         }
     | unaryExpression{
             $$=$1;}
+    | term mulop error {$$ = NULL;}
     ;
 
 mulop:
@@ -790,6 +869,7 @@ unaryExpression:
         }
     | factor{
             $$=$1; }
+    | unaryop error {$$= NULL;}
     ;
 
 unaryop:
@@ -868,11 +948,15 @@ immutable:
     LPAREN expression RPAREN 
         {
             $$=$2;
+            yyerrok;
         }
     | call {
             $$=$1; }
     | constant{
             $$=$1; }
+    //TODO
+    //| LPAREN error {$$ = NULL;}
+    //| error RPAREN {$$ = NULL; yyerrok;}
     ;
 
 call:
@@ -885,6 +969,8 @@ call:
             insertChild(t, $3);
             $$ = t;
         }
+    //TODO
+    | error LPAREN { $$ = NULL; yyerrok; }
     ;
 
 args:
@@ -902,6 +988,7 @@ argList:
             } else {
                 $$ = $3;
             }
+            yyerrok;
         }
     | expression {$$=$1; }
 
@@ -999,7 +1086,7 @@ int main(int argc, char** argv) {
 
     /* adding IO routines after printing */
     //output
-    TreeNode *tmp1 = newDeclNode(FUNC);
+    /*TreeNode *tmp1 = newDeclNode(FUNC);
         tmp1->expType = 0;
         tmp1->lineno = -1;
         tmp1->isFunc = 1;
@@ -1065,7 +1152,7 @@ int main(int argc, char** argv) {
         tmp1->isFunc = 1;
         tmp1->attr.name = "outnl";
     insertSibling(syntaxTree, tmp1);
-
+    */
     //printf("\n\n\n\n");
     //printTree(stdout, syntaxTree);
     fprintf(stdout, "Number of warnings: %d\n",numWarnings);
