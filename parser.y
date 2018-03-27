@@ -1,1163 +1,1129 @@
 %{
 
-/*
-    Group: Spaghet_Code
-    Members: Erik Romero, Carlos Rubio, Franz Chavez
-    File: parser.y
-    Description: bison program to parse the tokenized c- language from flex
-*/
+/**
+ *
+ * @date Spring 2018
+ * @author Omar Soliman
+ * @title Bison Parser
+ *    _____
+ *   /\   /\
+ *  /  \ /  \
+ * |    xmst |
+ *  \  / \  /
+ *   \/___\/
+ *
+ **/
 
-//Import input/output functions
+#define YYPARSER
+
+//System library import
 #include<stdio.h>
-//Import exit functionality
-#include<stdlib.h>
+#include<getopt.h>
 #include<string.h>
-#include<unistd.h>
+
+//User defined structures
 #include "scanType.h"
-#include "printTree.h"
-#include "yyerror.h"
-#include "recordType.h"
+#include "printtree.h"
 #include "semantic.h"
+#include "yyerror.h"
+
+//Enable detailed error messages
+#define YYERROR_VERBOSE 1
+
+//AST print options
+#define NOTYPES 0
+#define TYPES 1
 
 //Inform bison about flex things
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
-static TreeNode* syntaxTree;
-extern OpKind ops;
+extern int line_num;
 
 //Track warnings and errors
 #define WARN numWarnings++
 #define ERROR numErrors++
-#define YYERROR_VERBOSE 1
 int numWarnings = 0;
 int numErrors = 0;
 
-//Error function
+//Main AST to parse into
+static TreeNode* syntaxTree;
+
+//Reference parser error function
 void yyerror(const char* s);
+
 %}
 
-//Use a union to hold possible token data types
+%error-verbose
+
+//Use a union to hold possible grammar data types
 %union {
-    Token token;
-    struct TreeNode* treeNode;
+	Token token;
+	struct TreeNode* treeNode;
 }
 
 //Associate token types with union fields
-%token <token> BOOL KEY CHAR IDVAL NUM BOOLT BOOLF
-%token <token> SEMICOLON COLON RECORD LBRACK RBRACK LPAREN RPAREN
-%token <token> ANDCND BREAKCND COMMA DIEQ DIV DOT ELSECND EQ EQEQ
-%token <token> GT GTEQ IFCND LBOX RBOX LS LSEQ MI MIEQ MIMI MUEQ
-%token <token> MUL NOTCND NTEQ ORCND PERC PL PLEQ PLPL QM RETURNCND
-%token <token> INTCND CHARCND BOOLCND INCND RECTYPE
-%token <token> STATIC WHILECND
+%token <token> ID NUMCONST CHARCONST RECTYPE BOOLCONST RECORD
+%token <token> STATIC INT BOOL CHAR IF ELSE WHILE RETURN BREAK OR AND NOT
+%token <token> EQ NOTEQ MULASS INC ADDASS DEC SUBASS DIVASS LESSEQ GRTEQ
+%token <token> ASTERISK RANDOM DASH FSLASH LPAREN RPAREN PLUS COMMA
+%token <token> LSQB RSQB COLON SCOLON LTHAN ASSIGN GTHAN
+%token <token> MOD PERIOD LCB RCB
 
 //Types for nonterminals
-%type <treeNode> program declarationList declaration recDeclaration varDeclaration scopedVarDeclaration varDeclList varDeclInitialize varDeclId scopedTypeSpecifier typeSpecifier returnTypeSpecifier funDeclaration params paramList paramTypeList paramIdList paramId statement otherstatement matched unmatched iterationHeader compoundStmt localDeclarations statementList expressionStmt returnStmt breakStmt expression simpleExpression andExpression unaryRelExpression relExpression relop sumExpression sumop term mulop unaryExpression unaryop factor mutable immutable call args argList constant
+%type <treeNode> program declarationList declaration recDeclaration varDeclaration scopedVarDeclaration
+%type <treeNode> varDeclList varDeclInitialize varDeclId scopedTypeSpecifier typeSpecifier returnTypeSpecifier
+%type <treeNode> funDeclaration params paramList paramTypeList paramIdList paramId statement matched unmatched
+%type <treeNode> compoundStmt localDeclarations statementList expressionStmt iterationHeader otherStmt unaryRelExpression
+%type <treeNode> returnStmt breakStmt expression simpleExpression andExpression unaryExpression relExpression
+%type <treeNode> relop sumExpression sumop term mulop unaryop factor mutable immutable call args argList constant
 
+//Grammar starting point
+%start program
 
 %%
-program:
-    declarationList {syntaxTree = $1;                  
-                    }
-    ;
 
-//todo
+program:
+	declarationList { syntaxTree = $1; }
+	;
+
 declarationList:
-    declarationList declaration 
-        {   if($1 != NULL) {
-                insertSibling($1,$2);
-                $$=$1;
-            } else {
-                $$=$2;
-            }
-        }
-    | %empty { $$ = NULL; }
-    ;
+	declarationList declaration
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $2;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $2;
+		}
+	}
+	| %empty { $$ = NULL; }
+	;
 
 declaration:
-    error {$$=NULL;}
-    | varDeclaration {$$ = $1; }
-    | funDeclaration {$$ = $1; }
-    | recDeclaration {$$ = $1; }
-    ;
+	varDeclaration { $$ = $1; }
+	| funDeclaration { $$ = $1; }
+	| recDeclaration { $$ = $1; }
+	//| error { $$ = NULL; }
+	;
 
 recDeclaration:
-    RECORD IDVAL LBRACK localDeclarations RBRACK 
-        {
-            addRecType($2.str);
-            TreeNode *t = newDeclNode(REC);
-            t->attr.name = strdup($2.str);
-            t->recType = t->attr.name;
-            t->isRecord = 1;
-            insertChild(t, $4);
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    ;
+	RECORD RECTYPE LCB localDeclarations RCB
+	{
+		TreeNode* t = newDeclNode(recDec);
+		TreeNode* i = t;
+
+		int c = 0;
+
+		t->isRecord = 1;
+		t->attr.name = strdup($2.string);
+		t->lineno = $1.lineNumber;
+
+		while(1) {
+
+			if(i->child[c] != NULL)
+			{
+				i = i->child[++c];
+			}
+			else
+			{
+				i->child[c] = $4;
+				break;
+			}
+		}
+
+		$$ = t;
+	}
+	;
 
 varDeclaration:
-    typeSpecifier varDeclList SEMICOLON 
-        {
-            TreeNode * t = $2;
-            while(t !=NULL){
-                if($1->expType)
-                    t->expType = $1->expType;
-                else
-                    t->recType = $1->recType;
-                t = t->sibling;
-            }
-            $$=$2;
-            yyerrok;
-        }
-    //TODO| error varDeclList SEMICOLON { $$ = NULL; yyerrok;}
-	| typeSpecifier error SEMICOLON { $$ = NULL; yyerrok; }
-    ;
+	typeSpecifier varDeclList SCOLON
+	{
+		TreeNode* t = $2;
+
+		while(1) {
+
+			t->expType = $1->expType;
+			t->isRecord = $1->isRecord;
+
+			if(t->isRecord)
+				t->recType = $1->recType;
+
+			if(t->sibling != NULL)
+				t = t->sibling;
+			else
+				break;
+		}
+
+		free($1);
+		$$ = $2;
+
+		yyerrok;
+	}
+	//| error varDeclList SCOLON { $$ = NULL; }
+	//| typeSpecifier error SCOLON { $$ = NULL; yyerrok; }
+	;
 
 scopedVarDeclaration:
-    scopedTypeSpecifier varDeclList SEMICOLON 
-        {
-            TreeNode * t = $2;
-            while(t !=NULL){
-                if($1->expType)
-                    t->expType = $1->expType;
-                else
-                    t->recType = $1->recType;
-                t = t->sibling;
-            }
-            $$=$2;
-            yyerrok;
-        }
-    | error varDeclList SEMICOLON { $$ = $2; yyerrok; }
-	| scopedTypeSpecifier error SEMICOLON { $$ = NULL; yyerrok; }
-    ;
+	scopedTypeSpecifier varDeclList SCOLON
+	{
+		TreeNode* t = $2;
+
+		while(1) {
+
+			t->isStatic = $1->isStatic;
+			t->expType = $1->expType;
+			t->isRecord = $1->isRecord;
+
+			if(t->isRecord)
+				t->recType = $1->recType;
+
+
+			if(t->sibling != NULL)
+				t = t->sibling;
+			else
+				break;
+		}
+
+		free($1);
+		$$ = $2;
+
+		yyerrok;
+	}
+	//| error varDeclList SCOLON { $$ = NULL; yyerrok; }
+	//| scopedTypeSpecifier error SCOLON { $$ = NULL; yyerrok; }
+	;
 
 varDeclList:
-    varDeclList COMMA varDeclInitialize  
-        {
-            if($1 != NULL) {
-                insertSibling($1, $3);
-                $$ = $1;
-            } else {
-                $$ = $3;
-            }
-            yyerrok;
-        }
-    | varDeclInitialize 
-        {
-            $$ = $1;
-        }
-    | varDeclList COMMA error { $$ = $1; }
-	//TODO| error { $$ = NULL; }
-    ;
+	varDeclList COMMA varDeclInitialize
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+
+		yyerrok;
+	}
+	| varDeclInitialize { $$ = $1; }
+	//| varDeclList COMMA error { $$ = $1; }
+	//| error { $$ = NULL; }
+	;
 
 varDeclInitialize:
-    varDeclId COLON simpleExpression 
-        {
-            if($1 != NULL) {
-                insertChild($1, $3);
-                $$ = $1;
-            } else {
-                $$ = $3;
-            }
-        }
-    | varDeclId 
-        {
-            $$ = $1; 
-        }
-    | error COLON simpleExpression { $$ = NULL; yyerrok; }
-	| varDeclId COLON error { $$ = NULL; }
-    
-    ;
+	varDeclId COLON simpleExpression
+	{
+		$1->child[0] = $3;
+		$$ = $1;
+	}
+	| varDeclId { $$ = $1; }
+	//| error COLON simpleExpression { $$ = NULL; yyerrok; }
+	//| varDeclId COLON error { $$ = NULL; }
+	;
 
 varDeclId:
-    IDVAL LBOX NUM RBOX 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.value = $1.val;
-            t->isArray = 1;
-            t->lineno = $1.line;
-            t->attr.name = strdup($1.str);
-            t->attr.value = $3.val;
-            $$ = t;
-        }
-    | IDVAL 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    | IDVAL LBOX error { $$ = NULL; }
-	| error RBOX { $$ = NULL; yyerrok; }
-    ;
+	ID LSQB NUMCONST RSQB
+	{
+		TreeNode* t = newDeclNode(varDec);
+		t->attr.name = strdup($1.string);
+		t->isArray = 1;
+		$$ = t;
+	}
+	| ID
+	{
+		TreeNode* t = newDeclNode(varDec);
+		t->attr.name = strdup($1.string);
+		t->lineno = $1.lineNumber;
+		$$ = t;
+	}
+	//| ID LSQB error { $$ = NULL; }
+	//| error RSQB { $$ = NULL; yyerrok; }
+	;
 
 scopedTypeSpecifier:
-    STATIC typeSpecifier 
-        {
-            $2->isStatic = 1;
-            $$ = $2;
-        }
-    | typeSpecifier 
-        {
-            $$ = $1;
-        }
-    ;
+	STATIC typeSpecifier
+	{
+		$2->isStatic = 1;
+		$$ = $2;
+	}
+	| typeSpecifier
+	{
+		$1->isStatic = 0;
+		$$ = $1;
+	}
+	;
 
 typeSpecifier:
-    returnTypeSpecifier 
-        {
-            $$ = $1;
-        }
-    | RECTYPE 
-        {
-            TreeNode *t = newDeclNode(REC);
-            t->attr.name = $1.str;
-            t->recType = strdup($1.str);
-            t->isRecord = 1;
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    ;
+	returnTypeSpecifier { $$ = $1; }
+	| RECTYPE
+	{
+		TreeNode* t = newDeclNode(varDec);
+		t->isRecord = 1;
+		t->recType = strdup($1.string);
+		$$ = t;
+	}
+	;
 
 returnTypeSpecifier:
-    INTCND 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->expType = NUMB;
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    | BOOLCND 
-        {   
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->expType = TF;
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    | CHARCND 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->expType = SINGLE;
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    ;
+	INT
+	{
+		TreeNode* t = newDeclNode(varDec);
+		t->expType = Integer;
+		$$ = t;
+	}
+	| BOOL
+	{
+
+		TreeNode* t = newDeclNode(varDec);
+		t->expType = Boolean;
+		$$ = t;
+	}
+	| CHAR
+	{
+
+		TreeNode* t = newDeclNode(varDec);
+		t->expType = Char;
+		$$ = t;
+	}
+	;
 
 funDeclaration:
-    typeSpecifier IDVAL LPAREN params RPAREN statement 
-        {
-            TreeNode *t = newDeclNode(FUNC);
-            t->attr.name = strdup($2.str);
-            if($1->expType)
-                t->expType = $1->expType;
-            else
-                t->recType = $1->recType;
-            t->isFunc = 1;
-            t->lineno = $2.line;
-            insertChild(t, $4);
-            insertChild(t, $6);
-            $$ = t;
-        }
-    | IDVAL LPAREN params RPAREN statement 
-        {
-            TreeNode *t = newDeclNode(FUNC);
-            t->attr.name = strdup($1.str);
-            t->lineno = $1.line;
-            t->isFunc = 1;
-            insertChild(t, $3);
-            insertChild(t, $5);
-            $$ = t;
-        }
-    | typeSpecifier error { $$ = NULL; }
-	| typeSpecifier IDVAL LPAREN error { $$ = NULL; }
-	| typeSpecifier IDVAL LPAREN params RPAREN error { $$ = NULL; }
-	| IDVAL LPAREN error { $$ = NULL; }
-	| IDVAL LPAREN params RPAREN error { $$ = NULL; }
-    ;
+	typeSpecifier ID LPAREN params RPAREN statement
+	{
+		TreeNode* t = newDeclNode(funDec);
+		t->child[0] = $4;
+		t->child[1] = $6;
+		t->lineno = $2.lineNumber;
+		t->attr.name = strdup($2.string);
+		t->expType = $1->expType;
+		free($1);
+		$$ = t;
+	}
+	| ID LPAREN params RPAREN statement
+	{
+		TreeNode* t = newDeclNode(funDec);
+		t->child[0] = $3;
+		t->child[1] = $5;
+		t->attr.name = strdup($1.string);
+		t->lineno = $1.lineNumber;
+		t->expType = Void;
+		$$ = t;
+	}
+	//| typeSpecifier error { $$ = NULL; }
+	//| typeSpecifier ID LPAREN error { $$ = NULL; }
+	//| typeSpecifier ID LPAREN params RPAREN error { $$ = NULL; }
+	//| ID LPAREN error { $$ = NULL; }
+	//| ID LPAREN params RPAREN error { $$ = NULL; }
+	;
 
 params:
-    paramList 
-        {
-            $$ = $1;
-        }
-    | %empty { $$ = NULL; }
-    ;
+	paramList { $$ = $1; }
+	| %empty { $$ = NULL; }
+	;
 
 paramList:
-    paramList SEMICOLON paramTypeList 
-        {
-            if($1 != NULL) {
-                insertSibling($1, $3);
-                $$ = $1;
-            } else {
-                $$ = $3;            
-            }
-            yyerrok;
-        }
-    | paramTypeList 
-        {
-            $$=$1;
-        }
-    | paramList SEMICOLON error { $$ = $1; }
-	| error { $$ = NULL; }
-    ;
+	paramList SCOLON paramTypeList
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+
+		yyerrok;
+	}
+	| paramTypeList { $$ = $1; }
+	//| paramList SCOLON error { $$ = $1; }
+	//| error { $$ = NULL; }
+	;
 
 paramTypeList:
-    typeSpecifier paramIdList 
-        {
-            TreeNode * t = $2;
-            while(t !=NULL){
-                if($1->expType)
-                    t->expType = $1->expType;
-                else
-                    t->recType = $1->recType;
-                t = t->sibling;
-            }
-            $$=$2;
-        }
-    | typeSpecifier error { $$ = NULL; }
-    ;
+	typeSpecifier paramIdList
+	{
+		TreeNode* t = $2;
+
+		while(1) {
+
+			t->expType = $1->expType;
+			t->isRecord = $1->isRecord;
+
+			if(t->isRecord)
+				t->recType = $1->recType;
+
+			if(t->sibling != NULL)
+				t = t->sibling;
+			else
+				break;
+		}
+
+		free($1);
+		$$ = $2;
+	}
+	//| typeSpecifier error { $$ = NULL; }
+	;
 
 paramIdList:
-    paramIdList COMMA paramId 
-        {
-            if($1 != NULL) {
-                insertSibling($1, $3);
-                $$ = $1;
-            } else {
-                $$ = $3;
-            }
-            yyerrok;
-        }
-    | paramId 
-        {
-            $$=$1;
-        }
-    | paramIdList COMMA error { $$ = NULL; }
-	//TODO| error { $$ = NULL; }
-    ;
+	paramIdList COMMA paramId
+	{
+		TreeNode* t = $1;
+
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+
+		yyerrok;
+	}
+	| paramId { $$ = $1; }
+	//| paramIdList COMMA error { $$ = NULL; }
+	//| error { $$ = NULL; }
+	;
 
 paramId:
-    IDVAL LBOX RBOX 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->lineno = $1.line;
-            t->isArray = 1;
-            t->isParam = 1;
+	ID LSQB RSQB
+	{
+		TreeNode* t = newDeclNode(varDec);
+		t->attr.name = strdup($1.string);
+		t->lineno = $1.lineNumber;
+		t->isArray = 1;
+		t->isParam = 1;
+		$$ = t;
+	}
+	| ID
+	{
+		TreeNode* t = newDeclNode(varDec);
+		t->attr.name = strdup($1.string);
+		t->lineno = $1.lineNumber;
+		t->isParam = 1;
+		$$ = t;
+	}
+	//| error RSQB { $$ = NULL; yyerrok; }
+	;
 
-            $$ = t;
-        }
-    | IDVAL 
-        {
-            TreeNode *t = newDeclNode(VAR);
-            t->attr.name = strdup($1.str);
-            t->isParam = 1;
-            t->lineno = $1.line;
+statementList:
+	statementList statement
+	{
+		TreeNode* t = $1;
 
-            $$ = t;
-        }
-    | error RBOX { $$ = NULL; yyerrok; }
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
 
-    ;
+			t->sibling = $2;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $2;
+		}
+	}
+	| %empty { $$ = NULL; }
+	;
 
 statement:
-    matched { $$=$1;}
-    | unmatched {$$=$1; }
-    ;
+	matched  { $$ = $1; }
+	| unmatched  { $$ = $1; }
+	;
 
 matched:
-    IFCND LPAREN simpleExpression RPAREN matched ELSECND matched 
-        {
-            
-            TreeNode *t = newStmtNode(IF);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
-    
-            insertChild(t, $3);
-            insertChild(t, $5);
-            insertChild(t, $7);
-            $$ = t;
-        }
-    | iterationHeader matched
-        {
-            insertChild($1, $2);
-            $$ = $1;
-        }
-    | otherstatement {$$=$1; }
-    | IFCND LPAREN error { $$ = NULL; }
-	| IFCND error RPAREN matched ELSECND matched { $$ = NULL; yyerrok; }
-	//TODO| error { $$ = NULL; }
-    ;
+	IF LPAREN simpleExpression RPAREN matched ELSE matched
+	{
+		TreeNode* t = newStmtNode(IfK);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $3;
+		t->child[1] = $5;
+		t->child[2] = $7;
+		$$ = t;
+	}
+	| iterationHeader matched
+	{
+		TreeNode* t = $1;
+		t->child[1] = $2;
+		$$ = $1;
+	}
+	| otherStmt { $$ = $1; }
+	//| IF LPAREN error { $$ = NULL; }
+	//| IF error RPAREN matched ELSE matched { $$ = NULL; yyerrok; }
+	//| error { $$ = NULL; }
+	;
 
 unmatched:
-    IFCND LPAREN simpleExpression RPAREN matched 
-        {
-            TreeNode *t = newStmtNode(IF);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
-    
-            insertChild(t, $3);
-            insertChild(t, $5);
-
-            $$ = t;
-        }
-    | IFCND LPAREN simpleExpression RPAREN unmatched 
-        {
-            TreeNode *t = newStmtNode(IF);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
-    
-            insertChild(t, $3);
-            insertChild(t, $5);
-
-            $$ = t;
-        }
-    | IFCND LPAREN simpleExpression RPAREN matched ELSECND unmatched 
-        {
-            TreeNode *t = newStmtNode(IF);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
-    
-            insertChild(t, $3);
-            insertChild(t, $5);
-            insertChild(t, $7);
-
-            $$ = t;
-        }
-    | iterationHeader unmatched 
-        {
-            insertChild($1, $2);
-
-            $$ = $1;
-        }
-    | IFCND error { $$ = NULL; }
-	| IFCND error RPAREN matched { $$ = NULL; yyerrok; }
-	| IFCND error RPAREN unmatched { $$ = NULL; yyerrok; }
-	| IFCND error RPAREN matched ELSECND unmatched { $$ = NULL; yyerrok; }
-    ;
+	IF LPAREN simpleExpression RPAREN matched
+	{
+		TreeNode* t = newStmtNode(IfK);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $3;
+		t->child[1] = $5;
+		$$ = t;
+	} 
+	| IF LPAREN simpleExpression RPAREN unmatched
+	{
+		TreeNode* t = newStmtNode(IfK);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $3;
+		t->child[1] = $5;
+		$$ = t;
+	}
+	| IF LPAREN simpleExpression RPAREN matched ELSE unmatched
+	{
+		TreeNode* t = newStmtNode(IfK);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $3;
+		t->child[1] = $5;
+		t->child[2] = $7;
+		$$ = t;
+	}
+	| iterationHeader unmatched
+	{
+		TreeNode* t = $1;
+		t->child[1] = $2;
+		$$ = $1;
+	}
+	//| IF error { $$ = NULL; }
+	//| IF error RPAREN matched { $$ = NULL; yyerrok; }
+	//| IF error RPAREN unmatched { $$ = NULL; yyerrok; }
+	//| IF error RPAREN matched ELSE unmatched { $$ = NULL; yyerrok; }
+	;
 
 iterationHeader:
-    WHILECND LPAREN simpleExpression RPAREN
-        {
-            TreeNode *t = newStmtNode(WHILE);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
+	WHILE LPAREN simpleExpression RPAREN
+	{
+		TreeNode* t = newStmtNode(RepeatK);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $3;
+		$$ = t;
+	}
+	//| WHILE error { $$ = NULL; }
+	//| WHILE error RPAREN { $$ = NULL; yyerrok; }
+	//| WHILE LPAREN error RPAREN { $$ = NULL; yyerrok; }
+	;
 
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | WHILECND error { $$ = NULL; }
-	| WHILECND error RPAREN { $$ = NULL; yyerrok; }
-	| WHILECND LPAREN error RPAREN { $$ = NULL; yyerrok; }
-    ;
+otherStmt:
+	expressionStmt { $$ = $1; }
+	| compoundStmt { $$ = $1; }
+	| returnStmt { $$ = $1; }
+	| breakStmt { $$ = $1; }
+	;
 
-otherstatement:
-    expressionStmt  
-        {
-            $$=$1;
-        }
-    | compoundStmt 
-        {
-            $$=$1;
-        }
-    | returnStmt 
-        {
-            $$=$1;
-        }
-    | breakStmt 
-        {
-            $$=$1; 
-        }
-    ;
-
+expressionStmt:
+	expression SCOLON { $$ = $1; yyerrok; }
+	| SCOLON { $$ = NULL; yyerrok; }
+	;
 
 compoundStmt:
-    LBRACK localDeclarations statementList RBRACK 
-        {
-            TreeNode *t = newStmtNode(COMP);
-            t->attr.name = strdup("Compound");
-            t->lineno = $1.line;
-            insertChild(t, $2);
-            insertChild(t, $3);
-            $$ = t;
-            yyerrok;
-        }
-    //TODO one of these causes a shift reduce error
-    | LBRACK localDeclarations error RBRACK
+	LCB localDeclarations statementList RCB
 	{
-		TreeNode* t = newStmtNode(COMP);
-		t->lineno = $1.line;
+		TreeNode* t = newStmtNode(CompoundK);
+		t->lineno = $1.lineNumber;
 		t->child[0] = $2;
-		t->child[1] = NULL;
+		t->child[1] = $3;
 		$$ = t;
 
-		yyerrok;	
+		yyerrok;
 	}
-    | LBRACK error statementList RBRACK
+	/*| LCB error statementList RCB
 	{
-		TreeNode* t = newStmtNode(COMP);
-		t->lineno = $1.line;
+		TreeNode* t = newStmtNode(CompoundK);
+		t->lineno = $1.lineNumber;
 		t->child[0] = NULL;
 		t->child[1] = $3;
 		$$ = t;
 
 		yyerrok;	
 	}
-    ;
+	| LCB localDeclarations error RCB
+	{
+		TreeNode* t = newStmtNode(CompoundK);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $2;
+		t->child[1] = NULL;
+		$$ = t;
+
+		yyerrok;	
+	} */
+	;
 
 localDeclarations:
-    localDeclarations scopedVarDeclaration 
-        {
-            if($1 != NULL) {
-                insertSibling($1, $2);
-                $$ = $1;
-            } else {
-                $$ = $2;            
-            }
-        }
-    | %empty {$$ = NULL;}
-    ;
+	localDeclarations scopedVarDeclaration
+	{
+		TreeNode* t = $1;
 
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
 
-statementList:
-    statementList statement 
-        {
-        if($1 != NULL){
-            TreeNode *t = $1;
-            TreeNode *t2 = $2;
-            insertSibling($1,$2);
-            $$ = $1;
-            }
-        else $$ = $2;
-        }
-    | %empty {$$ = NULL; }
-    ;
-
-expressionStmt:
-    expression SEMICOLON { $$=$1; yyerrok;}
-    | SEMICOLON{$$=NULL; yyerrok;}
-    ;
-
+			t->sibling = $2;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $2;
+		}
+	}
+	| %empty { $$ = NULL; }
+	;
 
 returnStmt:
-    RETURNCND SEMICOLON 
-        {
-            TreeNode *t = newStmtNode(RETURN);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
-            $$ = t;
-            yyerrok;
-        }
-    | RETURNCND expression SEMICOLON
-        {
-            TreeNode *t = newStmtNode(RETURN);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
+	RETURN SCOLON
+	{
+		TreeNode* t = newStmtNode(ReturnK);
+		$$ = t;
 
-            insertChild(t, $2);
-            $$ = t;
-            yyerrok;
-        }
-    ;
+		yyerrok;
+	}
+	| RETURN expression SCOLON
+	{
+		TreeNode* t = newStmtNode(ReturnK);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $2;
+		$$ = t;
+
+		yyerrok;
+	}
+	;
 
 breakStmt:
-    BREAKCND SEMICOLON
-        {
-            TreeNode *t = newStmtNode(BREAK);
-            t->attr.name = $1.str;
-            t->lineno = $1.line;
+	BREAK SCOLON
+	{
+		TreeNode* t = newStmtNode(BreakK);
+		$$ = t;
 
-            $$ = t;
-            yyerrok;
-        }
-    ;
+		yyerrok;
+	}
+	;
 
 expression:
-    mutable EQ expression 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = ASSIGN;
-            t->attr.name = strdup("EQ");
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | mutable PLEQ expression 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = PASSIGN;
-            t->attr.name = strdup("PLEQ");
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | mutable MIEQ expression
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = SASSIGN;
-            t->attr.name = strdup("MIEQ");
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | mutable MUEQ expression 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = MASSIGN;
-            t->attr.name = strdup("MUEQ");
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | mutable DIEQ expression 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = DASSIGN;
-            t->attr.name = strdup("DIEQ");
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | mutable PLPL 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = PPLUS;
-            t->attr.name = strdup("PLPL");
-            insertChild(t, $1);
-            $$ = t;
-        }
-    | mutable MIMI
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = DDASH;
-            t->attr.name = strdup("MIMI");
-            insertChild(t, $1);
-            $$ = t;
-        }
-    | simpleExpression
-        {
-            $$ = $1;
-        }
-    //TODO causes shift/reduce errors
-    | error PLPL { $$ = NULL; yyerrok; }
-	| error MIMI { $$ = NULL; yyerrok; }
-	| error PLEQ error { $$ = NULL; yyerrok; }
-	| error MIEQ error { $$ = NULL; yyerrok; }
-	| error MUEQ error { $$ = NULL; yyerrok; }
-	| error DIEQ error { $$ = NULL; yyerrok; }
-    ;
+	mutable ASSIGN expression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = assign;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| mutable ADDASS expression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = passign;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| mutable SUBASS expression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = sassign;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| mutable MULASS expression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = massign;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| mutable DIVASS expression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = dassign;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| mutable INC
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->attr.op = pplus;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+
+		yyerrok;
+	}
+	| mutable DEC
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->attr.op = ddash;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+
+		yyerrok;
+	}
+	| simpleExpression { $$ = $1; }
+	//| error INC { $$ = NULL; yyerrok; }
+	//| error DEC { $$ = NULL; yyerrok; }
+	//| error ADDASS error { $$ = NULL; yyerrok; }
+	//| error SUBASS error { $$ = NULL; yyerrok; }
+	//| error MULASS error { $$ = NULL; yyerrok; }
+	//| error DIVASS error { $$ = NULL; yyerrok; }
+	;
 
 simpleExpression:
-    simpleExpression ORCND andExpression
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = BOR;
-            t->attr.name = strdup("ORCND");
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | andExpression
-        {
-            $$ = $1;
-        }
-    | simpleExpression ORCND error { $$ = NULL; }
-    ;
+	simpleExpression OR andExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = bOR;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| andExpression { $$ = $1; }
+	//| simpleExpression OR error { $$ = NULL; }
+	;
 
 andExpression:
-    andExpression ANDCND unaryRelExpression
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2.line;
-            t->attr.op = BAND;
-            t->attr.name = strdup("ANDCND");
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | unaryRelExpression{
-            $$=$1; }
-    | andExpression ANDCND error { $$ = NULL; }
-    ;
+	andExpression AND unaryRelExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = bAND;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| unaryRelExpression { $$ = $1; }
+	//| andExpression AND error { $$ = NULL; }
+	;
 
 unaryRelExpression:
-    NOTCND unaryRelExpression
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = BNOT;
-            t->attr.name = strdup("NOTCND");
-            insertChild(t, $2);
-            $$ = t;
-        }
-    | relExpression{
-            $$=$1; }
-    | NOTCND error {$$ = NULL;}
-    
-    ;
+	NOT unaryRelExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $2;
+		t->attr.op = bNOT;
+		t->lineno = $1.lineNumber;
+		$$ = t;
+	}
+	| relExpression { $$ = $1; }
+	//| NOT error { $$ = NULL; }
+	;
 
 relExpression:
-    sumExpression relop sumExpression 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2->lineno;
-            t->attr.op = $2->attr.op;
-            insertChild(t, $1);
-            insertChild(t, $3);
-            free($2);
-            $$ = t;
-        }
-    | sumExpression{
-            $$=$1; }
-    | sumExpression relop error { $$ = NULL; }
-	| error relop sumExpression { $$ = NULL;  yyerrok; }
-    ;
+	sumExpression relop sumExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = $2->attr.op;
+		t->lineno = $2->lineno;
+		free($2);
+		$$ = t;
+	}
+	| sumExpression { $$ = $1; }
+	//| sumExpression relop error { $$ = NULL; }
+	//| error relop sumExpression { $$ = NULL;  yyerrok; }
+	;
 
 relop:
-    LSEQ
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = LTEQ;
-            t->attr.name = strdup("LSEQ");
-            $$ = t;
-        }
-    | LS
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = LTHAN;
-            t->attr.name = strdup("LS");
-            $$ = t;
-        }
-    | GT
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = GTHAN;
-            t->attr.name = strdup("GT");
-            $$ = t;
-        }
-    | GTEQ
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = GTHANEQ;
-            t->attr.name = strdup("GTEQ");
-            $$ = t;
-        }
-    | EQEQ
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = EQCP;
-            t->attr.name = strdup("EQEQ");
-            $$ = t;
-        }
-    | NTEQ
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = NEQ;
-            t->attr.name = strdup("NTEQ");
-            $$ = t;
-        }
-    ;
+	LESSEQ
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = lteq;
+		$$ = t;
+	}
+	| LTHAN
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = lthan;
+		$$ = t;
+	}
+	| GTHAN
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = gthan;
+		$$ = t;
+	}
+	| GRTEQ
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = gteq;
+		$$ = t;
+	}
+	| EQ
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = eqeq;
+		$$ = t;
+	}
+	| NOTEQ
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = neq;
+		$$ = t;
+	}
+	;
 
 sumExpression:
-    sumExpression sumop term 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2->lineno;
-            t->attr.op = $2->attr.op;
-            insertChild(t, $1);
-            insertChild(t, $3);
-            free($2);
-            $$ = t;
-        }
-    | term
-        {
-            $$=$1;
-        }
-    | sumExpression sumop error { $$ = NULL; yyerrok; }
-    ;
+	sumExpression sumop term
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = $2->attr.op;
+		t->lineno = $2->lineno;
+		free($2);
+		$$ = t;
+	}
+	| term { $$ = $1; }
+	//| sumExpression sumop error { $$ = NULL; yyerrok; }
+	;
 
 sumop:
-    PL 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = PLUS;
-            t->attr.name = strdup("PL");
-            $$ = t;
-        }
-    | MI
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = DASH;
-            t->attr.name = strdup("MI");
-            $$ = t;
-        }
-    ;
+	PLUS
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = plus;
+		$$ = t;
+	}
+	| DASH
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = dash;
+		$$ = t;
+	}
+	;
 
 term:
-    term mulop unaryExpression 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $2->lineno;
-            t->attr.op = $2->attr.op;
-            insertChild(t, $1);
-            insertChild(t, $3);
-            free($2);
-            $$ = t;                    
-        }
-    | unaryExpression{
-            $$=$1;}
-    | term mulop error {$$ = NULL;}
-    ;
+	term mulop unaryExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = $2->attr.op;
+		t->lineno = $2->lineno;
+		free($2);
+		$$ = t;
+	}
+	| unaryExpression { $$ = $1; }
+	//| term mulop error { $$ = NULL; }
+	;
 
 mulop:
-    MUL
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = ASTERISK;
-            t->attr.name = strdup("MUL");
-            $$ = t;
-        }
-    | DIV
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = FSLASH;
-            t->attr.name = strdup("DIV");
-            $$ = t;
-        }
-    | PERC
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1.line;
-            t->attr.op = MOD;
-            t->attr.name = strdup("PERC");
-            $$ = t;
-        }
-    ;
+	ASTERISK
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = asterisk;
+		$$ = t;
+	}
+	| FSLASH
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = fslash;
+		$$ = t;
+	}
+	| MOD
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = mod;
+		$$ = t;
+	}
+	;
 
 unaryExpression:
-    unaryop unaryExpression
-        {
-            TreeNode *t = newExpNode(OP);
-            t->lineno = $1->lineno;
-            t->attr.op = $1->attr.op;
-            insertChild(t, $2);
-            free($1);
-            $$ = t;
-        }
-    | factor{
-            $$=$1; }
-    | unaryop error {$$= NULL;}
-    ;
+	unaryop unaryExpression
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $2;
+		t->attr.op = $1->attr.op;
+		t->lineno = $1->lineno;
+		free($1);
+		$$ = t;
+	}
+	| factor { $$ = $1; }
+	//| unaryop error { $$ = NULL; }
+	;
 
 unaryop:
-    MI
-        {
-            TreeNode *t = newExpNode(OP);
-            t->attr.op = DASH;
-            t->lineno = $1.line;
-            t->attr.name = strdup("MI");
-            $$ = t;
-        }
-    | MUL
-        {
-            TreeNode *t = newExpNode(OP);
-            t->attr.op = ASTERISK;
-            t->lineno = $1.line;
-            t->attr.name = strdup("MUL");
-            $$ = t;
-        }
-    | QM
-        {
-            TreeNode *t = newExpNode(OP);
-            t->attr.op = QMARK;
-            t->lineno = $1.line;
-            t->attr.name = strdup("QM");
-            $$ = t;
-        }
-    ;
+	DASH
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = dash;
+		$$ = t;
+	}
+	| ASTERISK
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = asterisk;
+		$$ = t;
+	}
+	| RANDOM
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->attr.op = qmark;
+		$$ = t;
+	}
+	;
 
 factor:
-    immutable {
-            $$=$1;}
-    | mutable{
-            $$=$1; }
-    ;
+	immutable { $$ = $1; }
+	| mutable { $$ = $1; }
+	;
 
 mutable:
-    mutable LBOX expression RBOX 
-        {
-            TreeNode *t = newExpNode(OP);
-            t->attr.op = LSB;
-            t->lineno = $2.line;
-            t->attr.name = strdup("LBOX");
-            //t->isArray = 1;
-            $1->isArray = 1;
-            insertChild(t, $1);
-            insertChild(t, $3);
-            $$ = t;
-        }
-    | mutable DOT IDVAL
-        {
-            TreeNode *t = newExpNode(OP);
-            t->attr.op = PERIODK;
-            t->attr.name = strdup("DOT");
-            t->lineno = $3.line;
-            TreeNode *t2 = newExpNode(ID);
-            t2->attr.name = $3.str;
-            t2->lineno = $3.line;
-            $1->isArray = 1;
-            insertChild(t, $1);
-            insertChild(t, t2);
-
-            $$ = t;
-        }
-    | IDVAL 
-        {
-            TreeNode *t = newExpNode(ID);
-            t->attr.name = strdup($1.str);
-            t->lineno = $1.line;
-            $$ = t;
-        }
-    
-    ;
+	mutable LSQB expression RSQB
+	{
+		TreeNode* t = newExpNode(OpK);
+		t->child[0] = $1;
+		t->child[1] = $3;
+		t->attr.op = lsb;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| mutable PERIOD ID
+	{
+		TreeNode* t = newExpNode(OpK);
+		TreeNode* x = newExpNode(IdK);
+		x->attr.name = strdup($3.string);
+		t->child[0] = $1;
+		t->child[1] = x;
+		t->attr.op = period;
+		t->lineno = $2.lineNumber;
+		$$ = t;
+	}
+	| ID
+	{
+		TreeNode* t = newExpNode(IdK);
+		t->attr.name = strdup($1.string);
+		t->lineno = $1.lineNumber;
+		$$ = t;
+	}
+	;
 
 immutable:
-    LPAREN expression RPAREN 
-        {
-            $$=$2;
-            yyerrok;
-        }
-    | call {
-            $$=$1; }
-    | constant{
-            $$=$1; }
-    //TODO
-    //| LPAREN error {$$ = NULL;}
-    //| error RPAREN {$$ = NULL; yyerrok;}
-    ;
+	LPAREN expression RPAREN { $$ = $2; yyerrok; }
+	| call { $$ = $1; }
+	| constant { $$ = $1; }
+	//| LPAREN error { $$ = NULL; }
+	//| error RPAREN { $$ = NULL; yyerrok; }
+	;
 
 call:
-    IDVAL LPAREN args RPAREN
-        {
-            TreeNode* t = newStmtNode(CALL);
-            t->attr.name = strdup($1.str);
-            
-            t->lineno = $1.line;
-            insertChild(t, $3);
-            $$ = t;
-        }
-    //TODO
-    | error LPAREN { $$ = NULL; yyerrok; }
-    ;
+	ID LPAREN args RPAREN
+	{
+		TreeNode* t = newExpNode(ExpK);
+		t->attr.name = strdup($1.string);
+		t->lineno = $1.lineNumber;
+		t->child[0] = $3;
+		t->isFunc = 1;
+		$$ = t;
+	}
+	//| error LPAREN { $$ = NULL; yyerrok; }
+	;
 
 args:
-    argList {$$=$1;}
-    | %empty {$$=NULL;}
-    ;
+	argList { $$ = $1; }
+	| %empty { $$ = NULL; }
+	;
 
 argList:
-    argList COMMA expression         
-        {
-            if($1 != NULL) {
-                $3->isParam = 1;
-                insertSibling($1, $3);
-                $$ = $1;
-            } else {
-                $$ = $3;
-            }
-            yyerrok;
-        }
-    | expression {$$=$1; }
+	argList COMMA expression
+	{
+		TreeNode* t = $1;
 
-    ;
+		if(t != NULL)
+		{
+			while(t->sibling != NULL)
+				t = t->sibling;
+
+			t->sibling = $3;
+			$$ = $1;
+		}
+		else
+		{
+			$$ = $3;
+		}
+
+		yyerrok;
+	}
+	| expression {  $$ = $1; }
+	//| argList COMMA error { $$ = $1; }
+	;
 
 constant:
-    NUM 
-        {
-            TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.val;
-            t->lineno = $1.line;
-            t->expType = NUMB;
-            t->attr.name = strdup("NUM");
-            $$ = t; 
-        }
-    | CHAR        
-        {
-            TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.ltr;
-            t->lineno = $1.line;
-            t->expType = SINGLE;
-            t->attr.name = strdup("CHAR");
-            $$ = t;
-        }
-    | BOOLT        
-        {
-            TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.val;
-            t->lineno = $1.line;
-            t->expType = TF;
-            t->attr.name = strdup("true");
-            $$ = t;
-        } 
-    | BOOLF        
-        {
-            TreeNode* t = newExpNode(CONST);
-            t->attr.value = $1.val;
-            t->lineno = $1.line;
-            t->expType = TF;
-            t->attr.name = strdup("false");
-            $$ = t;
-        }
-    ;
+	NUMCONST
+	{
+		TreeNode* t = newExpNode(ConstK);
+		t->attr.value = $1.value;
+		t->expType = Integer;
+		$$ = t;
+	}
+	| CHARCONST
+	{
+		TreeNode* t = newExpNode(ConstK);
+		t->attr.cvalue = $1.letter;
+		t->expType = Char;
+		$$ = t;
+	}
+	| BOOLCONST
+	{
+		TreeNode* t = newExpNode(ConstK);
+		t->attr.value = $1.value;
+		t->expType = Boolean;
+		$$ = t;
+	}
+	;
 
 %%
 
-/* NOTE - use only one command line argument at a time, otherwise it may erase file data */
-int main(int argc, char** argv) {
-    int c;
-    int p = 0;
-    int type = 0;
-    while((c = getopt(argc, argv, "dpP:")) != -1) {
-        switch(c) {
-            case 'd':
-                yydebug = 1;
-                break;
-            case 'P':
-                type = 1;
-                break;
-            case 'p':
-                p = 1;
-                break;
-            default:
-                yydebug = 0; p = 0; type = 0;
-                break;
-        }
-    }
-    //printf("%d %d %d\n", yydebug, p, type);
-    FILE *file;
-    FILE *outf;
-    if(yydebug == 1 | p == 1 | type == 1) {
-        file = fopen(argv[2], "r");
-        outf = fopen(argv[3], "w");
-    } else {
-        file = fopen(argv[1], "r");
-        outf = fopen(argv[2], "w");
-    }
+/*
+* MAIN FUNCTION
+*/
+int main(int argc, char* argv[]) {
 
-    if(!file) {
-        do{
-            yyparse();
-        }while(!feof(yyin));
-    } else {
-        yyin = file;
-        do{
-		    yyparse();
-	    }while(!feof(yyin));
-    }
+	//AST printing flags
+	int printSyntaxTree = 0;
+	int printAnnotatedSyntaxTree = 0;
 
-    scopeAndType(syntaxTree);
+	/*
+	* Command line option variables
+	*
+	* c - value of flag
+	* long_options - array of word-sized options
+	* option_index - location in arg list
+	*/
+	int c;
+	struct option long_options[] = {};
+	int option_index = 0;
 
+	//Check for command line args
+	do {
+		/*
+		* The string "" arg should contain all acceptable options
+		*
+		* d - debug on
+		* p - print AST
+		* P - print annotated AST
+		*/
+		c = getopt_long(argc, argv, "dpP", long_options, &option_index);
+		switch(c)
+		{
+			//Long option present
+			case 0:
+				break;
+			//Debug parser
+			case 'd':
+				yydebug = 1;
+				break;
+			//Print AST
+			case 'p':
+				printSyntaxTree = 1;
+				break;
+			//Print Extra AST
+			case 'P':
+				printAnnotatedSyntaxTree = 1;
+				break;
+			//No more options
+			case -1:
+				break;
+			//Unknown option
+			default:
+				return(-1);
+				break;
+		}
+	}while(c != -1);
 
-    if(p == 1) printTree(stdout, syntaxTree);
-    if(type == 1) printPTree(stdout, syntaxTree);
+	//File name has also been provided
+	if(optind < argc)
+	{
+		//Open file handle to read input
+		FILE* myfile = fopen(argv[optind],"r");
 
-    /* adding IO routines after printing */
-    //output
-    /*TreeNode *tmp1 = newDeclNode(FUNC);
-        tmp1->expType = 0;
-        tmp1->lineno = -1;
-        tmp1->isFunc = 1;
-        tmp1->attr.name = "output";
-    TreeNode *tmp2 = newDeclNode(VAR);
-        tmp2->expType = 1;
-        tmp2->lineno = -1;
-        tmp2->isParam = 1;
-        tmp2->attr.name = "*dummy*";
-    insertChild(tmp1, tmp2);
-    insertSibling(syntaxTree, tmp1);
-    //outputb
-    tmp1 = newDeclNode(FUNC);
-        tmp1->expType = 0;
-        tmp1->lineno = -1;
-        tmp1->isFunc = 1;
-        tmp1->attr.name = "outputb";
-    tmp2 = newDeclNode(VAR);
-        tmp2->expType = 2;
-        tmp2->lineno = -1;
-        tmp2->isParam = 1;
-        tmp2->attr.name = "*dummy*";
-    insertChild(tmp1, tmp2);
-    insertSibling(syntaxTree, tmp1);
-    //outputc    
-    tmp1 = newDeclNode(FUNC);
-        tmp1->expType = 0;
-        tmp1->lineno = -1;
-        tmp1->isFunc = 1;
-        tmp1->attr.name = "outputc";
-    tmp2 = newDeclNode(VAR);
-        tmp2->expType = 3;
-        tmp2->lineno = -1;
-        tmp2->isParam = 1;
-        tmp2->attr.name = "*dummy*";
-    insertChild(tmp1, tmp2);
-    insertSibling(syntaxTree, tmp1);
-    //input    
-    tmp1 = newDeclNode(FUNC);
-        tmp1->expType = 1;
-        tmp1->lineno = -1;
-        tmp1->isFunc = 1;
-        tmp1->attr.name = "input";
-    insertSibling(syntaxTree, tmp1);
-    //inputb    
-    tmp1 = newDeclNode(FUNC);
-        tmp1->expType = 2;
-        tmp1->lineno = -1;
-        tmp1->isFunc = 1;
-        tmp1->attr.name = "inputb";
-    insertSibling(syntaxTree, tmp1);
-    //inputc    
-    tmp1 = newDeclNode(FUNC);
-        tmp1->expType = 3;
-        tmp1->lineno = -1;
-        tmp1->isFunc = 1;
-        tmp1->attr.name = "inputc";
-    insertSibling(syntaxTree, tmp1);
-    //outnl    
-    tmp1 = newDeclNode(FUNC);
-        tmp1->expType = 0;
-        tmp1->lineno = -1;
-        tmp1->isFunc = 1;
-        tmp1->attr.name = "outnl";
-    insertSibling(syntaxTree, tmp1);
-    */
-    //printf("\n\n\n\n");
-    //printTree(stdout, syntaxTree);
-    fprintf(stdout, "Number of warnings: %d\n",numWarnings);
-    fprintf(stdout, "Number of errors: %d\n",numErrors);
-  
+		//Check if input file opened
+		if(!myfile) {
+			fprintf(stderr,"Couldn't open file %s.\n",argv[optind]);
+			return(-1);
+		}
+
+		//Tell bison to read from file stream
+		yyin = myfile;
+	}
+	//No file name given
+	else
+	{
+		//Tell bison to read from STDIN
+		yyin = stdin;
+	}
+
+	//Setup fancy errors
+	initErrorProcessing();
+
+	//Parse input until EOF
+	do
+	{
+		yyparse();
+	}
+	while(!feof(yyin));
+
+	//Check for no syntax errors
+	if(!numErrors)
+	{
+		//Print AST if requested
+		if(printSyntaxTree)
+			printTree(syntaxTree, NOTYPES);
+
+		//Add prototypes to AST
+		syntaxTree = addProto(syntaxTree);
+
+		//Check AST scopes and types
+		scopeAndType(syntaxTree);
+
+		//Print Extra AST if requested
+		if(printAnnotatedSyntaxTree)
+		{
+			printTree(syntaxTree, TYPES);
+		}
+	}
+
+	//Print problem count
+	printProbs(numWarnings, numErrors);
+
+	//Close read-in file
+	fclose(yyin);
 }
-
 

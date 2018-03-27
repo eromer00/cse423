@@ -1,4 +1,4 @@
-#############################################
+########################################INFO#
 #
 # Omar Soliman
 # Spring 2018
@@ -11,16 +11,12 @@
 #   \/___\/
 #
 # Change GROUP to your group's name
-# Change LAB to PA number
 # Add file name to FILES for each assignment
 #
 #############################################
 
 #Group name
-GROUP = Spaghet_Code
-
-#Lab number
-LAB = 4
+GROUP = TAgroup
 
 #Output executable name
 BIN = c-
@@ -28,11 +24,11 @@ BIN = c-
 #Use the C compiler
 CC = gcc
 
-#Base code file name for the class
+#Base code file name
 BASE = parser
 
-#Code files seperated by space
-FILES := scanType printTree recordType semantic yyerror
+#Code files
+FILES := scanType printtree semantic yyerror
 CFILES := $(FILES:=.c)
 OFILES := $(FILES:=.o)
 HFILES := $(FILES:=.h)
@@ -46,7 +42,7 @@ OBJS := lex.yy.o $(BASE).tab.o $(OFILES)
 
 
 #Uncomment for gcc debugging
-CFLAGS = -g
+#CFLAGS = -g
 
 #Declare compiler libraries to use
 LIBS = -lfl
@@ -90,5 +86,5 @@ clean:
 
 #Keyword to type after make to create tarball of source code
 tar:
-	tar -cvf $(GROUP)_PA$(LAB)_.tar $(SRCS) makefile
+	tar -cvf $(GROUP)_PA_.tar $(SRCS) makefile
 

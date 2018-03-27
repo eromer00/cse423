@@ -15,7 +15,9 @@
  *
  **/
 
-#include "printTree.h"
+#include "printtree.h"
+
+#define MAXPARAMS 51
 
 /*
 * Symbol data
@@ -36,7 +38,12 @@ typedef struct Symbol {
 
 	/*
 	 * Symbol param type list
-	*/
+	 * Stored as an array of chars
+	 * representing the params
+	 * lower case is type
+	 * upper case is Array
+	 */
+	char paramType[MAXPARAMS];
 
 } Symbol;
 
@@ -118,7 +125,6 @@ Symbol* findSymbol(Scope* s, char* string);
  * string - Symbol name to search for
  */
 Symbol* stackSearch(char* string);
-Scope* stackReturn(char* string);
 
 /*
 * Insert symbol into scope
@@ -205,10 +211,6 @@ void scopeAndType(TreeNode* tree);
 * tree - Root node to start at
 */
 void treeTraverse(TreeNode* tree);
-
-
-char *typeHelperSemantic(int x);
-void checkWarning(TreeNode *tree);
 
 #endif
 

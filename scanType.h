@@ -3,24 +3,67 @@
 
 /**
  *
- * @date Spring 2018
- * @author Erik Romero, Franz Chavez, Carlos Rubio
+ * @date Fall 2017
+ * @author Omar Soliman
  * @title Scanner Definitions
+ *    _____
+ *   /\   /\
+ *  /  \ /  \
+ * |    xmst |
+ *  \  / \  /
+ *   \/___\/
  *
  **/
 
 
 /*
+* Main kind of token type
+*
+* idTkn - ID token
+* numTkn - Number token
+* charTkn - Character token
+* recTkn - Record token
+* boolTkn - Boolean token
+* keyTkn - Keyword token
+*/
+typedef enum {idTkn, numTkn, charTkn, recTkn, boolTkn, keyTkn} TokenClass;
+
+
+/*
 * Structure to hold Token data
 */
-
 typedef struct {
-    int line;
-    char* str;
-    char ltr;
-    int val;
+
+	//Token type to differentiate tokens
+	TokenClass tokenType;
+
+	//Token location in code
+	int lineNumber;
+
+	//Token raw string from code
+	char* string;
+
+	//Token single character value
+	char letter;
+
+	//Token numerical value
+	int value;
+
 } Token;
 
+/*
+* Linked list of RECTYPEs
+* Allows us to maintain list of custom types
+*/
+typedef struct RType {
+
+	//Record type name
+	char* rtype;
+
+	//Pointer to another record type
+	struct RType* next;
+
+} RType;
 
 /*
 * Function to allocate character constant token
@@ -40,13 +83,20 @@ Token* newCHARtoken(int line, char ltr, char* str);
 Token* newIDtoken(int line, char* str);
 
 /*
+* Function to allocate character constant token
+*
+* line - Token line number
+* str - User supplied string record was found in
+*/
+Token* newRECtoken(int line, char* str);
+
+/*
 * Function to allocate keyword token
 *
 * line - Token line number
 * str - User supplied string keyword was found in
-* cls - Class of token
 */
-Token* newKEYtoken(int line, char* str, int keyvalue);
+Token* newKEYtoken(int line, char* str);
 
 /*
 * Function to allocate numerical constant token
@@ -67,9 +117,26 @@ Token* newNUMtoken(int line, char* str, int val);
 Token* newBOOLtoken(int line, char* str, int val);
 
 /*
- * Error message
- */
-void yyerror(const char* s);
+* Convert string to upper case
+*
+* s - lowercase string
+*/
+void strupr(char* s);
+
+/*
+* Create rectype linked list
+*
+* Returns new linked list for rectypes
+*/
+RType* newRType(void);
+
+/*
+* Add rectype to list
+*
+* r - Rectype list
+* s - New rectype
+*/
+void addRType(RType* r, char* s);
 
 #endif
 

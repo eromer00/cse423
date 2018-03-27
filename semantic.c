@@ -66,10 +66,6 @@ TreeNode* lastFunDec = NULL;
 //Flag for parameter checking
 int paramCheck = 0;
 
-int warncheck = 0;
-
-//char* buf;
-
 //Reference parser error function
 void yyerror(const char* s);
 
@@ -113,9 +109,9 @@ char* opString[25] = {
  * Expression string array
  *
  * Void    |0
- * NUMB |1
- * TF |2
- * SINGLE    |3
+ * Integer |1
+ * Boolean |2
+ * Char    |3
  * Unknown |4
  */
 char* expString[5] = {
@@ -123,14 +119,13 @@ char* expString[5] = {
 "char", "unknown"};
 
 /*
- * Convert type SINGLE to type string index
+ * Convert type char to type string index
  *
- * c - type SINGLE
+ * c - type char
  */
 int typeCharToInt(char c) {
 
 	int i = 4;
-
 
 	switch(c)
 	{
@@ -160,10 +155,7 @@ int typeCharToInt(char c) {
 		break;
 
 		default:
-
-			// sprintf(buf, "ERROR(%d): Syntax error, bad attempt at typechar to int", numErrors);
-			// yyerror(buf);
-			yyerror("bad attempt at typechar to int");
+			yyerror("Bad attempt at typechar to int");
 		break;
 	}
 
@@ -177,11 +169,8 @@ SymbolTable* initST(void) {
 
 	//Allocate symbol table
 	SymbolTable* st = malloc(sizeof(SymbolTable));
-	if(st == NULL){
-		// sprintf(buf, "ERROR(%d): Failed to allocate symbol table.", numErrors);
-		// yyerror(buf);
+	if(st == NULL)
 		yyerror("Failed to allocate symbol table.");
-	}
 
 	//Set symbol table depth to nothing
 	st->depth = 0;
@@ -278,7 +267,8 @@ Symbol* newSymbol(char* n, char* d, int l) {
 	//Set symbol line number
 	symbol->line = l;
 
-	//Init params
+	//Init type string
+	symbol->paramType[0] = '\0';
 
 	return(symbol);
 }
@@ -333,33 +323,7 @@ Symbol* stackSearch(char* string) {
 			break;
 	}
 
-	return(sym);
-}
-
-Scope* stackReturn(char* string) {
-
-	//Temp symbol
-	Symbol* sym = NULL;
-
-	//Starting in the current scope
-	Scope* sc = stable->current;
-
-	//Check up the scope stack until global
-	while(sc != NULL)
-	{
-		//Search for matching symbol being returned
-		sym = findSymbol(sc, string);
-
-		if(sym == NULL)
-			sc = sc->parent;
-		else
-			break;
-	}
-    if(sym == NULL)
-    {printf("fuck\n");return NULL;}
-    else {
-	return(sc);
-    }
+	return(sym); 
 }
 
 /*
@@ -388,7 +352,7 @@ int idCheck(TreeNode* t, char* string, int match) {
 		value = -2;
 	}
 	//Node is an ID
-	else if((t->nodekind == EXP) && (t->kind.exp == ID))
+	else if((t->nodekind == ExpK) && (t->kind.exp == IdK))
 	{
 		//Try to find returning symbol
 		gsym = stackSearch(t->attr.name);
@@ -539,27 +503,28 @@ void printSymbolTable(FILE* o) {
  * s1 - First string
  * s2 - Second string
  * s3 - Third string
- * i1 - First NUMB
+ * i1 - First integer
  */
 void printWarning(int warnum, int line, char* s1, char* s2, char* s3, int i1) {
 
 	//Print error header
+	printf("WARNING(%d): ",line);
 
 	//Display the correct error message
-    printf("WARNING(%d): ",line);
+	switch(warnum)
+	{
+		case 1:
+			printf("Expecting to return type %s but function '%s' has no return statement.\n",s1,s2);
+		break;
+
+		default:
+
+		break;
+	}
+
 	//Increase warning count
-    switch(warnum) {
+	WARN;
 
-    case 0:
-        printf("Expecting to return %s but function '%s' has no return statement.\n", s1, s2);
-    break;
-
-    default:
-        yyerror("Bad warning function call");
-    break;
-
-    }
-    WARN;
 	return;
 }
 
@@ -572,12 +537,18 @@ void printWarning(int warnum, int line, char* s1, char* s2, char* s3, int i1) {
  * s1 - First string
  * s2 - Second string
  * s3 - Third string
- * i1 - First NUMB
- * i2 - Second NUMB
+ * i1 - First integer
+ * i2 - Second integer
  */
 void printError(int errnum, int line, char* s1, char* s2, char* s3, int i1, int i2) {
 
 	//0 error for missing main
+	if(!errnum)
+	{
+		printf("ERROR(LINKER): Procedure main is not defined.\n");
+		ERROR;
+		return;
+	}
 
 	//Print error header
 	printf("ERROR(%d): ",line);
@@ -585,26 +556,24 @@ void printError(int errnum, int line, char* s1, char* s2, char* s3, int i1, int 
 	//Display the correct error message
 	switch(errnum)
 	{
-        //Assignment 3
-
 		case 1:
 			printf("'%s' is a simple variable and cannot be called.\n",s1);
 		break;
 
 		case 2:
-			printf("'%s' requires operands of type %s but lhs is of %s.\n",s1,s2,s3);
+			printf("'%s' requires operands of type %s but lhs is of type %s.\n",s1,s2,s3);
 		break;
 
 		case 3:
-			printf("'%s' requires operands of type %s but rhs is of %s.\n",s1,s2,s3);
+			printf("'%s' requires operands of type %s but rhs is of type %s.\n",s1,s2,s3);
 		break;
 
 		case 4:
-			printf("'%s' requires operands of the same type but lhs is %s and rhs is %s.\n",s1,s2,s3);
+			printf("'%s' requires operands of the same type but lhs is type %s and rhs is type %s.\n",s1,s2,s3);
 		break;
 
 		case 5:
-			printf("Array '%s' should be indexed by type int but got %s.\n",s1,s2);
+			printf("Array '%s' should be indexed by type int but got type %s.\n",s1,s2);
 		break;
 
 		case 6:
@@ -644,82 +613,73 @@ void printError(int errnum, int line, char* s1, char* s2, char* s3, int i1, int 
 		break;
 
 		case 15:
-			printf("Unary '%s' requires an operand of %s but was given %s.\n",s1,s2,s3);
+			printf("Unary '%s' requires an operand of type %s but was given type %s.\n",s1,s2,s3);
 		break;
 
-        //Assignment 4
+		case 16:
+			printf("Expecting Boolean test condition in %s statement but got type %s.\n",s1,s2);
+		break;
 
-        case 16:
-            printf("Expecting Boolean test condition in %s statement but got %s.\n", s1, s2);
-        break;
+		case 17:
+			printf("Cannot use array as test condition in %s statement.\n",s1);
+		break;
 
-        case 17:
-            printf("Cannot use array as test condition in %s statement.\n", s1);
-        break;
+		case 18:
+			printf("Cannot have a break statement outside of loop.\n");
+		break;
 
-        //defunct, don't use
-        case 18:
-            printf("Array index is an unindexed array.\n");
-        break;
+		case 19:
+			printf("'%s' requires that either both or neither operands be arrays.\n",s1);
+		break;
 
-        case 19:
-            printf("'%s' requires that either both or neither operands be arrays.\n", s1);
-        break;
+		case 20:
+			printf("Initializer for variable '%s' is not a constant expression.\n",s1);
+		break;
 
-        case 20:
-            printf("Initializer for variable '%s' is not a constant expression.\n", s1);
-        break;
+		case 21:
+			printf("Variable '%s' is of type %s but is being initialized with an expression of type %s.\n",s1,s2,s3);
+		break;
 
-        case 21:
-            printf("Variable '%s' is of %s but is being initialized with an expression of %s.\n", s1, s2, s3);
-        break;
+		case 22:
+			printf("Function '%s' is not defined.\n",s1);
+		break;
 
-        case 22:
-            printf("Function '%s' at line %d is expecting no return value, but return has return value.\n", s1, i1);
-        break;
+		case 23:
+			printf("Function '%s' at line %d is expecting no return value, but return has return value.\n",s1,i1);
+		break;
 
-        case 23:
-            printf("Function '%s' at line %d is expecting to return %s but instead returns %s.\n", s1, i1, s2, s3);
-        break;
+		case 24:
+			printf("Function '%s' at line %d is expecting to return type %s but instead returns type %s.\n",s1,i1,s2,s3);
+		break;
 
-        case 24:
-            printf("Function '%s' at line %d is expecting to return %s but return has no return value.\n", s1, i1, s2);
-        break;
+		case 25:
+			printf("Function '%s' at line %d is expecting to return type %s but return has no return value.\n",s1,i1,s2);
+		break;
 
-        case 25:
-            printf("Cannot have a break statement outside of loop.\n");
-        break;
+		case 26:
+			printf("Too few parameters passed for function '%s' defined on line %d.\n",s1,i1);
+		break;
 
-        //redundant case, do not use
-        case 26:
-            printf("Cannot use function '%s' as a variable.\n", s1);
-        break;
+		case 27:
+			printf("Too many parameters passed for function '%s' defined on line %d.\n",s1,i1);
+		break;
 
-        case 27:
-            printf("Too few parameters passed for function '%s' defined on line %d.\n", s1, i1);
-        break;
+		case 28:
+			printf("Expecting type %s in parameter %d of call to '%s' defined on line %d but got type %s.\n",s1,i1,s2,i2,s3);
+		break;
 
-        case 28:
-            printf("Expecting %s in parameter %i of call to '%s' defined on line %d but got %s.\n", s1, i1, s2, i2, s3);
-        break;
+		case 29:
+			printf("Expecting array in parameter %d of call to '%s' defined on line %d.\n",i1,s1,i2);
+		break;
 
-        case 29:
-            printf("Expecting array in parameter %i of call to '%s' defined on line %d.\n", i1, s1, i2);
-        break;
+		case 30:
+			printf("Not expecting array in parameter %d of call to '%s' defined on line %d.\n",i1,s1,i2);
+		break;
 
-        case 30:
-            printf("Not expecting array in parameter %i of call to '%s' defined on line %d.\n", i1, s1, i2);
-        break;
+		case 31:
+			printf("Array index is an unindexed array.\n");
+		break;
 
-        case 31:
-            printf("Too many parameters passed for function '%s' defined on line %d.\n", s1, i1);
-        break;
-
-        case 32:
-            printf("Function '%s' is not defined.\n", s1);
-        break;
-
-        //printf("ERROR(LINKER): Procedure main is not defined.\n");
 		//Bad error code
 		default:
 			yyerror("Bad error function call");
@@ -745,13 +705,13 @@ void operatorCheck(TreeNode* tree) {
 		/*
 		 * Requires INT_INT, gives INT
 		 */
-		case DASSIGN:
-		case MASSIGN:
-		case SASSIGN:
-		case PASSIGN:
-		case MOD:
-		case FSLASH:
-		case PLUS:
+		case dassign:
+		case massign:
+		case sassign:
+		case passign:
+		case mod:
+		case fslash:
+		case plus:
 
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
@@ -760,30 +720,29 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					//Typecheck array anyways
 					if(gsym->data[6] != 'i')
-						printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
-					tree->isArray = 1;
+					tree->child[0]->isArray = 1;
 				break;
 
 				//LHS is not an array
 				case 1:
 					//Check if LHS type matches INT
 					if(gsym->data[0] != 'i')
-						printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 				break;
 
 				//LHS is a function
 				case 2:
 					if(gsym->data[9] != 'i')
-						printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-					if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[0]->expType != NUMB)
-						printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[0]->expType],0,0);
+					if(tree->child[0]->expType != Integer)
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[0]->expType],0,0);
 				break;
 
 				//ID not found
@@ -802,33 +761,29 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					//Typecheck array anyways
 					if(gsym->data[6] != 'i')
-						printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
-					if(!tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+					tree->child[1]->isArray = 1;
 				break;
 
 				//RHS is not an array
 				case 1:
 					//Check if RHS type matches INT
 					if(gsym->data[0] != 'i')
-						printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
-					if(tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 				break;
 
 				//RHS is a function
 				case 2:
 					if(gsym->data[9] != 'i')
-						printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-					if(tree->child[1]->isFunc)printError(26,tree->lineno,tree->child[1]->attr.name,0,0,0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[1]->expType != NUMB)
-						printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[1]->expType],0,0);
+					if(tree->child[1]->expType != Integer)
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[1]->expType],0,0);
 				break;
 
 				//ID not found
@@ -844,14 +799,14 @@ void operatorCheck(TreeNode* tree) {
 				printError(13,tree->lineno,opString[tree->attr.op],"","",0,0);
 
 			//Set return type
-			tree->expType = NUMB;
+			tree->expType = Integer;
 
 		break;
 
 		/*
 		 * Requires SAME_SAME, gives LHS
 		 */
-		case ASSIGN:
+		case assign:
 
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
@@ -862,17 +817,17 @@ void operatorCheck(TreeNode* tree) {
 					tree->isArray = 1;
 
 					if(gsym->data[6] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[6] == 'v')
 					{
 						//Assign to void error
-						tree->expType = VOID;
-						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+						tree->expType = Void;
+						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 					}
 					else if(gsym->data[6] == 'b')
-						tree->expType = TF;
+						tree->expType = Boolean;
 					else if(gsym->data[6] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else if(gsym->data[6] == 'u')
 						tree->expType = Unknown;
 					else
@@ -886,17 +841,17 @@ void operatorCheck(TreeNode* tree) {
 
 					//Set node expType to array type
 					if(gsym->data[0] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[0] == 'v')
 					{
 						//Assign to void error
-						tree->expType = VOID;
-						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+						tree->expType = Void;
+						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 					}
 					else if(gsym->data[0] == 'b')
-						tree->expType = TF;
+						tree->expType = Boolean;
 					else if(gsym->data[0] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else if(gsym->data[0] == 'u')
 						tree->expType = Unknown;
 					else
@@ -906,7 +861,6 @@ void operatorCheck(TreeNode* tree) {
 				//LHS is a function
 				case 2:
 					//Indicate array status
-					if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					tree->isArray = 0;
 				break;
 
@@ -919,8 +873,8 @@ void operatorCheck(TreeNode* tree) {
 					tree->expType = tree->child[0]->expType;
 
 					//Assign to void error
-					if(tree->expType == VOID)
-						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+					if(tree->expType == Void)
+						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 				break;
 
 				//ID not found
@@ -938,73 +892,70 @@ void operatorCheck(TreeNode* tree) {
 				//RHS is array
 				case 0:
 					if(gsym->data[6] == 'v')
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 					else if ( (gsym->data[6] == 'u') || (tree->expType == Unknown) )
 						break;
-					else if( (gsym->data[6] == 'b') && ( (tree->expType == NUMB) || (tree->expType == SINGLE) ) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[TF],0,0);
-					else if( (gsym->data[6] == 'i') && ( (tree->expType == TF) || (tree->expType == SINGLE) ) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[6] == 'c') && ( (tree->expType == NUMB) || (tree->expType == TF) ) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+					else if( (gsym->data[6] == 'b') && ( (tree->expType == Integer) || (tree->expType == Char) ) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Boolean],0,0);
+					else if( (gsym->data[6] == 'i') && ( (tree->expType == Boolean) || (tree->expType == Char) ) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[6] == 'c') && ( (tree->expType == Integer) || (tree->expType == Boolean) ) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 
 					//Check if LHS was also array
-					if(!tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
-
+					if(tree->isArray != 1)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//RHS is not an array
 				case 1:
 					if(gsym->data[0] == 'v')
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 					else if ( (gsym->data[0] == 'u') || (tree->expType == Unknown) )
 						break;
-					else if( (gsym->data[0] == 'b') && ( (tree->expType == NUMB) || (tree->expType == SINGLE) ) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[TF],0,0);
-					else if( (gsym->data[0] == 'i') && ( (tree->expType == TF) || (tree->expType == SINGLE) ) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[0] == 'c') && ( (tree->expType == NUMB) || (tree->expType == TF) ) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+					else if( (gsym->data[0] == 'b') && ( (tree->expType == Integer) || (tree->expType == Char) ) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Boolean],0,0);
+					else if( (gsym->data[0] == 'i') && ( (tree->expType == Boolean) || (tree->expType == Char) ) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[0] == 'c') && ( (tree->expType == Integer) || (tree->expType == Boolean) ) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 
 					//Check if LHS was also not array
-					if(tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
-
+					if(tree->isArray != 0)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//RHS is function
 				case 2:
 					if(gsym->data[9] == 'v')
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 					else if ( (gsym->data[9] == 'u') || (tree->expType == Unknown) )
 						break;
-					else if( (gsym->data[9] == 'b') && ((tree->expType == NUMB) || (tree->expType == SINGLE)) && tree->child[1]->isFunc)
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[TF],0,0);
-					else if( (gsym->data[9] == 'i') && ((tree->expType == TF) || (tree->expType == SINGLE)) && tree->child[1]->isFunc)
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[9] == 'c') && ((tree->expType == NUMB) || (tree->expType == TF)) && tree->child[1]->isFunc)
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+					else if( (gsym->data[9] == 'b') && ((tree->expType == Integer) || (tree->expType == Char)) && tree->child[1]->isFunc)
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Boolean],0,0);
+					else if( (gsym->data[9] == 'i') && ((tree->expType == Boolean) || (tree->expType == Char)) && tree->child[1]->isFunc)
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[9] == 'c') && ((tree->expType == Integer) || (tree->expType == Boolean)) && tree->child[1]->isFunc)
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 
-                    if(tree->child[1]->isFunc)printError(26,tree->lineno,tree->child[1]->attr.name,0,0,0,0);
 					//Check if LHS was also not array
-					if(tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+					if(tree->isArray != 0)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[1]->expType == VOID)
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+					if(tree->child[1]->expType == Void)
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 					else if ((tree->expType == Unknown) || (tree->child[1]->expType == Unknown) )
 						break;
 					else if(tree->expType != tree->child[1]->expType)
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[tree->child[1]->expType],0,0);
 
 					//Check if LHS was also not array
-					if(tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+					if(tree->isArray != 0)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//ID not found
@@ -1020,7 +971,7 @@ void operatorCheck(TreeNode* tree) {
 		/*
 		 * Requires RECORD_MEMBER, gives RHS
 		 */
-		case PERIODK:
+		case period:
 
 			//Check LHS RECORD ID
 			switch(idCheck(tree->child[0], "RECORD", 0))
@@ -1032,15 +983,15 @@ void operatorCheck(TreeNode* tree) {
 						switch(gsym->data[6])
 						{
 							case 'i':
-								tree->expType = NUMB;
+								tree->expType = Integer;
 							break;
 
 							case 'c':
-								tree->expType = SINGLE;
+								tree->expType = Char;
 							break;
 
 							case 'b':
-								tree->expType = TF;
+								tree->expType = Boolean;
 							break;
 
 							case 'u':
@@ -1055,15 +1006,15 @@ void operatorCheck(TreeNode* tree) {
 						switch(gsym->data[0])
 						{
 							case 'i':
-								tree->expType = NUMB;
+								tree->expType = Integer;
 							break;
 
 							case 'c':
-								tree->expType = SINGLE;
+								tree->expType = Char;
 							break;
 
 							case 'b':
-								tree->expType = TF;
+								tree->expType = Boolean;
 							break;
 
 							case 'u':
@@ -1085,7 +1036,7 @@ void operatorCheck(TreeNode* tree) {
 
 				//LHS is a function
 				case 2:
-                    if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+
 				break;
 
 				//Not an ID
@@ -1107,7 +1058,7 @@ void operatorCheck(TreeNode* tree) {
 		/*
 		 * Requires ARRAY_INT, gives LHS
 		 */
-		case LSB:
+		case lsb:
 
 			//Check LHS array ID
 			switch(idCheck(tree->child[0], "ARRAY", 0))
@@ -1118,13 +1069,13 @@ void operatorCheck(TreeNode* tree) {
 
 					//Set node expType to type anyways
 					if(gsym->data[0] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[0] == 'v')
-						tree->expType = VOID;
+						tree->expType = Void;
 					else if(gsym->data[0] == 'b')
-						tree->expType = TF;
+						tree->expType = Boolean;
 					else if(gsym->data[0] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else
 						tree->expType = Unknown;
 				break;
@@ -1133,23 +1084,21 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					//Set node expType to array type
 					if(gsym->data[6] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[6] == 'v')
-						tree->expType = VOID;
+						tree->expType = Void;
 					else if(gsym->data[6] == 'b')
-						tree->expType = TF;
+						tree->expType = Boolean;
 					else if(gsym->data[6] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else
 						tree->expType = Unknown;
-					tree->isArray = 0;
 				break;
 
 				//LHS is a function
 				case 2:
 					//Cannot index function
 					printError(7,tree->lineno,tree->child[0]->attr.name,"","",0,0);
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 				break;
 
 				//Not an ID
@@ -1202,9 +1151,11 @@ void operatorCheck(TreeNode* tree) {
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[1]->expType != NUMB)
+					if(tree->child[1]->expType != Integer)
 						printError(5,tree->lineno,tree->child[0]->attr.name,expString[tree->child[1]->expType],"",0,0);
 
+					if(tree->child[1]->isArray)
+						printError(31,tree->lineno,"","","",0,0);
 				break;
 
 				//ID not found
@@ -1222,7 +1173,7 @@ void operatorCheck(TreeNode* tree) {
 		 * Sub - Requires INT_INT, gives INT
 		 * Neg - Requires INT, gives INT
 		 */
-		case DASH:
+		case dash:
 
 			//Negate operator
 			if(tree->child[1] == NULL)
@@ -1234,7 +1185,7 @@ void operatorCheck(TreeNode* tree) {
 					case 0:
 						//Check if operand type matches INT anyways
 						if(gsym->data[6] != 'i')
-							printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+							printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
 						printError(13,tree->lineno,opString[tree->attr.op],"","",0,0);
 					break;
@@ -1243,20 +1194,19 @@ void operatorCheck(TreeNode* tree) {
 					case 1:
 						//Check if operand type matches INT
 						if(gsym->data[0] != 'i')
-							printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+							printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 					break;
 
 					//Operand is a function
 					case 2:
 						if(gsym->data[9] != 'i')
-							printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-						if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+							printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 					break;
 
 					//Not an ID
 					case -1:
-						if(tree->child[0]->expType != NUMB)
-							printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[0]->expType],0,0);
+						if(tree->child[0]->expType != Integer)
+							printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[0]->expType],0,0);
 					break;
 
 					//ID not found
@@ -1278,31 +1228,29 @@ void operatorCheck(TreeNode* tree) {
 					case 0:
 						//Check if LHS type matches INT anyways
 						if(gsym->data[6] != 'i')
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
-						tree->isArray = 1;
+						tree->child[0]->isArray = 1;
 					break;
 
 					//LHS is not an array
 					case 1:
 						//Check if LHS type matches INT
 						if(gsym->data[0] != 'i')
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
-						tree->isArray = 0;
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 					break;
 
 					//LHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-						if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 					break;
 
 					//Not an ID
 					case -1:
 						//Check expType
-						if(tree->child[0]->expType != NUMB)
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[0]->expType],0,0);
+						if(tree->child[0]->expType != Integer)
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[0]->expType],0,0);
 					break;
 
 					//ID not found
@@ -1321,33 +1269,29 @@ void operatorCheck(TreeNode* tree) {
 					case 0:
 						//Check if LHS type matches INT anyways
 						if(gsym->data[6] != 'i')
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
-						if(!tree->isArray)
-		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+						tree->child[1]->isArray = 1;
 					break;
 
 					//RHS is not an array
 					case 1:
 						//Check if RHS type matches INT
 						if(gsym->data[0] != 'i')
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
-						if(tree->isArray)
-		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 					break;
 
 					//RHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-						if(tree->child[0]->isFunc)printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 					break;
 
 					//Not an ID
 					case -1:
 						//Check expType
-						if(tree->child[1]->expType != NUMB)
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[1]->expType],0,0);
+						if(tree->child[1]->expType != Integer)
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[1]->expType],0,0);
 					break;
 
 					//ID not found
@@ -1364,7 +1308,7 @@ void operatorCheck(TreeNode* tree) {
 			}
 
 			//Set return type
-			tree->expType = NUMB;
+			tree->expType = Integer;
 		break;
 
 		/*
@@ -1372,7 +1316,7 @@ void operatorCheck(TreeNode* tree) {
 		 * Mult - Requires INT_INT, gives INT
 		 * Size - Requires ARRAY, gives INT
 		 */
-		case ASTERISK:
+		case asterisk:
 
 			//Size operator
 			if(tree->child[1] == NULL)
@@ -1387,13 +1331,12 @@ void operatorCheck(TreeNode* tree) {
 
 					//Operand is an array
 					case 1:
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					break;
 
 					//Operand is a function
 					case 2:
 						printError(14,tree->lineno,opString[tree->attr.op],"","",0,0);
-						printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
 					break;
 
 					//Not an ID
@@ -1420,31 +1363,29 @@ void operatorCheck(TreeNode* tree) {
 					case 0:
 						//Check if LHS type matches INT anyways
 						if(gsym->data[6] != 'i')
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
-						tree->isArray = 1;
+						tree->child[0]->isArray = 1;
 					break;
 
 					//LHS is not an array
 					case 1:
 						//Check if LHS type matches INT
 						if(gsym->data[0] != 'i')
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
-						tree->isArray = 0;
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 					break;
 
 					//LHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-						printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 					break;
 
 					//Not an ID
 					case -1:
 						//Check expType
-						if(tree->child[0]->expType != NUMB)
-							printError(2,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[0]->expType],0,0);
+						if(tree->child[0]->expType != Integer)
+							printError(2,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[0]->expType],0,0);
 					break;
 
 					//ID not found
@@ -1463,33 +1404,29 @@ void operatorCheck(TreeNode* tree) {
 					case 0:
 						//Check if RHS type matches INT anyways
 						if(gsym->data[6] != 'i')
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
-						if(!tree->isArray)
-		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+						tree->child[1]->isArray = 1;
 					break;
 
 					//RHS is not an array
 					case 1:
 						//Check if RHS type matches INT
 						if(gsym->data[0] != 'i')
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
-						if(tree->isArray)
-		                    printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 					break;
 
 					//RHS is a function
 					case 2:
 						if(gsym->data[9] != 'i')
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-						printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 					break;
 
 					//Not an ID
 					case -1:
 						//Check expType
-						if(tree->child[1]->expType != NUMB)
-							printError(3,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[1]->expType],0,0);
+						if(tree->child[1]->expType != Integer)
+							printError(3,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[1]->expType],0,0);
 					break;
 
 					//ID not found
@@ -1506,14 +1443,14 @@ void operatorCheck(TreeNode* tree) {
 			}
 
 			//Set return type
-			tree->expType = NUMB;
+			tree->expType = Integer;
 		break;
 
 		/*
 		 * Requires INT, gives INT
 		 * Or ARRAY, gives ARRAY[?SIZEOF]
 		 */
-		case QMARK:
+		case qmark:
 
 			//Check operand ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
@@ -1522,7 +1459,7 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					//Check if Operand type matches INT
 					if(gsym->data[6] != 'i')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
 					/*Get array size, but for now err*/
 					printError(13,tree->lineno,opString[tree->attr.op],"","",0,0);
@@ -1532,21 +1469,20 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					//Check if Operand type matches INT
 					if(gsym->data[0] != 'i')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 				break;
 
 				//Operand is a function
 				case 2:
 					//Check if type matches INT
 					if(gsym->data[9] != 'i')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[0]->expType != NUMB)
+					if(tree->child[0]->expType != Integer)
 						printError(15,tree->lineno,opString[tree->attr.op],"int",expString[tree->child[0]->expType],0,0);
 				break;
 
@@ -1559,15 +1495,15 @@ void operatorCheck(TreeNode* tree) {
 				break;
 			}
 
-			//Set NUMB return type
-			tree->expType = NUMB;
+			//Set Integer return type
+			tree->expType = Integer;
 		break;
 
 		/*
 		 * Requires INT, gives INT
 		 */
-		case PPLUS:
-		case DDASH:
+		case pplus:
+		case ddash:
 			//Check operand ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
 			{
@@ -1575,7 +1511,7 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					//Check if operand type matches INT
 					if(gsym->data[6] != 'i')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+6,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+6,0,0);
 
 					printError(13,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
@@ -1584,21 +1520,20 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					//Check if operand type matches INT
 					if(gsym->data[0] != 'i')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data,0,0);
 				break;
 
 				//Operand is a function
 				case 2:
 					//Check if type matches INT
 					if(gsym->data[9] != 'i')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],gsym->data+9,0,0);
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
-					if(tree->child[0]->expType != NUMB)
-						printError(15,tree->lineno,opString[tree->attr.op],expString[NUMB],expString[tree->child[0]->expType],0,0);
+					if(tree->child[0]->expType != Integer)
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Integer],expString[tree->child[0]->expType],0,0);
 				break;
 
 				//ID not found
@@ -1610,15 +1545,15 @@ void operatorCheck(TreeNode* tree) {
 				break;
 			}
 
-			//Set NUMB return type
-			tree->expType = NUMB;
+			//Set Integer return type
+			tree->expType = Integer;
 		break;
 
 		/*
 		 * Requires SAME_SAME, gives BOOL
 		 */
-		case EQCP:
-		case NEQ:
+		case eqeq:
+		case neq:
 
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
@@ -1629,16 +1564,16 @@ void operatorCheck(TreeNode* tree) {
 					tree->isArray = 1;
 
 					if(gsym->data[6] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[6] == 'v')
 					{
-						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
-						tree->expType = VOID;
+						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
+						tree->expType = Void;
 					}
 					else if(gsym->data[6] == 'b')
-						tree->expType = TF;
+						tree->expType = Boolean;
 					else if(gsym->data[6] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else
 						tree->expType = Unknown;
 				break;
@@ -1650,23 +1585,39 @@ void operatorCheck(TreeNode* tree) {
 
 					//Set node expType to array type
 					if(gsym->data[0] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[0] == 'v')
 					{
-						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
-						tree->expType = VOID;
+						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
+						tree->expType = Void;
 					}
 					else if(gsym->data[0] == 'b')
-						tree->expType = TF;
+						tree->expType = Boolean;
 					else if(gsym->data[0] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else
 						tree->expType = Unknown;
 				break;
 
 				//LHS is a function
 				case 2:
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+					//Indicate array
+					tree->isArray = 0;
+
+					//Set node expType to array type
+					if(gsym->data[9] == 'i')
+						tree->expType = Integer;
+					else if(gsym->data[9] == 'v')
+					{
+						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
+						tree->expType = Void;
+					}
+					else if(gsym->data[9] == 'b')
+						tree->expType = Boolean;
+					else if(gsym->data[9] == 'c')
+						tree->expType = Char;
+					else
+						tree->expType = Unknown;
 				break;
 
 				//Not an ID
@@ -1677,8 +1628,8 @@ void operatorCheck(TreeNode* tree) {
 					//Set return type to LHS
 					tree->expType = tree->child[0]->expType;
 
-					if(tree->expType == VOID)
-						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+					if(tree->expType == Void)
+						printError(2,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 				break;
 
 				//ID not found
@@ -1696,55 +1647,68 @@ void operatorCheck(TreeNode* tree) {
 				//RHS is array
 				case 0:
 					if(gsym->data[6] == 'v')
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
-					else if( (gsym->data[6] == 'i') && (tree->expType != NUMB) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[6] == 'b') && (tree->expType != TF) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[TF],0,0);
-					else if( (gsym->data[6] == 'c') && (tree->expType != SINGLE) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
+					else if( (gsym->data[6] == 'i') && (tree->expType != Integer) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[6] == 'b') && (tree->expType != Boolean) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Boolean],0,0);
+					else if( (gsym->data[6] == 'c') && (tree->expType != Char) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 					else if( (gsym->data[6] == 'u') && (tree->expType != Unknown) )
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Unknown],0,0);
 
 					//Check if also array
-					if(!tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+					if(tree->isArray != 1)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//RHS is not an array
 				case 1:
 					if(gsym->data[0] == 'v')
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
-					else if( (gsym->data[0] == 'i') && (tree->expType != NUMB) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[0] == 'b') && (tree->expType != TF) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[TF],0,0);
-					else if( (gsym->data[0] == 'c') && (tree->expType != SINGLE) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
+					else if( (gsym->data[0] == 'i') && (tree->expType != Integer) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[0] == 'b') && (tree->expType != Boolean) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Boolean],0,0);
+					else if( (gsym->data[0] == 'c') && (tree->expType != Char) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 					else if( (gsym->data[0] == 'u') && (tree->expType != Unknown) )
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Unknown],0,0);
 
 					//Check if also not array
-					if(tree->isArray)
-		                printError(19,tree->lineno,opString[tree->attr.op],0,0,0,0);
+					if(tree->isArray != 0)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//RHS is a function
 				case 2:
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+					if(gsym->data[9] == 'v')
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
+					else if( (gsym->data[9] == 'i') && (tree->expType != Integer) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[9] == 'b') && (tree->expType != Boolean) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Boolean],0,0);
+					else if( (gsym->data[9] == 'c') && (tree->expType != Char) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
+					else if( (gsym->data[9] == 'u') && (tree->expType != Unknown) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Unknown],0,0);
 
 					//Check if also not array
+					if(tree->isArray != 0)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[1]->expType == VOID)
-						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[VOID],0,0);
+					if(tree->child[1]->expType == Void)
+						printError(3,tree->lineno,opString[tree->attr.op],"NONVOID",expString[Void],0,0);
 					else if(tree->expType != tree->child[1]->expType)
 						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[tree->child[1]->expType],0,0);
 
 					//Check if also not array
+					if(tree->isArray != 0)
+						printError(19,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
 
 				//ID not found
@@ -1756,15 +1720,15 @@ void operatorCheck(TreeNode* tree) {
 				break;
 			}
 
-			//Set TF return type
-			tree->expType = TF;
+			//Set Boolean return type
+			tree->expType = Boolean;
 			tree->isArray = 0;
 		break;
 
 		/*
 		 * Requires BOOL, gives BOOL
 		 */
-		case BNOT:
+		case bNOT:
 			//Check operand ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
 			{
@@ -1772,7 +1736,7 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					//Check if operand type matches INT
 					if(gsym->data[6] != 'b')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+6,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data+6,0,0);
 
 					printError(13,tree->lineno,opString[tree->attr.op],"","",0,0);
 				break;
@@ -1781,21 +1745,20 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					//Check if operand type matches INT
 					if(gsym->data[0] != 'b')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data,0,0);
 				break;
 
 				//Operand is a function
 				case 2:
 					//Check if operand type matches INT
 					if(gsym->data[9] != 'b')
-						printError(15,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+9,0,0);
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
-					if(tree->child[0]->expType != TF)
-						printError(15,tree->lineno,opString[tree->attr.op],expString[TF],expString[tree->child[0]->expType],0,0);
+					if(tree->child[0]->expType != Boolean)
+						printError(15,tree->lineno,opString[tree->attr.op],expString[Boolean],expString[tree->child[0]->expType],0,0);
 				break;
 
 				//ID not found
@@ -1807,15 +1770,15 @@ void operatorCheck(TreeNode* tree) {
 				break;
 			}
 
-			//Set NUMB return type
-			tree->expType = TF;
+			//Set Integer return type
+			tree->expType = Boolean;
 		break;
 
 		/*
 		 * Requires BOOL_BOOL, gives BOOL
 		 */
-		case BAND:
-		case BOR:
+		case bAND:
+		case bOR:
 
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
@@ -1824,7 +1787,7 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					//Check if LHS type matches INT anyways
 					if(gsym->data[6] != 'b')
-						printError(2,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+6,0,0);
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data+6,0,0);
 
 					//Prep error
 					tree->child[0]->isArray = 1;
@@ -1834,22 +1797,21 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					//Check if LHS type matches INT
 					if(gsym->data[0] != 'b')
-						printError(2,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data,0,0);
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data,0,0);
 				break;
 
 				//LHS is a function
 				case 2:
 					//Check if operand type matches INT
 					if(gsym->data[9] != 'b')
-						printError(2,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+9,0,0);
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[0]->expType != TF)
-						printError(2,tree->lineno,opString[tree->attr.op],expString[TF],expString[tree->child[0]->expType],0,0);
+					if(tree->child[0]->expType != Boolean)
+						printError(2,tree->lineno,opString[tree->attr.op],expString[Boolean],expString[tree->child[0]->expType],0,0);
 				break;
 
 				//ID not found
@@ -1868,7 +1830,7 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					//Check if RHS type matches INT anyways
 					if(gsym->data[6] != 'b')
-						printError(3,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+6,0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data+6,0,0);
 
 					//Prep error
 					tree->child[1]->isArray = 1;
@@ -1878,21 +1840,20 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					//Check if RHS type matches INT
 					if(gsym->data[0] != 'b')
-						printError(3,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data,0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data,0,0);
 				break;
 
 				//RHS is a function
 				case 2:
 					if(gsym->data[9] != 'b')
-						printError(3,tree->lineno,opString[tree->attr.op],expString[TF],gsym->data+9,0,0);
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Boolean],gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check expType
-					if(tree->child[1]->expType != TF)
-						printError(3,tree->lineno,opString[tree->attr.op],expString[TF],expString[tree->child[1]->expType],0,0);
+					if(tree->child[1]->expType != Boolean)
+						printError(3,tree->lineno,opString[tree->attr.op],expString[Boolean],expString[tree->child[1]->expType],0,0);
 				break;
 
 				//ID not found
@@ -1908,18 +1869,18 @@ void operatorCheck(TreeNode* tree) {
 				printError(13,tree->lineno,opString[tree->attr.op],"","",0,0);
 
 			//Set return type
-			tree->expType = TF;
+			tree->expType = Boolean;
 		break;
 
 		/*
 		 * Requires INT_INT, gives BOOL
-		 * or SINGLE_SINGLE, gives BOOL
+		 * or CHAR_CHAR, gives BOOL
 		 */
-		case LTEQ:
-		case LTHAN:
-		case GTHANEQ:
-		case GTHAN:
-
+		case lteq:
+		case lthan:
+		case gteq:
+		case gthan:
+			
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
 			{
@@ -1930,9 +1891,9 @@ void operatorCheck(TreeNode* tree) {
 
 					//Set node expType to LHS
 					if(gsym->data[6] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[6] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else
 						printError(2,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+6,0,0);
 				break;
@@ -1941,23 +1902,28 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					//Set node expType to LHS
 					if(gsym->data[0] == 'i')
-						tree->expType = NUMB;
+						tree->expType = Integer;
 					else if(gsym->data[0] == 'c')
-						tree->expType = SINGLE;
+						tree->expType = Char;
 					else
 						printError(2,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data,0,0);
 				break;
 
 				//LHS is a function
 				case 2:
-				    printError(2,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+9,0,0);
-					printError(26,tree->lineno,tree->child[0]->attr.name,0,0,0,0);
+					//Set node expType to LHS
+					if(gsym->data[9] == 'i')
+						tree->expType = Integer;
+					else if(gsym->data[9] == 'c')
+						tree->expType = Char;
+					else
+						printError(2,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+9,0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Set return type to LHS
-					if( (tree->child[0]->expType == NUMB) || (tree->child[0]->expType == SINGLE) )
+					if( (tree->child[0]->expType == Integer) || (tree->child[0]->expType == Char) )
 						tree->expType = tree->child[0]->expType;
 					else
 						printError(2,tree->lineno,opString[tree->attr.op],"char or type int",expString[tree->child[0]->expType],0,0);
@@ -1979,10 +1945,10 @@ void operatorCheck(TreeNode* tree) {
 				case 0:
 					if( (gsym->data[6] != 'i') && (gsym->data[6] != 'c') )
 						printError(3,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+6,0,0);
-					else if( (gsym->data[6] == 'i') && (tree->expType == SINGLE) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[6] == 'c') && (tree->expType == NUMB) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+					else if( (gsym->data[6] == 'i') && (tree->expType == Char) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[6] == 'c') && (tree->expType == Integer) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 
 					//Prep the error
 					tree->child[1]->isArray = 1;
@@ -1992,23 +1958,28 @@ void operatorCheck(TreeNode* tree) {
 				case 1:
 					if( (gsym->data[0] != 'i') && (gsym->data[0] != 'c') )
 						printError(3,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data,0,0);
-					else if( (gsym->data[0] == 'i') && (tree->expType == SINGLE) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[NUMB],0,0);
-					else if( (gsym->data[0] == 'c') && (tree->expType == NUMB) )
-						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[SINGLE],0,0);
+					else if( (gsym->data[0] == 'i') && (tree->expType == Char) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[0] == 'c') && (tree->expType == Integer) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 				break;
 
 				//RHS is a function
 				case 2:
-					printError(26,tree->lineno,tree->child[1]->attr.name,0,0,0,0);
+					if( (gsym->data[9] != 'i') && (gsym->data[9] != 'c') )
+						printError(3,tree->lineno,opString[tree->attr.op],"char or type int",gsym->data+9,0,0);
+					else if( (gsym->data[9] == 'i') && (tree->expType == Char) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Integer],0,0);
+					else if( (gsym->data[9] == 'c') && (tree->expType == Integer) )
+						printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[Char],0,0);
 				break;
 
 				//Not an ID
 				case -1:
 					//Check RHS type
-					if( (tree->child[1]->expType == NUMB) || (tree->child[1]->expType == SINGLE) )
+					if( (tree->child[1]->expType == Integer) || (tree->child[1]->expType == Char) )
 					{
-						if( (tree->expType == NUMB) || (tree->expType == SINGLE) )
+						if( (tree->expType == Integer) || (tree->expType == Char) )
 							if(tree->expType != tree->child[1]->expType)
 								printError(4,tree->lineno,opString[tree->attr.op],expString[tree->expType],expString[tree->child[1]->expType],0,0);
 					}
@@ -2029,7 +2000,7 @@ void operatorCheck(TreeNode* tree) {
 				printError(13,tree->lineno,opString[tree->attr.op],"","",0,0);
 
 			//Set return type
-			tree->expType = TF;
+			tree->expType = Boolean;
 			tree->isArray = 0;
 		break;
 
@@ -2053,18 +2024,11 @@ void scopeAndType(TreeNode* tree) {
 
 	//Type check the tree
 	treeTraverse(tree);
-    /*
-    Scope *tmp = stable->head;
-    while(tmp != NULL) {
-        printScope(stdout, tmp);
-        tmp = tmp->next;
-    }*/
-    //printSymbolTable(stdout);
+
 	//Check for main in global
-    if(stackSearch("main") == NULL) {
-        printf("ERROR(LINKER): Procedure main is not defined.\n");
-        ERROR;
-    }
+	if(findSymbol(stable->head, "main") == NULL)
+		printError(0,0,"","","",0,0);
+
 	return;
 }
 
@@ -2075,9 +2039,7 @@ void scopeAndType(TreeNode* tree) {
 */
 void treeTraverse(TreeNode* tree) {
 
-    TreeNode *tmp = tree;
-    int testvar = 0;
-		int i;
+
 	//String buffer to combine type strings inside of
 	char tempType[25];
 
@@ -2096,7 +2058,7 @@ void treeTraverse(TreeNode* tree) {
 	//Flag indicating operator check required
 	int opCheck = 0;
 
-	//Flag indicating TF test check required
+	//Flag indicating boolean test check required
 	int boolCheck = 0;
 
 	//Flag indicating vardec const init check required
@@ -2115,41 +2077,45 @@ void treeTraverse(TreeNode* tree) {
 	while (tree != NULL)
 	{
 		//Statement node
-		if (tree->nodekind == STMT)
+		if (tree->nodekind == StmtK)
 		{
 			switch (tree->kind.stmt)
 			{
-				case IF:
-					//Check if TF test provided
-                    boolCheck = 1;
+				case IfK:
+					//Check if boolean test provided
+					boolCheck = 1;
+
 					//Set all ifs to Void
-                    tree->expType = VOID;
+					tree->expType = Void;
 				break;
 
-				case WHILE:
-					//Check if TF test provided
-                    boolCheck = 1;
+				case RepeatK:
+					//Check if boolean test provided
+					boolCheck = 2;
+
 					//Indicate entering loop
-                    newCompound = 1;
+					insideLoop++;
+
 					//Set all whiles to Void
-                    tree->expType = VOID;
+					tree->expType = Void;
 				break;
 
-				case BREAK:
+				case BreakK:
 
-					//Check if in loop
-                    retCheck = 1;
+					if(!insideLoop)
+						printError(18,tree->lineno,"","","",0,0);
+
 					//Set all breaks to Void
-                    tree->expType = VOID;
+					tree->expType = Void;
 				break;
 
 				//Return statement
-				case RETURN:
-                    retCheck = 1;
+				case ReturnK:
+					retCheck = 1;
 				break;
 
 				//Compound statement
-				case COMP:
+				case CompoundK:
 
 					//Not the first compound of a function
 					if(!firstCmp)
@@ -2174,12 +2140,8 @@ void treeTraverse(TreeNode* tree) {
 					}
 
 					//Set type to Void
-					tree->expType = VOID;
+					tree->expType = Void;
 				break;
-
-                case CALL:
-                    callCheck = 1;
-                break;
 
 				//Bad statement
 				default:
@@ -2188,19 +2150,19 @@ void treeTraverse(TreeNode* tree) {
 			}
 		}
 		//Expression node
-		else if (tree->nodekind == EXP)
+		else if (tree->nodekind == ExpK)
 		{
 			switch (tree->kind.exp)
 			{
 				//Operational expression
-				case OP:
+				case OpK:
 
 					//Indicate operator presence for later
 					opCheck = 1;
 				break;
 
 				//Constant expression
-				case CONST:
+				case ConstK:
 
 				break;
 
@@ -2208,7 +2170,7 @@ void treeTraverse(TreeNode* tree) {
 				 * ID expression
 				 * Either a function/variable/record name
 				 */
-				case ID:
+				case IdK:
 
 					//ID followed by ()
 					if(tree->isFunc)
@@ -2224,19 +2186,19 @@ void treeTraverse(TreeNode* tree) {
 								switch(gsym->data[6])
 								{
 									case 'i':
-										tree->expType = NUMB;
+										tree->expType = Integer;
 									break;
 
 									case 'c':
-										tree->expType = SINGLE;
+										tree->expType = Char;
 									break;
 
 									case 'b':
-										tree->expType = TF;
+										tree->expType = Boolean;
 									break;
 
 									case 'v':
-										tree->expType = VOID;
+										tree->expType = Void;
 									break;
 
 									case 'u':
@@ -2257,19 +2219,19 @@ void treeTraverse(TreeNode* tree) {
 								switch(gsym->data[0])
 								{
 									case 'i':
-										tree->expType = NUMB;
+										tree->expType = Integer;
 									break;
 
 									case 'c':
-										tree->expType = SINGLE;
+										tree->expType = Char;
 									break;
 
 									case 'b':
-										tree->expType = TF;
+										tree->expType = Boolean;
 									break;
 
 									case 'v':
-										tree->expType = VOID;
+										tree->expType = Void;
 									break;
 
 									case 'u':
@@ -2287,19 +2249,19 @@ void treeTraverse(TreeNode* tree) {
 								switch(gsym->data[9])
 								{
 									case 'i':
-										tree->expType = NUMB;
+										tree->expType = Integer;
 									break;
 
 									case 'c':
-										tree->expType = SINGLE;
+										tree->expType = Char;
 									break;
 
 									case 'b':
-										tree->expType = TF;
+										tree->expType = Boolean;
 									break;
 
 									case 'v':
-										tree->expType = VOID;
+										tree->expType = Void;
 									break;
 
 									case 'u':
@@ -2311,7 +2273,7 @@ void treeTraverse(TreeNode* tree) {
 									break;
 								}
 
-								//Indicate call param check
+								//Indicate call param check 
 								callCheck = 1;
 							break;
 
@@ -2322,6 +2284,8 @@ void treeTraverse(TreeNode* tree) {
 
 							//ID not found, function not known
 							case -2:
+								printError(22,tree->lineno,tree->attr.name,"","",0,0);
+
 								tree->expType = Unknown;
 							break;
 
@@ -2341,12 +2305,11 @@ void treeTraverse(TreeNode* tree) {
 						if(search == NULL)
 						{
 							printError(12,tree->lineno,tree->attr.name,"","",0,0);
-							tree->expType = Unknown;
-
 							break;
 						}
 						else
 						{
+
 							//Check found symbol type for function
 							if(search->data[0] == 'F')
 							{
@@ -2375,15 +2338,15 @@ void treeTraverse(TreeNode* tree) {
 							switch(search->data[6])
 							{
 								case 'i':
-									tree->expType = NUMB;
+									tree->expType = Integer;
 								break;
 
 									case 'c':
-									tree->expType = SINGLE;
+									tree->expType = Char;
 								break;
 
 								case 'b':
-									tree->expType = TF;
+									tree->expType = Boolean;
 								break;
 
 								case 'u':
@@ -2398,15 +2361,15 @@ void treeTraverse(TreeNode* tree) {
 							switch(search->data[9])
 							{
 								case 'i':
-									tree->expType = NUMB;
+									tree->expType = Integer;
 								break;
 
 								case 'c':
-									tree->expType = SINGLE;
+									tree->expType = Char;
 								break;
 
 								case 'b':
-									tree->expType = TF;
+									tree->expType = Boolean;
 								break;
 
 								case 'u':
@@ -2421,15 +2384,15 @@ void treeTraverse(TreeNode* tree) {
 							switch(search->data[0])
 							{
 								case 'i':
-									tree->expType = NUMB;
+									tree->expType = Integer;
 								break;
 
 								case 'c':
-									tree->expType = SINGLE;
+									tree->expType = Char;
 								break;
 
 								case 'b':
-									tree->expType = TF;
+									tree->expType = Boolean;
 								break;
 
 								case 'u':
@@ -2450,7 +2413,7 @@ void treeTraverse(TreeNode* tree) {
 			}
 		}
 		//Declaration node
-		else if (tree->nodekind == DECL)
+		else if (tree->nodekind == DeclK)
 		{
 			switch (tree->kind.decl)
 			{
@@ -2459,7 +2422,7 @@ void treeTraverse(TreeNode* tree) {
 				 * Need to search our current scope to see if it was previously declared
 				 * Build our symbol data string using strcpy and strcat
 				 */
-				case VAR:
+				case varDec:
 
 					//Init temp string
 					strcpy(tempType, "");
@@ -2472,19 +2435,19 @@ void treeTraverse(TreeNode* tree) {
 					if(!tree->isRecord)
 						switch (tree->expType)
 						{
-							case VOID:
+							case Void:
 								strcat(tempType, "void");
 							break;
 
-							case NUMB:
+							case Integer:
 								strcat(tempType, "int");
 							break;
 
-							case TF:
+							case Boolean:
 								strcat(tempType, "bool");
 							break;
 
-							case SINGLE:
+							case Char:
 								strcat(tempType, "char");
 							break;
 
@@ -2515,6 +2478,7 @@ void treeTraverse(TreeNode* tree) {
 					{
 						//Variable declaration does not exist in current scope, need to add it
 						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno);
+
 						//Insert into current scope
 						insertSymbol(stable->current, z);
 
@@ -2523,11 +2487,6 @@ void treeTraverse(TreeNode* tree) {
 						{
 							//Indicate need to check child
 							varInitCheck = 1;
-							if (tree->expType != tree->child[0]->expType){
-                                printError(21,tree->lineno,tree->attr.name,typeHelperSemantic(tree->expType),typeHelperSemantic(tree->child[0]->expType),0,0);
-
-                                break;
-                            }
 							//Save reference to parent symbol
 							varInitSym = z;
 
@@ -2545,13 +2504,78 @@ void treeTraverse(TreeNode* tree) {
 					if(paramCheck)
 					{
 						//Locate function symbol
+						search = stackSearch(lastFunDec->attr.name);
+
+						if(search == NULL)
+							yyerror("Couldn't find function for paramter typing");
+
+						int end = 0;
+
+						//Find the end of the paramtype string
+						while(search->paramType[end] != '\0')
+							end++;
+
+						//Catch if too many paramters
+						if(end == (MAXPARAMS-1))
+							yyerror("Out of param memory!");
+
+						//Move the string null byte
+						search->paramType[end+1] = '\0';
 
 						//Store parameter type
+						if(!tree->isRecord)
+							switch (tree->expType)
+							{
+								case Void:
+									if(tree->isArray)
+										search->paramType[end] = 'V';
+									else
+										search->paramType[end] = 'v';
+								break;
+
+								case Integer:
+									if(tree->isArray)
+										search->paramType[end] = 'I';
+									else
+										search->paramType[end] = 'i';
+								break;
+
+								case Boolean:
+									if(tree->isArray)
+										search->paramType[end] = 'B';
+									else
+										search->paramType[end] = 'b';
+								break;
+
+								case Char:
+									if(tree->isArray)
+										search->paramType[end] = 'C';
+									else
+										search->paramType[end] = 'c';
+								break;
+
+								case Unknown:
+									if(tree->isArray)
+										search->paramType[end] = 'U';
+									else
+										search->paramType[end] = 'u';
+								break;
+
+								//Bad expression type
+								default:
+									yyerror("Unknown paramter scanned type");
+								break;
+							}
+						else
+						{
+							//Record param?
+							search->paramType[end] = 'R';
+						}
 					}
 				break;
 
 				//Function declaration
-				case FUNC:
+				case funDec:
 
 					//Save this as the last fundec found
 					lastFunDec = tree;
@@ -2561,31 +2585,31 @@ void treeTraverse(TreeNode* tree) {
 
 					switch (tree->expType)
 					{
-						case VOID:
+						case Void:
 							strcat(tempType, "void");
 
 							//Indicate a check for void return
 							funcRetType = 0;
 						break;
 
-						case NUMB:
+						case Integer:
 							strcat(tempType, "int");
 
 							//Indicate a check for int return
 							funcRetType = 1;
 						break;
 
-						case TF:
+						case Boolean:
 							strcat(tempType, "bool");
 
 							//Indicate a check for bool return
 							funcRetType = 2;
 						break;
 
-						case SINGLE:
+						case Char:
 							strcat(tempType, "char");
 
-							//Indicate a check for SINGLE return
+							//Indicate a check for char return
 							funcRetType = 3;
 						break;
 
@@ -2597,7 +2621,7 @@ void treeTraverse(TreeNode* tree) {
 
 					//Set compound type if it exists
 					if(tree->child[1] != NULL)
-						tree->child[1]->expType = VOID;
+						tree->child[1]->expType = Void;
 
 					//Check if it was previously declared in global scope
 					search = findSymbol(stable->head, tree->attr.name);
@@ -2638,20 +2662,10 @@ void treeTraverse(TreeNode* tree) {
 					if(tree->child[1] != NULL)
 						//Indicate no scope change for the coming compound statement
 						firstCmp = 1;
-
-                    //check that function has return statement
-                    int ret = 0;
-                    TreeNode *chk = tree;
-                    warncheck = 0;
-                    checkWarning(chk);
-                    if(warncheck == 0) {
-                        printWarning(0, tree->lineno, typeHelperSemantic(tree->expType), tree->attr.name, "", 0);
-                    }
-
 				break;
 
 				//Record
-				case REC:
+				case recDec:
 
 					//Build the record symbol data string
 					strcpy(tempType, "RECORD");
@@ -2688,11 +2702,13 @@ void treeTraverse(TreeNode* tree) {
 			yyerror("Unknown node");
 
 		//If children exist traverse the child trees
-		for (i = 0; i < MAXCHILDREN; i++)
+		for (int i = 0; i < MAXCHILDREN; i++)
 		{
 			if(tree->child[i] != NULL)
 			{
 				//Indicate a parameter check if currently in a function
+				if((i == 0) && (tree->nodekind == DeclK) && (tree->kind.decl == funDec) && (!noNewFunc))
+					paramCheck = 1;					
 
 				//Check child only if it exists
 				treeTraverse(tree->child[i]);
@@ -2706,20 +2722,27 @@ void treeTraverse(TreeNode* tree) {
 		/*
 		 * Check if fundec was found and children are done
 		 * If so, check for correct return
+		 *
+		 * void = 0
+		 * int = 1
+		 * bool = 2
+		 * char = 3
 		 */
-		if(noNewFunc)
+		if( (funcRetType > -1) && (tree->nodekind == DeclK) && (tree->kind.decl == funDec) )
 		{
 			/*
 			 * Check for lack of return statement
 			 * Function declares a nonvoid type
 			 * No return statement is found
 			 */
-			 //TODO
+			if( (funcRetType > 0) && (retType < 0) && (tree->lineno != -1))
+				printWarning(1,tree->lineno,expString[funcRetType],tree->attr.name,"",0);
 
 			//Reset flags
 			funcRetType = -1;
 			retType = -1;
 			lastFunDec = NULL;
+
 		}
 
 		/*
@@ -2730,8 +2753,39 @@ void treeTraverse(TreeNode* tree) {
 		*/
 		if(varDecInitConst)
 		{
-      if ( tree->expType == 1 )
-        printError(20,tree->lineno,tree->attr.name,"","",0,0);
+			//Check if init is actually an array
+			switch(idCheck(tree->child[0], "ARRAY", 1))
+			{
+				//Init is an array
+				case 0:
+				
+				//Init is not an array
+				case 1:
+
+				//Init is a function
+				case 2:
+					printError(20,tree->lineno,tree->attr.name,"","",0,0);
+				break;
+
+				//Init is not an ID
+				case -1:
+					//Typecheck init
+					if( (tree->child[0]->expType != tree->expType) )
+						printError(21,tree->lineno,tree->attr.name,expString[tree->expType],expString[tree->child[0]->expType],0,0);
+
+					if((tree->child[0]->attr.op == asterisk) && (tree->child[0]->child[1] == NULL) )
+						printError(20,tree->lineno,tree->attr.name,"","",0,0);
+				break;
+
+				//Init ID not found
+				case -2: break;
+
+				//Bad value
+				default:
+					yyerror("Bad vardec init idcheck value");
+				break;
+			}
+
 			//Reset flag
 			varDecInitConst = 0;
 		}
@@ -2756,72 +2810,112 @@ void treeTraverse(TreeNode* tree) {
 		//Finished child types, check call parameters
 		if(callCheck)
 		{
-            Symbol *tmpsym;
-            Symbol *save;
-            TreeNode *tmp1 = tree;
-            if((tmpsym = stackSearch(tree->attr.name)) == NULL) {
-                printError(32, tree->lineno, tree->attr.name, "", "", 0, 0);
-            } else {
-                save = tmpsym;
+			//Retrieve function symbol
+			search = stackSearch(tree->attr.name);
 
-                tmpsym = tmpsym->nextSym;
-                Scope *scp = stable->head;
-                while(scp != NULL) {
-                    if(strcmp(scp->name, tmpsym->name) == 0) {break;}
-                    else {scp = scp->next;}
-                }
+			if(search == NULL)
+				yyerror("Couldn't find function for call");
 
-                tmpsym = scp->firstSym;
-                tmp1 = tree->child[0];
+			//Temp string for holding the call params
+			char cparams[MAXPARAMS];
+			cparams[0] = '\0';
 
-                int count1 = 0;
-                int count2 = 0;
-                int varcheck = 1;
-                while(tmpsym != NULL) {
-                    count1++; tmpsym = tmpsym->nextSym;
-                }
-                while(tmp1 != NULL) {
-                    count2++; tmp1 = tmp1->sibling;
-                }
+			int end = 0;
 
-                if(count1 < count2) {
-                    printError(31,tree->lineno,tree->attr.name,"","",save->line,0);
-                } else if(count1 > count2) {
-					printError(27,tree->lineno,tree->attr.name,"","",save->line,0);
-                }
+			//Parse through children and build string
+			if(tree->child[0] != NULL)
+			{
+				tempNode = tree->child[0];
 
-                tmpsym = scp->firstSym;
-                tmp1 = tree->child[0];
+				do
+				{
+					//Find the end of the paramtype string
+					while(cparams[end] != '\0')
+						end++;
 
-                while(tmpsym != NULL && tmp1 != NULL) {
-                    //tmpsym, function to analyze
-                    //tmp1, call to function
+					//Catch if too many paramters
+					if(end == (MAXPARAMS-1))
+						yyerror("Out of call param memory!");
 
-                    //array
-                    if(tmpsym->data[0] == 'A') {
-                        if(tmp1->expType != typeCharToInt(tmpsym->data[6])) {
-                            if(tmp1->isArray) {
-					            printError(28,tree->lineno,tmpsym->data,save->name,typeHelperSemantic(tmp1->expType),varcheck, save->line);
-                            } else {
-					            printError(30,tree->lineno,save->name, "", "", varcheck, save->line);
-                            }
-                        }
-                    }
-                    //get rid of compounds for checking
-                    else if(strcmp(tmpsym->data, tmpsym->name) != 0) {
-                        if(tmp1->expType != typeCharToInt(tmpsym->data[0])) {
-                            if(tmp1->isArray) {
-					            printError(29,tree->lineno,save->name, "", "", varcheck, save->line);
-                            } else {
-					            printError(28,tree->lineno,tmpsym->data,save->name,typeHelperSemantic(tmp1->expType),varcheck, save->line);
-                            }
-                        }
-                    }
-                    tmpsym = tmpsym->nextSym;
-                    tmp1 = tmp1->sibling;
-                    varcheck++;
-                }
-            }
+					//Move the string null byte
+					cparams[end+1] = '\0';
+
+					//Store param type
+					switch(idCheck(tempNode, "ARRAY", 1))
+					{
+						//Param is an array
+						case 0:
+							cparams[end] = (char)((int)gsym->data[6] - 32);
+						break;
+
+						//Param is not an array
+						case 1:
+							cparams[end] = gsym->data[0];
+						break;
+
+						//Param is a function
+						case 2:
+							cparams[end] = gsym->data[9];
+						break;
+
+						//Not an ID
+						case -1:
+							if(tempNode->expType == Integer)
+								cparams[end] = 'i';
+							else if(tempNode->expType == Boolean)
+								cparams[end] = 'b';
+							else if(tempNode->expType == Char)
+								cparams[end] = 'c';
+							else if(tempNode->expType == Unknown)
+								cparams[end] = 'u';
+							else if(tempNode->expType == Void)
+								cparams[end] = 'v';
+							else
+								yyerror("Bad param call type");
+						break;
+
+						//ID not found
+						case -2:
+							if(tempNode->isArray)
+								cparams[end] = 'U';
+							else
+								cparams[end] = 'u';
+						break;
+
+						//Bad value
+						default:
+							yyerror("Bad param type");
+						break;
+					}
+
+					//Check next param
+					tempNode = tempNode->sibling;
+
+				}while(tempNode != NULL);
+			}
+
+			//Compare params
+			for(int i = 0; (i < (int)strlen(cparams)) && (i < (int)strlen(search->paramType)); i++)
+			{
+				//Params don't match
+				if( (cparams[i] != search->paramType[i]) && (cparams[i] != search->paramType[i]+32) && (cparams[i] != search->paramType[i]-32) && (cparams[i] != 'u') && (cparams[i] != 'U'))
+					printError(28,tree->lineno,expString[typeCharToInt(search->paramType[i])],search->name,expString[typeCharToInt(cparams[i])],i+1,search->line);
+
+				//Called with array, array unexpected
+				if( (cparams[i] <= (int)'Z') && (search->paramType[i] >= (int)'a') )
+					printError(30,tree->lineno,search->name,"","",i+1,search->line);
+				//Called with no array, array expected
+				else if( (cparams[i] >= (int)'a') && (search->paramType[i] <= (int)'Z') )
+					printError(29,tree->lineno,search->name,"","",i+1,search->line);
+			}
+
+			//Too few params
+			if((int)strlen(search->paramType) > (int)strlen(cparams))
+				printError(26,tree->lineno,search->name,"","",search->line,0);
+			//Too many params
+			else if((int)strlen(search->paramType) < (int)strlen(cparams))
+				printError(27,tree->lineno,search->name,"","",search->line,0);
+
 			//Reset flag
 			callCheck = 0;
 		}
@@ -2829,73 +2923,261 @@ void treeTraverse(TreeNode* tree) {
 		//Return stmt check after children finish
 		if(retCheck)
 		{
-            TreeNode *tmp1 = tree;
+			//Empty RETURN returning VOID
+			if(tree->child[0] == NULL)
+			{
+				tree->expType = Void;
+				retType = 0;
+
+				//Void ret but function wants to return
+				if((funcRetType > 0) && (lastFunDec != NULL))
+					printError(25,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],"",lastFunDec->lineno,0);
+			}
+			else
+			{
+				//Check return type
+				switch(idCheck(tree->child[0], "ARRAY", 1))
+				{
+					//Array return
+					case 0:
+						//Set return type
+						if(gsym->data[6] == 'i')
+						{
+							tree->expType = Integer;
+							retType = 1;
+						}
+						else if(gsym->data[6] == 'v')
+						{
+							tree->expType = Void;
+							retType = 0;
+
+							//Void ret but function wants to return
+							if((funcRetType > 0) && (lastFunDec != NULL))
+								printError(25,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],"",lastFunDec->lineno,0);
+						}
+						else if(gsym->data[6] == 'b')
+						{
+							tree->expType = Boolean;
+							retType = 2;
+						}
+						else if(gsym->data[6] == 'c')
+						{
+							tree->expType = Char;
+							retType = 3;
+						}
+						else
+						{
+							tree->expType = Unknown;
+							retType = 4;
+						}
+
+						//Returning, but no return needed
+						if((funcRetType < 1) && (lastFunDec != NULL) && (retType != 0))
+							printError(23,tree->lineno,lastFunDec->attr.name,"","",lastFunDec->lineno,0);
+						//Mismatched return
+						else if((funcRetType != retType) && (lastFunDec != NULL) && (retType != 0) && (funcRetType > 0))
+							printError(24,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],expString[retType],lastFunDec->lineno,0);
+
+						//Return array error
+						printError(9,tree->lineno,"","","",0,0);
+					break;
+
+					//Non-array return
+					case 1:
+						//Set return type
+						if(gsym->data[0] == 'i')
+						{
+							tree->expType = Integer;
+							retType = 1;
+						}
+						else if(gsym->data[0] == 'v')
+						{
+							tree->expType = Void;
+							retType = 0;
+
+							//Void ret but function wants to return
+							if((funcRetType > 0) && (lastFunDec != NULL))
+								printError(25,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],"",lastFunDec->lineno,0);
+						}
+						else if(gsym->data[0] == 'b')
+						{
+							tree->expType = Boolean;
+							retType = 2;
+						}
+						else if(gsym->data[0] == 'c')
+						{
+							tree->expType = Char;
+							retType = 3;
+						}
+						else
+						{
+							tree->expType = Unknown;
+							retType = 4;
+						}
+
+						//Returning, but no return needed
+						if((funcRetType < 1) && (lastFunDec != NULL) && (retType != 0))
+							printError(23,tree->lineno,lastFunDec->attr.name,"","",lastFunDec->lineno,0);
+						//Mismatched return
+						else if((funcRetType != retType) && (lastFunDec != NULL) && (retType != 0) && (funcRetType > 0))
+							printError(24,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],expString[retType],lastFunDec->lineno,0);
+					break;
+
+					//Function return
+					case 2:
+						//Set return type
+						if(gsym->data[9] == 'i')
+						{
+							tree->expType = Integer;
+							retType = 1;
+						}
+						else if(gsym->data[9] == 'v')
+						{
+							tree->expType = Void;
+							retType = 0;
+
+							//Void ret but function wants to return
+							if((funcRetType > 0) && (lastFunDec != NULL))
+								printError(24,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],expString[retType],lastFunDec->lineno,0);
+						}
+						else if(gsym->data[9] == 'b')
+						{
+							tree->expType = Boolean;
+							retType = 2;
+						}
+						else if(gsym->data[9] == 'c')
+						{
+							tree->expType = Char;
+							retType = 3;
+						}
+						else
+						{
+							tree->expType = Unknown;
+							retType = 4;
+						}
+
+						//Returning, but no return needed
+						if((funcRetType < 1) && (lastFunDec != NULL) && (retType != 0))
+							printError(23,tree->lineno,lastFunDec->attr.name,"","",lastFunDec->lineno,0);
+						//Mismatched return
+						else if((funcRetType != retType) && (lastFunDec != NULL) && (retType != 0) && (funcRetType > 0))
+							printError(24,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],expString[retType],lastFunDec->lineno,0);
+					break;
+
+					//Non-id return
+					case -1:
+						tree->expType = tree->child[0]->expType;
+						retType = tree->child[0]->expType;
+
+						//Void ret but function wants to return
+						if((funcRetType > 0) && (lastFunDec != NULL) && (retType == 0))
+							printError(25,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],"",lastFunDec->lineno,0);
+						//Returning, but no return needed
+						else if((funcRetType < 1) && (lastFunDec != NULL) && (retType != 0))
+							printError(23,tree->lineno,lastFunDec->attr.name,"","",lastFunDec->lineno,0);
+						//Mismatched return
+						else if((funcRetType != retType) && (lastFunDec != NULL) && (retType != 0) && (funcRetType > 0))
+							printError(24,tree->lineno,lastFunDec->attr.name,expString[lastFunDec->expType],expString[retType],lastFunDec->lineno,0);
+					break;
+
+					//ID not found
+					case -2:
+						tree->expType = Unknown;
+						retType = 4;
+					break;
+
+					default:
+						yyerror("Bad return value");
+					break;
+				}
+			}
 			//Reset flag
 			retCheck = 0;
-            Scope *scp = stable->head;
-            Symbol *sym = scp->firstSym;
-            int line = -1;
-            //check for break statements
-            if(strcmp("break", tree->attr.name) == 0) {
-                while(sym != NULL) {
-                    //printf("sym_%d_%s_%s\n", sym->line, sym->name, sym->data);
-                    if(strcmp(sym->data, sym->name) == 0) {line = sym->line;}
-                    sym = sym->nextSym;
-                }
-                if(line >= tree->lineno) printError(25,tree->lineno,"", "", "", 0, 0);
-            }
-            //check for return statements
-            else {
-                Symbol *tmpsym = NULL;
-                while(sym != NULL) {
-                    if(sym->data[0] == 'F') {
-                        tmpsym = sym;
-                    }
-                    sym = sym->nextSym;
-                }
-                if(tmpsym != NULL) {
-                    int test = -1;
-                    switch(typeCharToInt(tmpsym->data[9])) {
-                    case 0: test = 0;
-                        break;
-                    case 1: test = 1;
-                        break;
-                    case 2: test = 2;
-                        break;
-                    case 3: test = 3;
-                        break;
-                    default:
-                        break;
-                    }
-                    if(test == 0) {
-                        if(tmp1->child[0]) printError(22,tree->lineno,tmpsym->name, "", "", tmpsym->line, 0);
-                    } else if(test != 0 && tmp1->child[0] == NULL) {
-                        printError(24,tree->lineno,tmpsym->name, typeHelperSemantic(test), "", tmpsym->line, 0);
-                    } else {
-                        if(tmp1->child[0] != NULL) {
-                            if(tmp1->child[0]->expType != test)
-                            printError(23,tree->lineno,tmpsym->name, typeHelperSemantic(test), typeHelperSemantic(tmp1->child[0]->expType), tmpsym->line, 0);
-                        }
-                    }
-                } else {
-                    //printError(25,tree->lineno,"", "", "", 0, 0);
-                }
-            }
 
 			//Set all returns to Void
-			tree->expType = VOID;
+			tree->expType = Void;
 		}
 
 		/*
-		 * Type check TF test for If/While
+		 * Type check boolean test for If/While
+		 *
+		 * 1 -> IF
+		 * 2 -> While
 		 */
 		if(boolCheck)
 		{
-		    if(tree->child[0]->expType != TF){
-		        printError(16,tree->lineno,tree->attr.name,typeHelperSemantic(tree->child[0]->expType),0,0,0);
-		        if(strcmp("LBOX",tree->child[0]->attr.name) == 0)
-		            printError(17,tree->lineno,tree->attr.name,0,0,0,0);
-		    }
+			//Reset loop flag if end of loop
+			if( (tree->nodekind == StmtK) && (tree->kind.stmt == RepeatK) )
+				if(insideLoop > 0)
+					insideLoop--;
+				else
+					yyerror("Lost count of nested loops");
+
+			//Check if bool is actually an array
+			switch(idCheck(tree->child[0], "ARRAY", 1))
+			{
+				//Test is an array
+				case 0:
+					//Check if type matches BOOL
+					if(gsym->data[6] != 'b')
+					{
+						if(boolCheck == 1)
+							printError(16,tree->lineno,"if",gsym->data+6,"",0,0);
+						else if(boolCheck == 2)
+							printError(16,tree->lineno,"while",gsym->data+6,"",0,0);
+					}
+
+					if(boolCheck == 1)
+						printError(17,tree->lineno,"if","","",0,0);
+					else if(boolCheck == 2)
+						printError(17,tree->lineno,"while","","",0,0);
+				break;
+
+				//Test is not an array
+				case 1:
+					//Check if type matches BOOL
+					if(gsym->data[0] != 'b')
+					{
+						if(boolCheck == 1)
+							printError(16,tree->lineno,"if",gsym->data,"",0,0);
+						else if(boolCheck == 2)
+							printError(16,tree->lineno,"while",gsym->data,"",0,0);
+					}
+				break;
+
+				//Test is a function
+				case 2:
+					//Check if type matches BOOL
+					if(gsym->data[9] != 'b')
+					{
+						if(boolCheck == 1)
+							printError(16,tree->lineno,"if",gsym->data+9,"",0,0);
+						else if(boolCheck == 2)
+							printError(16,tree->lineno,"while",gsym->data+9,"",0,0);
+					}
+				break;
+
+				//Test is not an ID
+				case -1:
+					//Check if boolean test type was provided
+					if(tree->child[0]->expType != Boolean)
+					{
+						if(boolCheck == 1)
+							printError(16,tree->lineno,"if",expString[tree->child[0]->expType],"",0,0);
+						else if(boolCheck == 2)
+							printError(16,tree->lineno,"while",expString[tree->child[0]->expType],"",0,0);
+					}
+				break;
+
+				//Test ID not found
+				case -2: break;
+
+				//Bad value
+				default:
+					yyerror("Bad bool test idcheck value");
+				break;
+			}
+
 			//Reset flag
 			boolCheck = 0;
 		}
@@ -2920,48 +3202,5 @@ void treeTraverse(TreeNode* tree) {
 	//END WHILE
 
 	return;
-}
-
-void checkWarning(TreeNode *tree) {
-
-    int i;
-
-    while(tree != NULL) {
-        /*
-        if(tree->attr.name != NULL)
-        printf("warn[%d],%s\n", tree->lineno, tree->attr.name);
-        else
-        printf("warn[%d],%d\n", tree->lineno, tree->attr.op); */
-
-        if(tree->kind.stmt == RETURN) {
-            //printf("FOUND A RETURN\n");
-            warncheck = 1;
-        }
-            for(i = 0; i < MAXCHILDREN; i++) {
-                if(tree->child[i] != NULL) {
-                    //printf("____");
-                    checkWarning(tree->child[i]);
-                }
-            }
-
-        tree = tree->sibling;
-    }
-}
-
-char *typeHelperSemantic(int x) {
-    char *result;
-    switch(x) {
-    case 0: result = "void";
-        break;
-    case 1: result = "int";
-        break;
-    case 2: result = "bool";
-        break;
-    case 3: result = "char";
-        break;
-    default: result = "undefined";
-        break;
-    }
-    return result;
 }
 //END treeTraverse
