@@ -184,6 +184,40 @@ TreeNode* newDeclNode(DeclKind kind) {
 }
 
 /*
+* Insert the new child node into the given node
+*/
+void insertChild(TreeNode *tree, TreeNode *n){
+	int c = 0;
+	if(tree != NULL){
+	    while(c < MAXCHILDREN){
+	        if(tree->child[c] == NULL){
+	            tree->child[c] = n;
+	            return;
+	        }
+	        c++;
+	    }
+	    yyerror("InsertChild: Out of space! Max number of children allocated!");
+	}else{
+	    yyerror("InsertChild: attempted to insert child to NULL parent!");
+	}
+}
+/*
+* Insert the new sibling node into the given node
+*/
+void insertSibling(TreeNode *tree, TreeNode *n){
+    TreeNode *t = tree;
+	if(t != NULL)
+	{
+	    while(t->sibling != NULL)
+		    t = t->sibling;
+
+	    t->sibling = n;
+	}
+	else
+		yyerror("InsertSibling: NULL param tree!");
+}
+
+/*
  * Add input/output prototypes to AST
  *
  * tree - AST root
@@ -315,7 +349,7 @@ TreeNode* addProto(TreeNode* tree) {
 	t6->expType = Void;
 	t7->expType = Integer;
 	t8->expType = Boolean;
-	t9->expType = Char;
+	t9->expType = Void;
 
 	//Return new root
 	return t0;

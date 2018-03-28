@@ -235,6 +235,10 @@ void removeSpace(FILE* out, long placeholder);
 */
 TreeNode* newDeclNode(DeclKind);
 
+//functions to simplify insertion of nodes
+void insertChild(TreeNode *, TreeNode *);
+void insertSibling(TreeNode *, TreeNode *);
+
 /*
 * Allocate new Expression node
 *
