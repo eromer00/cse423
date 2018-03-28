@@ -52,6 +52,8 @@ static TreeNode* syntaxTree;
 //Reference parser error function
 void yyerror(const char* s);
 
+void createDummyFuncs();
+
 %}
 
 %error-verbose
@@ -1092,17 +1094,21 @@ int main(int argc, char* argv[]) {
 
 	//Setup fancy errors
 	initErrorProcessing();
-
+    
+    //create dummy functions
+    
 	//Parse input until EOF
 	do
 	{
 		yyparse();
 	}
 	while(!feof(yyin));
-
+    
+    
 	//Check for no syntax errors
 	if(!numErrors)
 	{
+	    //createDummyFuncs();
 		//Print AST if requested
 		if(printSyntaxTree)
 			printTree(syntaxTree, NOTYPES);
@@ -1125,5 +1131,76 @@ int main(int argc, char* argv[]) {
 
 	//Close read-in file
 	fclose(yyin);
+}
+
+void createDummyFuncs(){
+    //add temp files
+    TreeNode *tmp1 = newDeclNode(funDec);
+        tmp1->expType = 0;
+        tmp1->lineno = -1;
+        tmp1->isFunc = 1;
+        tmp1->attr.name = "output";
+    TreeNode *tmp2 = newDeclNode(varDec);
+        tmp2->expType = 1;
+        tmp2->lineno = -1;
+        tmp2->isParam = 1;
+        tmp2->attr.name = "*dummy*";
+    insertChild(tmp1, tmp2);
+    insertSibling(syntaxTree, tmp1);
+    //outputb
+    tmp1 = newDeclNode(funDec);
+        tmp1->expType = 0;
+        tmp1->lineno = -1;
+        tmp1->isFunc = 1;
+        tmp1->attr.name = "outputb";
+    tmp2 = newDeclNode(varDec);
+        tmp2->expType = 2;
+        tmp2->lineno = -1;
+        tmp2->isParam = 1;
+        tmp2->attr.name = "*dummy*";
+    insertChild(tmp1, tmp2);
+    insertSibling(syntaxTree, tmp1);
+    //outputc    
+    tmp1 = newDeclNode(funDec);
+        tmp1->expType = 0;
+        tmp1->lineno = -1;
+        tmp1->isFunc = 1;
+        tmp1->attr.name = "outputc";
+    tmp2 = newDeclNode(varDec);
+        tmp2->expType = 3;
+        tmp2->lineno = -1;
+        tmp2->isParam = 1;
+        tmp2->attr.name = "*dummy*";
+    insertChild(tmp1, tmp2);
+    insertSibling(syntaxTree, tmp1);
+    //input    
+    tmp1 = newDeclNode(funDec);
+        tmp1->expType = 1;
+        tmp1->lineno = -1;
+        tmp1->isFunc = 1;
+        tmp1->attr.name = "input";
+    insertSibling(syntaxTree, tmp1);
+    //inputb    
+    tmp1 = newDeclNode(funDec);
+        tmp1->expType = 2;
+        tmp1->lineno = -1;
+        tmp1->isFunc = 1;
+        tmp1->attr.name = "inputb";
+    insertSibling(syntaxTree, tmp1);
+    //inputc    
+    tmp1 = newDeclNode(funDec);
+        tmp1->expType = 3;
+        tmp1->lineno = -1;
+        tmp1->isFunc = 1;
+        tmp1->attr.name = "inputc";
+    insertSibling(syntaxTree, tmp1);
+    //outnl    
+    tmp1 = newDeclNode(funDec);
+        tmp1->expType = 0;
+        tmp1->lineno = -1;
+        tmp1->isFunc = 1;
+        tmp1->attr.name = "outnl";
+    insertSibling(syntaxTree, tmp1);
+
 }
 
