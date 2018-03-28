@@ -70,9 +70,9 @@ TreeNode* newStmtNode(StmtKind kind) {
 	//Check for allocation success
 	if(t == NULL)
 		yyerror("Failure to allocate STMT node\n");
-
+	int i;
 	//Initialize children to NULL
-	for (int i = 0; i<MAXCHILDREN; i++)
+	for (i = 0; i<MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -112,9 +112,9 @@ TreeNode* newExpNode(ExpKind kind) {
 	//Check for allocation success
 	if(t == NULL)
 		yyerror("Failure to allocate EXP node\n");
-
+	int i;
 	//Initialize children to NULL
-	for (int i = 0; i<MAXCHILDREN; i++)
+	for (i = 0; i<MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -154,9 +154,9 @@ TreeNode* newDeclNode(DeclKind kind) {
 	//Check for allocation success
 	if(t == NULL)
 		yyerror("Failure to allocate DECL node\n");
-
+	int i;
 	//Initialize children to NULL
-	for (int i = 0; i<MAXCHILDREN; i++)
+	for (i = 0; i<MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -327,9 +327,9 @@ TreeNode* addProto(TreeNode* tree) {
 * out - File pointer to print to
 */
 void printSpaces(FILE* out, int z) {
-
+	int i;
 	//Print indent chars repeatedly
-	for (int i = 0; i < z; i++)
+	for (i = 0; i < z; i++)
 		fprintf(out, "!   ");
 }
 
@@ -337,8 +337,8 @@ void printSpaces(FILE* out, int z) {
 * Indents are printed preemptively before the code
 * can indicate an unindent. This function removes
 * an extra indent that was already printed by
-* moving the cursor back and reprinting the 
-* correct number of indents. This results in 
+* moving the cursor back and reprinting the
+* correct number of indents. This results in
 * correct appearance both in STDOUT and file
 */
 void removeSpace(FILE* out, long placeholder) {
@@ -348,7 +348,8 @@ void removeSpace(FILE* out, long placeholder) {
 	* stdout to be happy and display properly
 	* that the current indent level will be cleared
 	*/
-	for (int i = 0; i<identNum; i++)
+	int i;
+	for (i = 0; i<identNum; i++)
 		fprintf(out,"\b\b\b\b");
 
 	/*
@@ -726,7 +727,8 @@ void printTree(TreeNode* tree, int tFlag) {
 		* Now that we've printed ourself and the next level
 		* of indentation, try printing any children we have
 		*/
-		for (int i = 0; i < MAXCHILDREN; i++)
+		int i;
+		for (i = 0; i < MAXCHILDREN; i++)
 		{
 			/*
 			* Check if current child exists

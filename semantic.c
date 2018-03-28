@@ -323,7 +323,7 @@ Symbol* stackSearch(char* string) {
 			break;
 	}
 
-	return(sym); 
+	return(sym);
 }
 
 /*
@@ -1880,7 +1880,7 @@ void operatorCheck(TreeNode* tree) {
 		case lthan:
 		case gteq:
 		case gthan:
-			
+
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
 			{
@@ -2273,7 +2273,7 @@ void treeTraverse(TreeNode* tree) {
 									break;
 								}
 
-								//Indicate call param check 
+								//Indicate call param check
 								callCheck = 1;
 							break;
 
@@ -2700,15 +2700,15 @@ void treeTraverse(TreeNode* tree) {
 		//Bad tree node
 		else
 			yyerror("Unknown node");
-
+		int i;
 		//If children exist traverse the child trees
-		for (int i = 0; i < MAXCHILDREN; i++)
+		for (i = 0; i < MAXCHILDREN; i++)
 		{
 			if(tree->child[i] != NULL)
 			{
 				//Indicate a parameter check if currently in a function
 				if((i == 0) && (tree->nodekind == DeclK) && (tree->kind.decl == funDec) && (!noNewFunc))
-					paramCheck = 1;					
+					paramCheck = 1;
 
 				//Check child only if it exists
 				treeTraverse(tree->child[i]);
@@ -2758,7 +2758,7 @@ void treeTraverse(TreeNode* tree) {
 			{
 				//Init is an array
 				case 0:
-				
+
 				//Init is not an array
 				case 1:
 
@@ -2893,9 +2893,9 @@ void treeTraverse(TreeNode* tree) {
 
 				}while(tempNode != NULL);
 			}
-
+			
 			//Compare params
-			for(int i = 0; (i < (int)strlen(cparams)) && (i < (int)strlen(search->paramType)); i++)
+			for(i= 0; (i < (int)strlen(cparams)) && (i < (int)strlen(search->paramType)); i++)
 			{
 				//Params don't match
 				if( (cparams[i] != search->paramType[i]) && (cparams[i] != search->paramType[i]+32) && (cparams[i] != search->paramType[i]-32) && (cparams[i] != 'u') && (cparams[i] != 'U'))
