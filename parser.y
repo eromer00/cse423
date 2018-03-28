@@ -3,7 +3,7 @@
 /**
  *
  * @date Spring 2018
- * @author Omar Soliman
+ * @author Omar Soliman / Erik Romero - Carlos Rubio - Franz Chavez
  * @title Bison Parser
  *    _____
  *   /\   /\
@@ -170,7 +170,7 @@ varDeclaration:
 
 		yyerrok;
 	}
-	| error varDeclList SCOLON { $$ = NULL; }
+	| error varDeclList SCOLON { $$ = NULL; yyerrok; }
 	| typeSpecifier error SCOLON { $$ = NULL; yyerrok; }
 	;
 
@@ -361,7 +361,7 @@ paramList:
 		yyerrok;
 	}
 	| paramTypeList { $$ = $1; }
-	| paramList SCOLON error { $$ = $1; }
+	| paramList SCOLON error { $$ = NULL; }
 	| error { $$ = NULL; }
 	;
 
@@ -479,9 +479,9 @@ matched:
 		$$ = $1;
 	}
 	| otherStmt { $$ = $1; }
-	| IF LPAREN error { $$ = NULL; }
+	| IF LPAREN error { $$ = NULL; yyerrok; }
 	| IF error RPAREN matched ELSE matched { $$ = NULL; yyerrok; }
-	| error { $$ = NULL; }
+	| error { $$ = NULL; yyerrok; }
 	;
 
 unmatched:
@@ -558,7 +558,7 @@ compoundStmt:
 
 		yyerrok;
 	}
-	/*| LCB error statementList RCB
+	| LCB error statementList RCB
 	{
 		TreeNode* t = newStmtNode(CompoundK);
 		t->lineno = $1.lineNumber;
@@ -577,7 +577,7 @@ compoundStmt:
 		$$ = t;
 
 		yyerrok;
-	} */
+	} 
 	;
 
 localDeclarations:
@@ -1103,15 +1103,12 @@ int main(int argc, char* argv[]) {
 		yyparse();
 	}
 	while(!feof(yyin));
-
+    
 
 	//Check for no syntax errors
-	if(!numErrors)
+	if(numErrors <= 0)
 	{
 	    //createDummyFuncs();
-		//Print AST if requested
-		if(printSyntaxTree)
-			printTree(syntaxTree, NOTYPES);
 
 		//Add prototypes to AST
 		syntaxTree = addProto(syntaxTree);
@@ -1119,8 +1116,12 @@ int main(int argc, char* argv[]) {
 		//Check AST scopes and types
 		scopeAndType(syntaxTree);
 
+		//Print AST if requested
+		if(printSyntaxTree)
+			printTree(syntaxTree, NOTYPES);
+
 		//Print Extra AST if requested
-		if(printAnnotatedSyntaxTree)
+		else if(printAnnotatedSyntaxTree)
 		{
 			printTree(syntaxTree, TYPES);
 		}
