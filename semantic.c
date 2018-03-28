@@ -20,6 +20,7 @@
 
 //Type check library
 #include "semantic.h"
+#include "yyerror.h"
 
 //Track warnings and errors
 #define WARN numWarnings++
@@ -2893,7 +2894,7 @@ void treeTraverse(TreeNode* tree) {
 
 				}while(tempNode != NULL);
 			}
-			
+
 			//Compare params
 			for(i= 0; (i < (int)strlen(cparams)) && (i < (int)strlen(search->paramType)); i++)
 			{

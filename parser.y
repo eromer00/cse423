@@ -114,7 +114,7 @@ declaration:
 	varDeclaration { $$ = $1; }
 	| funDeclaration { $$ = $1; }
 	| recDeclaration { $$ = $1; }
-	//| error { $$ = NULL; }
+	| error { $$ = NULL; }
 	;
 
 recDeclaration:
@@ -170,8 +170,8 @@ varDeclaration:
 
 		yyerrok;
 	}
-	//| error varDeclList SCOLON { $$ = NULL; }
-	//| typeSpecifier error SCOLON { $$ = NULL; yyerrok; }
+	| error varDeclList SCOLON { $$ = NULL; }
+	| typeSpecifier error SCOLON { $$ = NULL; yyerrok; }
 	;
 
 scopedVarDeclaration:
@@ -200,8 +200,8 @@ scopedVarDeclaration:
 
 		yyerrok;
 	}
-	//| error varDeclList SCOLON { $$ = NULL; yyerrok; }
-	//| scopedTypeSpecifier error SCOLON { $$ = NULL; yyerrok; }
+	| error varDeclList SCOLON { $$ = NULL; yyerrok; }
+	| scopedTypeSpecifier error SCOLON { $$ = NULL; yyerrok; }
 	;
 
 varDeclList:
@@ -225,8 +225,8 @@ varDeclList:
 		yyerrok;
 	}
 	| varDeclInitialize { $$ = $1; }
-	//| varDeclList COMMA error { $$ = $1; }
-	//| error { $$ = NULL; }
+	| varDeclList COMMA error { $$ = $1; }
+	| error { $$ = NULL; }
 	;
 
 varDeclInitialize:
@@ -236,8 +236,8 @@ varDeclInitialize:
 		$$ = $1;
 	}
 	| varDeclId { $$ = $1; }
-	//| error COLON simpleExpression { $$ = NULL; yyerrok; }
-	//| varDeclId COLON error { $$ = NULL; }
+	| error COLON simpleExpression { $$ = NULL; yyerrok; }
+	| varDeclId COLON error { $$ = NULL; }
 	;
 
 varDeclId:
@@ -255,8 +255,8 @@ varDeclId:
 		t->lineno = $1.lineNumber;
 		$$ = t;
 	}
-	//| ID LSQB error { $$ = NULL; }
-	//| error RSQB { $$ = NULL; yyerrok; }
+	| ID LSQB error { $$ = NULL; }
+	| error RSQB { $$ = NULL; yyerrok; }
 	;
 
 scopedTypeSpecifier:
@@ -328,11 +328,11 @@ funDeclaration:
 		t->expType = Void;
 		$$ = t;
 	}
-	//| typeSpecifier error { $$ = NULL; }
-	//| typeSpecifier ID LPAREN error { $$ = NULL; }
-	//| typeSpecifier ID LPAREN params RPAREN error { $$ = NULL; }
-	//| ID LPAREN error { $$ = NULL; }
-	//| ID LPAREN params RPAREN error { $$ = NULL; }
+	| typeSpecifier error { $$ = NULL; }
+	| typeSpecifier ID LPAREN error { $$ = NULL; }
+	| typeSpecifier ID LPAREN params RPAREN error { $$ = NULL; }
+	| ID LPAREN error { $$ = NULL; }
+	| ID LPAREN params RPAREN error { $$ = NULL; }
 	;
 
 params:
@@ -361,8 +361,8 @@ paramList:
 		yyerrok;
 	}
 	| paramTypeList { $$ = $1; }
-	//| paramList SCOLON error { $$ = $1; }
-	//| error { $$ = NULL; }
+	| paramList SCOLON error { $$ = $1; }
+	| error { $$ = NULL; }
 	;
 
 paramTypeList:
@@ -387,7 +387,7 @@ paramTypeList:
 		free($1);
 		$$ = $2;
 	}
-	//| typeSpecifier error { $$ = NULL; }
+	| typeSpecifier error { $$ = NULL; }
 	;
 
 paramIdList:
@@ -411,8 +411,8 @@ paramIdList:
 		yyerrok;
 	}
 	| paramId { $$ = $1; }
-	//| paramIdList COMMA error { $$ = NULL; }
-	//| error { $$ = NULL; }
+	| paramIdList COMMA error { $$ = NULL; }
+	| error { $$ = NULL; }
 	;
 
 paramId:
@@ -433,7 +433,7 @@ paramId:
 		t->isParam = 1;
 		$$ = t;
 	}
-	//| error RSQB { $$ = NULL; yyerrok; }
+	| error RSQB { $$ = NULL; yyerrok; }
 	;
 
 statementList:
@@ -479,9 +479,9 @@ matched:
 		$$ = $1;
 	}
 	| otherStmt { $$ = $1; }
-	//| IF LPAREN error { $$ = NULL; }
-	//| IF error RPAREN matched ELSE matched { $$ = NULL; yyerrok; }
-	//| error { $$ = NULL; }
+	| IF LPAREN error { $$ = NULL; }
+	| IF error RPAREN matched ELSE matched { $$ = NULL; yyerrok; }
+	| error { $$ = NULL; }
 	;
 
 unmatched:
@@ -492,7 +492,7 @@ unmatched:
 		t->child[0] = $3;
 		t->child[1] = $5;
 		$$ = t;
-	} 
+	}
 	| IF LPAREN simpleExpression RPAREN unmatched
 	{
 		TreeNode* t = newStmtNode(IfK);
@@ -516,10 +516,10 @@ unmatched:
 		t->child[1] = $2;
 		$$ = $1;
 	}
-	//| IF error { $$ = NULL; }
-	//| IF error RPAREN matched { $$ = NULL; yyerrok; }
-	//| IF error RPAREN unmatched { $$ = NULL; yyerrok; }
-	//| IF error RPAREN matched ELSE unmatched { $$ = NULL; yyerrok; }
+	| IF error { $$ = NULL; }
+	| IF error RPAREN matched { $$ = NULL; yyerrok; }
+	| IF error RPAREN unmatched { $$ = NULL; yyerrok; }
+	| IF error RPAREN matched ELSE unmatched { $$ = NULL; yyerrok; }
 	;
 
 iterationHeader:
@@ -530,9 +530,9 @@ iterationHeader:
 		t->child[0] = $3;
 		$$ = t;
 	}
-	//| WHILE error { $$ = NULL; }
-	//| WHILE error RPAREN { $$ = NULL; yyerrok; }
-	//| WHILE LPAREN error RPAREN { $$ = NULL; yyerrok; }
+	| WHILE error { $$ = NULL; }
+	| WHILE error RPAREN { $$ = NULL; yyerrok; }
+	| WHILE LPAREN error RPAREN { $$ = NULL; yyerrok; }
 	;
 
 otherStmt:
@@ -566,7 +566,7 @@ compoundStmt:
 		t->child[1] = $3;
 		$$ = t;
 
-		yyerrok;	
+		yyerrok;
 	}
 	| LCB localDeclarations error RCB
 	{
@@ -576,7 +576,7 @@ compoundStmt:
 		t->child[1] = NULL;
 		$$ = t;
 
-		yyerrok;	
+		yyerrok;
 	} */
 	;
 
@@ -697,12 +697,12 @@ expression:
 		yyerrok;
 	}
 	| simpleExpression { $$ = $1; }
-	//| error INC { $$ = NULL; yyerrok; }
-	//| error DEC { $$ = NULL; yyerrok; }
-	//| error ADDASS error { $$ = NULL; yyerrok; }
-	//| error SUBASS error { $$ = NULL; yyerrok; }
-	//| error MULASS error { $$ = NULL; yyerrok; }
-	//| error DIVASS error { $$ = NULL; yyerrok; }
+	| error INC { $$ = NULL; yyerrok; }
+	| error DEC { $$ = NULL; yyerrok; }
+	| error ADDASS error { $$ = NULL; yyerrok; }
+	| error SUBASS error { $$ = NULL; yyerrok; }
+	| error MULASS error { $$ = NULL; yyerrok; }
+	| error DIVASS error { $$ = NULL; yyerrok; }
 	;
 
 simpleExpression:
@@ -716,7 +716,7 @@ simpleExpression:
 		$$ = t;
 	}
 	| andExpression { $$ = $1; }
-	//| simpleExpression OR error { $$ = NULL; }
+	| simpleExpression OR error { $$ = NULL; }
 	;
 
 andExpression:
@@ -730,7 +730,7 @@ andExpression:
 		$$ = t;
 	}
 	| unaryRelExpression { $$ = $1; }
-	//| andExpression AND error { $$ = NULL; }
+	| andExpression AND error { $$ = NULL; }
 	;
 
 unaryRelExpression:
@@ -743,7 +743,7 @@ unaryRelExpression:
 		$$ = t;
 	}
 	| relExpression { $$ = $1; }
-	//| NOT error { $$ = NULL; }
+	| NOT error { $$ = NULL; }
 	;
 
 relExpression:
@@ -758,8 +758,8 @@ relExpression:
 		$$ = t;
 	}
 	| sumExpression { $$ = $1; }
-	//| sumExpression relop error { $$ = NULL; }
-	//| error relop sumExpression { $$ = NULL;  yyerrok; }
+	| sumExpression relop error { $$ = NULL; }
+	| error relop sumExpression { $$ = NULL;  yyerrok; }
 	;
 
 relop:
@@ -813,7 +813,7 @@ sumExpression:
 		$$ = t;
 	}
 	| term { $$ = $1; }
-	//| sumExpression sumop error { $$ = NULL; yyerrok; }
+	| sumExpression sumop error { $$ = NULL; yyerrok; }
 	;
 
 sumop:
@@ -843,7 +843,7 @@ term:
 		$$ = t;
 	}
 	| unaryExpression { $$ = $1; }
-	//| term mulop error { $$ = NULL; }
+	| term mulop error { $$ = NULL; }
 	;
 
 mulop:
@@ -878,7 +878,7 @@ unaryExpression:
 		$$ = t;
 	}
 	| factor { $$ = $1; }
-	//| unaryop error { $$ = NULL; }
+	| unaryop error { $$ = NULL; }
 	;
 
 unaryop:
@@ -941,8 +941,8 @@ immutable:
 	LPAREN expression RPAREN { $$ = $2; yyerrok; }
 	| call { $$ = $1; }
 	| constant { $$ = $1; }
-	//| LPAREN error { $$ = NULL; }
-	//| error RPAREN { $$ = NULL; yyerrok; }
+	| LPAREN error { $$ = NULL; }
+	| error RPAREN { $$ = NULL; yyerrok; }
 	;
 
 call:
@@ -955,7 +955,7 @@ call:
 		t->isFunc = 1;
 		$$ = t;
 	}
-	//| error LPAREN { $$ = NULL; yyerrok; }
+	| error LPAREN { $$ = NULL; yyerrok; }
 	;
 
 args:
@@ -984,7 +984,7 @@ argList:
 		yyerrok;
 	}
 	| expression {  $$ = $1; }
-	//| argList COMMA error { $$ = $1; }
+	| argList COMMA error { $$ = $1; }
 	;
 
 constant:
@@ -1094,17 +1094,17 @@ int main(int argc, char* argv[]) {
 
 	//Setup fancy errors
 	initErrorProcessing();
-    
+
     //create dummy functions
-    
+
 	//Parse input until EOF
 	do
 	{
 		yyparse();
 	}
 	while(!feof(yyin));
-    
-    
+
+
 	//Check for no syntax errors
 	if(!numErrors)
 	{
@@ -1160,7 +1160,7 @@ void createDummyFuncs(){
         tmp2->attr.name = "*dummy*";
     insertChild(tmp1, tmp2);
     insertSibling(syntaxTree, tmp1);
-    //outputc    
+    //outputc
     tmp1 = newDeclNode(funDec);
         tmp1->expType = 0;
         tmp1->lineno = -1;
@@ -1173,28 +1173,28 @@ void createDummyFuncs(){
         tmp2->attr.name = "*dummy*";
     insertChild(tmp1, tmp2);
     insertSibling(syntaxTree, tmp1);
-    //input    
+    //input
     tmp1 = newDeclNode(funDec);
         tmp1->expType = 1;
         tmp1->lineno = -1;
         tmp1->isFunc = 1;
         tmp1->attr.name = "input";
     insertSibling(syntaxTree, tmp1);
-    //inputb    
+    //inputb
     tmp1 = newDeclNode(funDec);
         tmp1->expType = 2;
         tmp1->lineno = -1;
         tmp1->isFunc = 1;
         tmp1->attr.name = "inputb";
     insertSibling(syntaxTree, tmp1);
-    //inputc    
+    //inputc
     tmp1 = newDeclNode(funDec);
         tmp1->expType = 3;
         tmp1->lineno = -1;
         tmp1->isFunc = 1;
         tmp1->attr.name = "inputc";
     insertSibling(syntaxTree, tmp1);
-    //outnl    
+    //outnl
     tmp1 = newDeclNode(funDec);
         tmp1->expType = 0;
         tmp1->lineno = -1;
@@ -1203,4 +1203,3 @@ void createDummyFuncs(){
     insertSibling(syntaxTree, tmp1);
 
 }
-
