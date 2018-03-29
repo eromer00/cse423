@@ -19,10 +19,12 @@
 
 //AST definition import
 #include "printtree.h"
+#include "semantic.h"
 #include <string.h>
 
 //Reference line number from parser
 extern int line_num;
+static int function_size = 0;
 
 /*
 * Track indentation level for AST printing
@@ -42,6 +44,8 @@ int identNum = 0;
 * performing write we may want to overwrite
 */
 long pos;
+
+int negflag = 0;
 
 /*
  * Expression string array
@@ -85,6 +89,9 @@ TreeNode* newStmtNode(StmtKind kind) {
 	//Set line number to parser line count
 	t->lineno = line_num;
 
+    //set size 
+    t->size = 0;
+
 	//Zero out flags
 	t->isArray = 0;
 	t->isRecord = 0;
@@ -127,6 +134,12 @@ TreeNode* newExpNode(ExpKind kind) {
 	//Set line number to parser line count
 	t->lineno = line_num;
 
+    //set size 
+    t->size = 0;
+
+    t->global = 0;
+
+    t->loc = 0;
 	//Set return type to Unknown type default
 	t->expType = Unknown;
 
@@ -169,6 +182,12 @@ TreeNode* newDeclNode(DeclKind kind) {
 	//Set line number to parser line count
 	t->lineno = line_num;
 
+    //set size 
+    t->size = 0;
+
+    t->global = 0;
+
+    t->loc = 0;
 	//Zero out flags
 	t->isArray = 0;
 	t->isRecord = 0;
@@ -216,6 +235,9 @@ void insertSibling(TreeNode *tree, TreeNode *n){
 	else
 		yyerror("InsertSibling: NULL param tree!");
 }
+
+
+
 
 /*
  * Add input/output prototypes to AST
@@ -351,6 +373,7 @@ TreeNode* addProto(TreeNode* tree) {
 	t8->expType = Boolean;
 	t9->expType = Void;
 
+    
 	//Return new root
 	return t0;
 }
@@ -407,6 +430,7 @@ void printProbs(int wno, int eno) {
 	printf("Number of errors: %d\n",eno);
 }
 
+
 /*
 * Print the AST
 *
@@ -417,6 +441,10 @@ void printTree(TreeNode* tree, int tFlag) {
 
 	FILE* output = stdout;
 
+    /*
+    * checks whether or not to print reference/size information
+    */
+    int pflag = 0;
 	/*
 	* Sibling index
 	*
@@ -614,15 +642,19 @@ void printTree(TreeNode* tree, int tFlag) {
 
 				//ID expression
 				case IdK:
+                    pflag = 2;
 					if(!tree->isFunc)
 					{
 						fprintf(output, "Id: %s ", tree->attr.name);
 
-						//if(tree->isArray)
-						//	fprintf(output, "is array ");
+						if(tree->isArray)
+							fprintf(output, "is array ");
 					}
-					else
-						fprintf(output, "Call: %s ", tree->attr.name);
+					else {
+                        negflag = 1;
+                        tree->global = 4;
+						fprintf(output, "Call: %s", tree->attr.name);
+                    }
 				break;
 
 				default:
@@ -637,7 +669,7 @@ void printTree(TreeNode* tree, int tFlag) {
 			{
 				//Variable
 				case varDec:
-
+                    pflag = 1;
 					if(!tree->isParam)
 						fprintf(output, "Var %s ", tree->attr.name);
 					else
@@ -650,7 +682,7 @@ void printTree(TreeNode* tree, int tFlag) {
 					//	fprintf(output, "is static ");
 
 					//Check if variable is a custom type
-
+                    /*
 					if(!tree->isRecord)
 						switch (tree->expType)
 						{
@@ -678,12 +710,13 @@ void printTree(TreeNode* tree, int tFlag) {
 
 						//fprintf(output, "of record type %s", tree->recType);
 						fprintf(output, "of type record");
-
+                    */
 				break;
 
 				//Function
 				case funDec:
-
+                    pflag = 1;
+                    negflag = 1;
 					fprintf(output, "Func %s returns type ", tree->attr.name);
 
 					//fprintf(output, "Func %s ", tree->attr.name);
@@ -691,23 +724,23 @@ void printTree(TreeNode* tree, int tFlag) {
 					switch (tree->expType)
 					{
 						case Void:
-							fprintf(output, "void ");
+							fprintf(output, "void");
 						break;
 
 						case Integer:
-							fprintf(output, "int ");
+							fprintf(output, "int");
 						break;
 
 						case Boolean:
-							fprintf(output, "bool ");
+							fprintf(output, "bool");
 						break;
 
 						case Char:
-							fprintf(output, "char ");
+							fprintf(output, "char");
 						break;
 
 						case Unknown:
-							fprintf(output, "UNKNOWN ");
+							fprintf(output, "UNKNOWN");
 						break;
 
 						default:
@@ -735,13 +768,17 @@ void printTree(TreeNode* tree, int tFlag) {
 		*/
 		if(tFlag)
 		{
-
+            if(pflag) {
+                fprintf(output," [ref: %s, size: %s%d, loc: %s%d] ", (tree->global == 0) ? "Local" : (tree->global == 1) ? "Global" : (tree->global == 2) ? "Static" : (tree->global == 3) ? "Param" : "None", (negflag == 1) ? "-" : "", tree->size, (tree->loc == 0) ? "" : "-", (tree->loc < 0) ? 0 : tree->loc);
+                
+                pflag = 0;
+            }
 			if(tree->expType != Unknown)
 				fprintf(output,"[type %s]", expString[tree->expType]);
 			else
 				fprintf(output,"[undefined type]");
 		}
-
+        negflag = 0;
 		/*
 		* Print line number of node after AST properties
 		*/
@@ -831,5 +868,10 @@ void printTree(TreeNode* tree, int tFlag) {
 	//END WHILE
 
 	return;
+}
+
+void globalOffsetPrint() {
+	FILE* output = stdout;
+    fprintf(output, "Offset for end of global space: %s%d\n", (returnGlobal() == 0) ? "" : "-", returnGlobal());
 }
 //END printTREE

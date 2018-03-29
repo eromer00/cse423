@@ -16,7 +16,7 @@
 #############################################
 
 #Group name
-GROUP = TAgroup
+GROUP = spaghet_code
 
 #Output executable name
 BIN = c-
@@ -86,5 +86,5 @@ clean:
 
 #Keyword to type after make to create tarball of source code
 tar:
-	tar -cvf $(GROUP)_PA_.tar $(SRCS) makefile
+	tar -cvf $(GROUP)_PA_5.tar $(SRCS) makefile
 

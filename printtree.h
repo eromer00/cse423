@@ -123,6 +123,11 @@ typedef struct TreeNode {
 	*/
 	int lineno;
 
+    /*
+    * Size of AST element
+    */
+    int size;
+
 	/*
 	* Node's main type
 	*
@@ -172,6 +177,11 @@ typedef struct TreeNode {
 	*/
 	char* recType;
 
+    /*
+    * Holds value to determine scope id
+    */
+    int global;
+    int loc;
 	/*
 	* Special flags
 	*
@@ -195,6 +205,12 @@ typedef struct TreeNode {
  * tree - AST root
  */
 TreeNode* addProto(TreeNode* tree);
+
+/*
+ * Updates function sizes to match variables inside
+ */
+//void updateFuncSize(TreeNode* tree);
+//int findparamsizes(TreeNode* tree);
 
 /*
 * Print the AST
@@ -238,7 +254,7 @@ TreeNode* newDeclNode(DeclKind);
 //functions to simplify insertion of nodes
 void insertChild(TreeNode *, TreeNode *);
 void insertSibling(TreeNode *, TreeNode *);
-
+void globalOffsetPrint();
 /*
 * Allocate new Expression node
 *

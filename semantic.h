@@ -36,6 +36,10 @@ typedef struct Symbol {
 	//Symbol line number
 	int line;
 
+    //project 6 scoping variables
+    int global;
+    int size;
+    int loc;
 	/*
 	 * Symbol param type list
 	 * Stored as an array of chars
@@ -109,7 +113,7 @@ Scope* newScope(char* string, int l);
 * d - Symbol data
 * l - Symbol line number
 */
-Symbol* newSymbol(char* n, char* d, int l);
+Symbol* newSymbol(char* n, char* d, int l, int global, int size, int loc);
 
 /*
 * Search for a symbol in a scope
@@ -212,5 +216,6 @@ void scopeAndType(TreeNode* tree);
 */
 void treeTraverse(TreeNode* tree);
 
+int returnGlobal();
 #endif
 

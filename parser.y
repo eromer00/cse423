@@ -123,6 +123,7 @@ recDeclaration:
 		TreeNode* t = newDeclNode(recDec);
 		TreeNode* i = t;
 
+        t->size = 1;
 		int c = 0;
 
 		t->isRecord = 1;
@@ -246,6 +247,7 @@ varDeclId:
 		TreeNode* t = newDeclNode(varDec);
 		t->attr.name = strdup($1.string);
 		t->isArray = 1;
+        t->size = $3.value + 1;
 		$$ = t;
 	}
 	| ID
@@ -253,6 +255,7 @@ varDeclId:
 		TreeNode* t = newDeclNode(varDec);
 		t->attr.name = strdup($1.string);
 		t->lineno = $1.lineNumber;
+        t->size = 1;
 		$$ = t;
 	}
 	| ID LSQB error { $$ = NULL; }
@@ -279,6 +282,7 @@ typeSpecifier:
 		TreeNode* t = newDeclNode(varDec);
 		t->isRecord = 1;
 		t->recType = strdup($1.string);
+        t->size = 1;
 		$$ = t;
 	}
 	;
@@ -287,6 +291,7 @@ returnTypeSpecifier:
 	INT
 	{
 		TreeNode* t = newDeclNode(varDec);
+        t->size = 1;
 		t->expType = Integer;
 		$$ = t;
 	}
@@ -294,6 +299,7 @@ returnTypeSpecifier:
 	{
 
 		TreeNode* t = newDeclNode(varDec);
+        t->size = 1;
 		t->expType = Boolean;
 		$$ = t;
 	}
@@ -301,6 +307,7 @@ returnTypeSpecifier:
 	{
 
 		TreeNode* t = newDeclNode(varDec);
+        t->size = 1;
 		t->expType = Char;
 		$$ = t;
 	}
@@ -310,6 +317,7 @@ funDeclaration:
 	typeSpecifier ID LPAREN params RPAREN statement
 	{
 		TreeNode* t = newDeclNode(funDec);
+        t->size = 2;
 		t->child[0] = $4;
 		t->child[1] = $6;
 		t->lineno = $2.lineNumber;
@@ -321,6 +329,7 @@ funDeclaration:
 	| ID LPAREN params RPAREN statement
 	{
 		TreeNode* t = newDeclNode(funDec);
+        t->size = 2;
 		t->child[0] = $3;
 		t->child[1] = $5;
 		t->attr.name = strdup($1.string);
@@ -423,6 +432,7 @@ paramId:
 		t->lineno = $1.lineNumber;
 		t->isArray = 1;
 		t->isParam = 1;
+        t->size = 1;
 		$$ = t;
 	}
 	| ID
@@ -431,6 +441,7 @@ paramId:
 		t->attr.name = strdup($1.string);
 		t->lineno = $1.lineNumber;
 		t->isParam = 1;
+        t->size = 1;
 		$$ = t;
 	}
 	| error RSQB { $$ = NULL; yyerrok; }
@@ -481,7 +492,7 @@ matched:
 	| otherStmt { $$ = $1; }
 	| IF LPAREN error { $$ = NULL; yyerrok; }
 	| IF error RPAREN matched ELSE matched { $$ = NULL; yyerrok; }
-	| error { $$ = NULL; yyerrok; }
+	| error { $$ = NULL; }
 	;
 
 unmatched:
@@ -1124,6 +1135,7 @@ int main(int argc, char* argv[]) {
 		else if(printAnnotatedSyntaxTree)
 		{
 			printTree(syntaxTree, TYPES);
+            globalOffsetPrint();
 		}
 	}
 
@@ -1133,6 +1145,8 @@ int main(int argc, char* argv[]) {
 	//Close read-in file
 	fclose(yyin);
 }
+
+
 
 void createDummyFuncs(){
     //add temp files

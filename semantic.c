@@ -64,6 +64,10 @@ int funcRetType = -1;
 //Variable to hold last fundec
 TreeNode* lastFunDec = NULL;
 
+//location pointers
+static int glob_loc = 0;
+static int local_loc = 0;
+
 //Flag for parameter checking
 int paramCheck = 0;
 
@@ -234,7 +238,7 @@ Scope* newScope(char* string, int l) {
 	stable->tail = scope;
 
 	//Add scope label to parent scope symbols
-	Symbol* temp = newSymbol(string, string, l);
+	Symbol* temp = newSymbol(string, string, l, 0, 0, 0);
 	if(temp == NULL)
 		yyerror("Failed to allocate scope label symbol.");
 	insertSymbol(scope->parent,temp);
@@ -249,7 +253,7 @@ Scope* newScope(char* string, int l) {
 * d - Symbol data
 * l - Symbol line number
 */
-Symbol* newSymbol(char* n, char* d, int l) {
+Symbol* newSymbol(char* n, char* d, int l, int global, int size, int loc) {
 
 	//Allocate symbol
 	Symbol* symbol = malloc(sizeof(Symbol));
@@ -267,7 +271,9 @@ Symbol* newSymbol(char* n, char* d, int l) {
 
 	//Set symbol line number
 	symbol->line = l;
-
+    symbol->global = global;
+    symbol->size = size;
+    symbol->loc = loc;
 	//Init type string
 	symbol->paramType[0] = '\0';
 
@@ -2172,10 +2178,19 @@ void treeTraverse(TreeNode* tree) {
 				 * Either a function/variable/record name
 				 */
 				case IdK:
+                    //Check if symbol exists
+					search = stackSearch(tree->attr.name);
 
+					//Symbol was found
+					if(search != NULL) {
+                        tree->size = search->size;
+                        tree->loc = search->loc;
+                    }
+                    
 					//ID followed by ()
 					if(tree->isFunc)
 					{
+
 						//Check operand ID
 						switch(idCheck(tree, "ARRAY", 1))
 						{
@@ -2310,7 +2325,8 @@ void treeTraverse(TreeNode* tree) {
 						}
 						else
 						{
-
+                            tree->size = search->size;
+                            tree->global = search->global;
 							//Check found symbol type for function
 							if(search->data[0] == 'F')
 							{
@@ -2424,6 +2440,46 @@ void treeTraverse(TreeNode* tree) {
 				 * Build our symbol data string using strcpy and strcat
 				 */
 				case varDec:
+                    if(lastFunDec == NULL) {
+                        tree->global = 1;
+                        
+                        //set loc value
+                        if(tree->size > 1) {
+                            tree->loc = glob_loc + 1;
+                            glob_loc += tree->size;   
+                        } else {
+                            tree->loc = glob_loc;
+                            glob_loc += tree->size; 
+                        }
+                    }
+
+                    //update function size
+                    else if(lastFunDec != NULL) {
+
+                        if(tree->size > 1) {
+                            lastFunDec->size += tree->size + 1;
+                            tree->loc = local_loc + 1;
+                            local_loc += tree->size;
+                        } else {
+                            lastFunDec->size += tree->size;
+                            tree->loc = local_loc;
+                            local_loc += tree->size;
+                        }
+
+					    search = findSymbol(stable->current, lastFunDec->attr.name);
+
+					    if(search != NULL)
+					    {
+						    search->size += lastFunDec->size;
+                        }
+                    }
+
+                    if(tree->isStatic == 1) {
+                            tree->global = 2;
+                    } 
+                    if(tree->isParam == 1) {
+                            tree->global = 3;
+                    }
 
 					//Init temp string
 					strcpy(tempType, "");
@@ -2478,7 +2534,7 @@ void treeTraverse(TreeNode* tree) {
 					if(search == NULL)
 					{
 						//Variable declaration does not exist in current scope, need to add it
-						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno);
+						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno, tree->global, tree->size, tree->loc);
 
 						//Insert into current scope
 						insertSymbol(stable->current, z);
@@ -2577,9 +2633,14 @@ void treeTraverse(TreeNode* tree) {
 
 				//Function declaration
 				case funDec:
-
+                    tree->global = 1;
+                        
+                                        
 					//Save this as the last fundec found
-					lastFunDec = tree;
+					lastFunDec = tree; 
+                    local_loc = 0;                       
+                    tree->loc = local_loc;
+                    local_loc += 2;
 
 					//Build the function symbol data string
 					strcpy(tempType, "FUNCTION ");
@@ -2630,7 +2691,7 @@ void treeTraverse(TreeNode* tree) {
 					if(search == NULL)
 					{
 						//Function declaration does not exist in current scope, need to add it
-						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno);
+						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno, tree->global, tree->size, 0);
 
 						//Add to current scope
 						insertSymbol(stable->current, z);
@@ -2667,7 +2728,13 @@ void treeTraverse(TreeNode* tree) {
 
 				//Record
 				case recDec:
-
+                    if(lastFunDec == NULL) {
+                            tree->global = 1;
+                    } else if(tree->isStatic == 1) {
+                            tree->global = 2;
+                    } else if(tree->isParam == 1) {
+                            tree->global = 3;
+                    }
 					//Build the record symbol data string
 					strcpy(tempType, "RECORD");
 
@@ -2678,7 +2745,7 @@ void treeTraverse(TreeNode* tree) {
 					if(search == NULL)
 					{
 						//Variable declaration does not exist in current scope, need to add it
-						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno);
+						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno, tree->global, tree->size, tree->loc);
 
 						//Insert into current scope
 						insertSymbol(stable->current,z);
@@ -3203,5 +3270,9 @@ void treeTraverse(TreeNode* tree) {
 	//END WHILE
 
 	return;
+}
+
+int returnGlobal() {
+    return glob_loc;
 }
 //END treeTraverse
