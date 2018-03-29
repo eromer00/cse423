@@ -371,9 +371,12 @@ TreeNode* addProto(TreeNode* tree) {
 	t6->expType = Void;
 	t7->expType = Integer;
 	t8->expType = Boolean;
-	t9->expType = Void;
+	t9->expType = Char;
 
-    
+    t0->size = t2->size = t4->size = t6->size = 2;
+    t1->size = t3->size = t5->size = 2;
+    t7->size = t8->size = t9->size = 1;
+    t7->loc = t8->loc = t9->loc = 2;
 	//Return new root
 	return t0;
 }

@@ -3262,6 +3262,7 @@ void treeTraverse(TreeNode* tree) {
 				stable->current = stable->current->parent;
 				stable->depth--;
 			}
+            
 		}
 
 		//Point to the next node in the AST
