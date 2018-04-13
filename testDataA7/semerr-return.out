@@ -1,0 +1,7 @@
+ERROR(8): Function 'cat' at line 6 is expecting no return value, but return has return value.
+ERROR(16): '=' requires operands of NONVOID but rhs is of type void.
+Number of warnings: 0
+Number of errors: 2
+------------------------------------
+ERROR: semerr-return.tm not produced
+semerr-return.tm test run complete

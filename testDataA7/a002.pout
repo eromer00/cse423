@@ -1,0 +1,16 @@
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Func main [ref: Global, size: -2, loc: 0] [type void] [line: 2]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 3]
+!   !   Child: 1  Return [type void] [line: 4]
+Offset for end of global space: 0
+Number of warnings: 0
+Number of errors: 0

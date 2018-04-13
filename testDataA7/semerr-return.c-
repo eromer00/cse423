@@ -1,0 +1,19 @@
+// C-F13
+null()
+{
+}
+
+cat()
+{
+    return null();
+}
+
+main()
+{
+    int x;
+
+    899;
+    x = cat();
+    output(x);
+}
+

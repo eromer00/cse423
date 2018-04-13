@@ -1,0 +1,48 @@
+ERROR(5): Symbol 'lund' is already defined at line 3.
+ERROR(9): Symbol 'a' is already defined at line 9.
+ERROR(11): Symbol 'a' is already defined at line 9.
+ERROR(12): 'a' is a simple variable and cannot be called.
+ERROR(13): Cannot use function 'fred' as a variable.
+WARNING(9): Expecting to return type int but function 'fred' has no return statement.
+ERROR(16): Symbol 'fred' is already defined at line 9.
+ERROR(20): Symbol 'linda' is already defined at line 18.
+ERROR(26): Cannot use function 'arwen' as a variable.
+ERROR(LINKER): Procedure main is not defined.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Var: lund [ref: Global, size: 1, loc: 0] [type int] [line: 3]
+Sibling: 7  Func lund [ref: Global, size: -3, loc: 0] [type void] [line: 5]
+!   Child: 0  Param a [ref: Param, size: 1, loc: -2] [type int] [line: 5]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 6]
+Sibling: 8  Func fred [ref: Global, size: -3, loc: 0] [type int] [line: 9]
+!   Child: 0  Param a [ref: Param, size: 1, loc: -2] [type int] [line: 9]
+!   Sibling: 0  Param a [ref: Param, size: 1, loc: 0] [type int] [line: 9]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 10]
+!   !   Child: 0  Var: a [ref: Local, size: 1, loc: 0] [type int] [line: 11]
+!   !   Child: 1  Call: a [type int] [line: 12]
+!   !   Sibling: 0  Op: + [type int] [line: 13]
+!   !   !   Child: 0  Id: fred [ref: Local, size: -3, loc: 0] [undefined type] [line: 13]
+!   !   !   Child: 1  Const: 4 [type int] [line: 13]
+Sibling: 9  Var: fred [ref: Local, size: 1, loc: 0] [type int] [line: 16]
+Sibling: 10  Func linda [ref: Global, size: -3, loc: 0] [type void] [line: 18]
+!   Child: 0  Param linda [ref: Param, size: 1, loc: -2] [type int] [line: 18]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 19]
+!   !   Child: 0  Var: linda [ref: Local, size: 1, loc: 0] [type int] [line: 20]
+Sibling: 11  Var: galadriel [ref: Global, size: 1, loc: -1] [type int] [line: 23]
+Sibling: 12  Func arwen [ref: Global, size: -3, loc: 0] [type void] [line: 24]
+!   Child: 0  Param eowyn [ref: Param, size: 1, loc: -2] [type int] [line: 24]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 25]
+!   !   Child: 1  Op: + [type int] [line: 26]
+!   !   !   Child: 0  Id: arwen [ref: Local, size: -3, loc: 0] [undefined type] [line: 26]
+!   !   !   Child: 1  Const: 4 [type int] [line: 26]
+Offset for end of global space: -2
+Number of warnings: 1
+Number of errors: 9

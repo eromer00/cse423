@@ -1,0 +1,29 @@
+write()
+{
+    int i, k[10];
+
+    i = 0;
+    while (i<10) k[i] = i++;
+}
+
+
+// if the array is not zeroed it will see the array from the
+// old frame that was in the write function!
+read()
+{
+    int i, k[10];
+
+    i = 0;
+    while (i<10) {
+        output(k[i]);
+        outnl();
+        i++;
+    }
+}
+
+main()
+{
+        write();
+        read();   // read the old dataa writtenin write()
+}
+

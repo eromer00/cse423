@@ -1,0 +1,79 @@
+ERROR(4): Function 'fred' at line 3 is expecting to return type int but return has no return value.
+ERROR(5): Function 'fred' at line 3 is expecting to return type int but instead returns type bool.
+ERROR(9): Symbol 'fred' is already defined at line 3.
+ERROR(10): Function 'fred' at line 9 is expecting no return value, but return has return value.
+ERROR(11): Function 'fred' at line 9 is expecting no return value, but return has return value.
+ERROR(15): Symbol 'fred' is already defined at line 3.
+ERROR(17): Function 'fred' at line 15 is expecting no return value, but return has return value.
+ERROR(18): Function 'fred' at line 15 is expecting no return value, but return has return value.
+ERROR(22): Function 'fred' at line 15 is expecting no return value, but return has return value.
+ERROR(23): Function 'fred' at line 15 is expecting no return value, but return has return value.
+ERROR(28): Symbol 'fred' is already defined at line 3.
+ERROR(30): Function 'fred' at line 28 is expecting to return type bool but instead returns type int.
+ERROR(32): Function 'fred' at line 28 is expecting to return type bool but return has no return value.
+ERROR(35): Function 'fred' at line 28 is expecting to return type bool but instead returns type int.
+ERROR(37): Function 'fred' at line 28 is expecting to return type bool but return has no return value.
+ERROR(LINKER): Procedure main is not defined.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Func fred [ref: Global, size: -2, loc: 0] [type int] [line: 3]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 3]
+!   !   Child: 1  Return [type void] [line: 4]
+!   !   Sibling: 0  Return [type void] [line: 5]
+!   !   !   Child: 0  Const: true [type bool] [line: 5]
+!   !   Sibling: 1  Return [type void] [line: 6]
+!   !   !   Child: 0  Const: 6 [type int] [line: 6]
+Sibling: 7  Func fred [ref: Global, size: -2, loc: 0] [type void] [line: 9]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 9]
+!   !   Child: 1  Return [type void] [line: 10]
+!   !   !   Child: 0  Const: 6 [type int] [line: 10]
+!   !   Sibling: 0  Return [type void] [line: 11]
+!   !   !   Child: 0  Const: true [type bool] [line: 11]
+!   !   Sibling: 1  Return [type void] [line: 12]
+Sibling: 8  Func fred [ref: Global, size: -2, loc: 0] [type void] [line: 15]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 15]
+!   !   Child: 1  If  [type void] [line: 16]
+!   !   !   Child: 0  Const: true [type bool] [line: 16]
+!   !   !   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 16]
+!   !   !   !   Child: 1  Return [type void] [line: 17]
+!   !   !   !   !   Child: 0  Const: 6 [type int] [line: 17]
+!   !   !   !   Sibling: 0  Return [type void] [line: 18]
+!   !   !   !   !   Child: 0  Const: true [type bool] [line: 18]
+!   !   !   !   Sibling: 1  Return [type void] [line: 19]
+!   !   !   Child: 2  If  [type void] [line: 21]
+!   !   !   !   Child: 0  Const: true [type bool] [line: 21]
+!   !   !   !   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 21]
+!   !   !   !   !   Child: 1  Return [type void] [line: 22]
+!   !   !   !   !   !   Child: 0  Const: 6 [type int] [line: 22]
+!   !   !   !   !   Sibling: 0  Return [type void] [line: 23]
+!   !   !   !   !   !   Child: 0  Const: true [type bool] [line: 23]
+!   !   !   !   !   Sibling: 1  Return [type void] [line: 24]
+Sibling: 9  Func fred [ref: Global, size: -2, loc: 0] [type bool] [line: 28]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 28]
+!   !   Child: 1  If  [type void] [line: 29]
+!   !   !   Child: 0  Const: true [type bool] [line: 29]
+!   !   !   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 29]
+!   !   !   !   Child: 1  Return [type void] [line: 30]
+!   !   !   !   !   Child: 0  Const: 6 [type int] [line: 30]
+!   !   !   !   Sibling: 0  Return [type void] [line: 31]
+!   !   !   !   !   Child: 0  Const: true [type bool] [line: 31]
+!   !   !   !   Sibling: 1  Return [type void] [line: 32]
+!   !   !   Child: 2  If  [type void] [line: 34]
+!   !   !   !   Child: 0  Const: true [type bool] [line: 34]
+!   !   !   !   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 34]
+!   !   !   !   !   Child: 1  Return [type void] [line: 35]
+!   !   !   !   !   !   Child: 0  Const: 6 [type int] [line: 35]
+!   !   !   !   !   Sibling: 0  Return [type void] [line: 36]
+!   !   !   !   !   !   Child: 0  Const: true [type bool] [line: 36]
+!   !   !   !   !   Sibling: 1  Return [type void] [line: 37]
+Offset for end of global space: 0
+Number of warnings: 0
+Number of errors: 16

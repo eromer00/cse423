@@ -1,0 +1,86 @@
+// C-F15
+// C-F09
+int ant()
+{
+    return 0;
+}
+
+
+bool bat(int x)
+{
+    return x>0;
+}
+
+
+cat(bool x)
+{
+    return;
+}
+
+
+int dog(int a, b[]; bool c, d[])
+{
+    return a;
+}
+
+
+int eel;
+int fox[11];
+
+
+gnu()
+{
+    output(eel);
+    return;
+}
+
+
+int hog(int z)
+{
+    int ibex;
+    return z;
+}
+
+
+jay()
+{
+}
+
+owl();
+
+pig(int z) output(z);
+
+pigs(int z) {
+    pig(z);
+    outnl();
+}
+
+int max(int x, y) {
+    int z;
+
+    if (x>y) z=x; else z=y;
+    return z;
+}
+
+
+main()
+{
+    int a[5];
+    bool b[7];
+
+    ant();
+    bat(2);
+    cat(true);
+    dog(3, a, b[1], b);
+    eel = 9;
+    fox[eel] = eel;
+    pig(eel);            // 9
+    pig(fox[eel]);       // 9
+    gnu();               // 9
+    pigs(hog(1729));      // 1729
+    jay();
+    owl();
+    pigs(eel);            // 9
+    pigs(hog(eel));       // 9
+    pigs(fox[hog(eel)]);  // 9
+}

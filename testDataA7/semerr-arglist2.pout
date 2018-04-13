@@ -1,0 +1,150 @@
+ERROR(13): Too few parameters passed for function 'kate' defined on line 3.
+ERROR(14): Too few parameters passed for function 'kate' defined on line 3.
+ERROR(15): Too few parameters passed for function 'kate' defined on line 3.
+ERROR(17): Too many parameters passed for function 'kate' defined on line 3.
+ERROR(18): Too many parameters passed for function 'kate' defined on line 3.
+ERROR(20): Expecting type int in parameter 1 of call to 'kate' defined on line 3 but got type bool.
+ERROR(20): Expecting type bool in parameter 2 of call to 'kate' defined on line 3 but got type int.
+ERROR(20): Not expecting array in parameter 2 of call to 'kate' defined on line 3.
+ERROR(20): Expecting type int in parameter 3 of call to 'kate' defined on line 3 but got type bool.
+ERROR(20): Expecting type bool in parameter 4 of call to 'kate' defined on line 3 but got type int.
+ERROR(20): Expecting array in parameter 4 of call to 'kate' defined on line 3.
+ERROR(21): Not expecting array in parameter 1 of call to 'kate' defined on line 3.
+ERROR(21): Not expecting array in parameter 2 of call to 'kate' defined on line 3.
+ERROR(21): Expecting array in parameter 3 of call to 'kate' defined on line 3.
+ERROR(21): Expecting array in parameter 4 of call to 'kate' defined on line 3.
+ERROR(22): Expecting type int in parameter 1 of call to 'kate' defined on line 3 but got type bool.
+ERROR(22): Not expecting array in parameter 1 of call to 'kate' defined on line 3.
+ERROR(22): Expecting type bool in parameter 2 of call to 'kate' defined on line 3 but got type int.
+ERROR(22): Expecting type int in parameter 3 of call to 'kate' defined on line 3 but got type bool.
+ERROR(22): Expecting array in parameter 3 of call to 'kate' defined on line 3.
+ERROR(22): Expecting type bool in parameter 4 of call to 'kate' defined on line 3 but got type int.
+ERROR(25): '+' requires operands of type int but rhs is of type bool.
+ERROR(32): Function 'abbey' at line 30 is expecting to return type int but return has no return value.
+ERROR(35): Symbol 'abbey' is already defined at line 30.
+ERROR(37): Function 'abbey' at line 35 is expecting to return type int but return has no return value.
+ERROR(42): Function 'zena' at line 40 is expecting to return type int but instead returns type bool.
+ERROR(47): Function 'zeus' at line 45 is expecting to return type bool but instead returns type int.
+ERROR(52): Function 'blackdog' at line 50 is expecting to return type bool but return has no return value.
+ERROR(59): Cannot return an array.
+ERROR(64): Function 'quaoar' at line 62 is expecting no return value, but return has return value.
+ERROR(69): Function 'ixion' at line 67 is expecting no return value, but return has return value.
+ERROR(75): Function 'varuna' at line 72 is expecting no return value, but return has return value.
+ERROR(75): Cannot return an array.
+ERROR(LINKER): Procedure main is not defined.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Func kate [ref: Global, size: -6, loc: 0] [type int] [line: 3]
+!   Child: 0  Param is [ref: Param, size: 1, loc: -2] [type int] [line: 3]
+!   Sibling: 0  Param bs [ref: Param, size: 1, loc: -3] [type bool] [line: 3]
+!   Sibling: 1  Param ia is array [ref: Param, size: 1, loc: -4] [type int] [line: 3]
+!   Sibling: 2  Param ba is array [ref: Param, size: 1, loc: -5] [type bool] [line: 3]
+!   Child: 1  Compound [ref: None, size: -6, loc: 0] [type void] [line: 4]
+!   !   Child: 1  Return [type void] [line: 5]
+!   !   !   Child: 0  Const: 666 [type int] [line: 5]
+Sibling: 7  Func matty [ref: Global, size: -9, loc: 0] [type int] [line: 8]
+!   Child: 1  Compound [ref: None, size: -9, loc: 0] [type void] [line: 9]
+!   !   Child: 0  Var: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 10]
+!   !   Sibling: 0  Var: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 11]
+!   !   Child: 1  Call: kate [type int] [line: 13]
+!   !   !   Child: 0  Const: 101 [type int] [line: 13]
+!   !   Sibling: 0  Call: kate [type int] [line: 14]
+!   !   !   Child: 0  Const: 101 [type int] [line: 14]
+!   !   !   Sibling: 0  Const: true [type bool] [line: 14]
+!   !   Sibling: 1  Call: kate [type int] [line: 15]
+!   !   !   Child: 0  Const: 101 [type int] [line: 15]
+!   !   !   Sibling: 0  Const: true [type bool] [line: 15]
+!   !   !   Sibling: 1  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 15]
+!   !   Sibling: 2  Call: kate [type int] [line: 16]
+!   !   !   Child: 0  Const: 101 [type int] [line: 16]
+!   !   !   Sibling: 0  Const: true [type bool] [line: 16]
+!   !   !   Sibling: 1  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 16]
+!   !   !   Sibling: 2  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 16]
+!   !   Sibling: 3  Call: kate [type int] [line: 17]
+!   !   !   Child: 0  Const: 101 [type int] [line: 17]
+!   !   !   Sibling: 0  Const: true [type bool] [line: 17]
+!   !   !   Sibling: 1  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 17]
+!   !   !   Sibling: 2  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 17]
+!   !   !   Sibling: 3  Const: 107 [type int] [line: 17]
+!   !   Sibling: 4  Call: kate [type int] [line: 18]
+!   !   !   Child: 0  Const: 101 [type int] [line: 18]
+!   !   !   Sibling: 0  Const: true [type bool] [line: 18]
+!   !   !   Sibling: 1  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 18]
+!   !   !   Sibling: 2  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 18]
+!   !   !   Sibling: 3  Const: 107 [type int] [line: 18]
+!   !   !   Sibling: 4  Const: 109 [type int] [line: 18]
+!   !   Sibling: 5  Call: kate [type int] [line: 20]
+!   !   !   Child: 0  Const: true [type bool] [line: 20]
+!   !   !   Sibling: 0  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 20]
+!   !   !   Sibling: 1  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 20]
+!   !   !   Sibling: 2  Const: 101 [type int] [line: 20]
+!   !   Sibling: 6  Call: kate [type int] [line: 21]
+!   !   !   Child: 0  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 21]
+!   !   !   Sibling: 0  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 21]
+!   !   !   Sibling: 1  Const: 101 [type int] [line: 21]
+!   !   !   Sibling: 2  Const: true [type bool] [line: 21]
+!   !   Sibling: 7  Call: kate [type int] [line: 22]
+!   !   !   Child: 0  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 22]
+!   !   !   Sibling: 0  Const: 101 [type int] [line: 22]
+!   !   !   Sibling: 1  Const: true [type bool] [line: 22]
+!   !   !   Sibling: 2  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 22]
+!   !   Sibling: 8  Call: kate [type int] [line: 23]
+!   !   !   Child: 0  Const: 101 [type int] [line: 23]
+!   !   !   Sibling: 0  Const: true [type bool] [line: 23]
+!   !   !   Sibling: 1  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 23]
+!   !   !   Sibling: 2  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 23]
+!   !   Sibling: 9  Call: kate [type int] [line: 25]
+!   !   !   Child: 0  Op: + [type int] [line: 25]
+!   !   !   !   Child: 0  Const: 101 [type int] [line: 25]
+!   !   !   !   Child: 1  Const: true [type bool] [line: 25]
+!   !   !   Sibling: 0  Const: true [type bool] [line: 25]
+!   !   !   Sibling: 1  Id: inta is array [ref: Local, size: 3, loc: -3] [type int] [line: 25]
+!   !   !   Sibling: 2  Id: boola is array [ref: Local, size: 4, loc: -6] [type bool] [line: 25]
+!   !   Sibling: 10  Return [type void] [line: 27]
+!   !   !   Child: 0  Const: 42 [type int] [line: 27]
+Sibling: 8  Func abbey [ref: Global, size: -2, loc: 0] [type int] [line: 30]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 31]
+!   !   Child: 1  Return [type void] [line: 32]
+Sibling: 9  Func abbey [ref: Global, size: -2, loc: 0] [type int] [line: 35]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 36]
+!   !   Child: 1  Return [type void] [line: 37]
+Sibling: 10  Func zena [ref: Global, size: -2, loc: 0] [type int] [line: 40]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 41]
+!   !   Child: 1  Return [type void] [line: 42]
+!   !   !   Child: 0  Const: true [type bool] [line: 42]
+Sibling: 11  Func zeus [ref: Global, size: -2, loc: 0] [type bool] [line: 45]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 46]
+!   !   Child: 1  Return [type void] [line: 47]
+!   !   !   Child: 0  Const: 666 [type int] [line: 47]
+Sibling: 12  Func blackdog [ref: Global, size: -2, loc: 0] [type bool] [line: 50]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 51]
+!   !   Child: 1  Return [type void] [line: 52]
+Sibling: 13  Func zog [ref: Global, size: -5, loc: 0] [type int] [line: 55]
+!   Child: 1  Compound [ref: None, size: -5, loc: 0] [type void] [line: 56]
+!   !   Child: 0  Var: z is array [ref: Local, size: 3, loc: -3] [type int] [line: 57]
+!   !   Child: 1  Return [type void] [line: 59]
+!   !   !   Child: 0  Id: z is array [ref: Local, size: 3, loc: -3] [type int] [line: 59]
+Sibling: 14  Func quaoar [ref: Global, size: -2, loc: 0] [type void] [line: 62]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 63]
+!   !   Child: 1  Return [type void] [line: 64]
+!   !   !   Child: 0  Const: 666 [type int] [line: 64]
+Sibling: 15  Func ixion [ref: Global, size: -2, loc: 0] [type void] [line: 67]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 68]
+!   !   Child: 1  Return [type void] [line: 69]
+!   !   !   Child: 0  Const: true [type bool] [line: 69]
+Sibling: 16  Func varuna [ref: Global, size: -13, loc: 0] [type void] [line: 72]
+!   Child: 1  Compound [ref: None, size: -13, loc: 0] [type void] [line: 73]
+!   !   Child: 0  Var: z is array [ref: Local, size: 11, loc: -3] [type bool] [line: 74]
+!   !   Child: 1  Return [type void] [line: 75]
+!   !   !   Child: 0  Id: z is array [ref: Local, size: 11, loc: -3] [type bool] [line: 75]
+Offset for end of global space: 0
+Number of warnings: 0
+Number of errors: 34

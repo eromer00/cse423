@@ -1,0 +1,5 @@
+ERROR(5): Syntax error, unexpected '+', expecting identifier.
+ERROR(6): Syntax error, unexpected identifier 'z', expecting numeric constant.
+ERROR(7): Syntax error, unexpected '+', expecting identifier.
+Number of warnings: 0
+Number of errors: 3

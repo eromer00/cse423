@@ -1,0 +1,10 @@
+Number of warnings: 0
+Number of errors: 0
+------------------------------------
+run tm on while.tm
+
+Memory Configuration: Data Addresses: 0-9999  Instruction Addresses: 0-9999
+Loading file: while.tm
+10 9 8 7 6 5 4 3 2 1 
+Bye.
+while.tm test run complete

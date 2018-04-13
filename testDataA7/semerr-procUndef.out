@@ -1,0 +1,9 @@
+ERROR(8): Function 'square' is not defined.
+ERROR(10): Function 'max' is not defined.
+ERROR(13): Function 'toBool' is not defined.
+ERROR(14): Function 'toInt' is not defined.
+Number of warnings: 0
+Number of errors: 4
+------------------------------------
+ERROR: semerr-procUndef.tm not produced
+semerr-procUndef.tm test run complete

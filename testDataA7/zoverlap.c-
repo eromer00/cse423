@@ -1,0 +1,6 @@
+main(int w) {
+    int x;
+    { int y; }
+    { int z; }
+    666+777;
+}

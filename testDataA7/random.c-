@@ -1,0 +1,28 @@
+main()
+{
+     int i, sum;
+     int max:10000;
+     int range:120;
+     int rangeM1:120-1;
+     int sd:35;
+
+     i = 0;
+     while (i<20) {
+        outputb(?10<10);
+        outputb(?10>=0);
+        i++;
+     }
+     outnl();
+
+     sum = 0;
+     i = 0;
+     while (i<max) {
+           sum += ?range;
+           i++;
+     }         
+
+     // these are statistically correct (mean within 3 std deviations)
+     outputb(sum/max > rangeM1/2 - sd*3);
+     outputb(sum/max < rangeM1/2 + sd*3);
+     outnl();
+}

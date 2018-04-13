@@ -1,0 +1,9 @@
+Number of warnings: 0
+Number of errors: 0
+------------------------------------
+run tm on e0a.tm
+
+Memory Configuration: Data Addresses: 0-9999  Instruction Addresses: 0-9999
+Loading file: e0a.tm
+Bye.
+e0a.tm test run complete

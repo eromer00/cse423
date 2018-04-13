@@ -1,0 +1,15 @@
+// C-F13
+// C-F09
+  main()
+{
+    output(true);
+    output('x');
+    outputb(666);
+    outputb('y');
+    outputc(666);
+    outputc(false);
+    outnl();
+
+    return;
+}
+

@@ -1,0 +1,439 @@
+ERROR(5): Symbol 'i' is not defined.
+ERROR(5): Symbol 'i' is not defined.
+ERROR(6): Symbol 'i' is not defined.
+ERROR(6): Symbol 'b' is not defined.
+ERROR(7): Symbol 'b' is not defined.
+ERROR(7): Symbol 'i' is not defined.
+ERROR(8): Symbol 'b' is not defined.
+ERROR(8): Symbol 'b' is not defined.
+ERROR(10): Symbol 'i' is not defined.
+ERROR(10): Symbol 'i' is not defined.
+ERROR(11): Symbol 'i' is not defined.
+ERROR(11): Symbol 'b' is not defined.
+ERROR(12): Symbol 'b' is not defined.
+ERROR(12): Symbol 'i' is not defined.
+ERROR(13): Symbol 'b' is not defined.
+ERROR(13): Symbol 'b' is not defined.
+ERROR(15): Symbol 'i' is not defined.
+ERROR(15): Symbol 'i' is not defined.
+ERROR(16): Symbol 'i' is not defined.
+ERROR(16): Symbol 'b' is not defined.
+ERROR(17): Symbol 'b' is not defined.
+ERROR(17): Symbol 'i' is not defined.
+ERROR(18): Symbol 'b' is not defined.
+ERROR(18): Symbol 'b' is not defined.
+ERROR(20): Symbol 'i' is not defined.
+ERROR(20): Symbol 'i' is not defined.
+ERROR(21): Symbol 'i' is not defined.
+ERROR(21): Symbol 'b' is not defined.
+ERROR(22): Symbol 'b' is not defined.
+ERROR(22): Symbol 'i' is not defined.
+ERROR(23): Symbol 'b' is not defined.
+ERROR(23): Symbol 'b' is not defined.
+ERROR(25): Symbol 'i' is not defined.
+ERROR(25): Symbol 'i' is not defined.
+ERROR(26): Symbol 'i' is not defined.
+ERROR(26): Symbol 'b' is not defined.
+ERROR(27): Symbol 'b' is not defined.
+ERROR(27): Symbol 'i' is not defined.
+ERROR(28): Symbol 'b' is not defined.
+ERROR(28): Symbol 'b' is not defined.
+ERROR(30): Symbol 'ia' is not defined.
+ERROR(30): Symbol 'ia' is not defined.
+ERROR(31): Symbol 'ia' is not defined.
+ERROR(31): Symbol 'ba' is not defined.
+ERROR(32): Symbol 'ba' is not defined.
+ERROR(32): Symbol 'ia' is not defined.
+ERROR(33): Symbol 'ba' is not defined.
+ERROR(33): Symbol 'ba' is not defined.
+ERROR(35): Symbol 'ia' is not defined.
+ERROR(35): Symbol 'ia' is not defined.
+ERROR(36): Symbol 'ia' is not defined.
+ERROR(36): Symbol 'ba' is not defined.
+ERROR(37): Symbol 'ba' is not defined.
+ERROR(37): Symbol 'ia' is not defined.
+ERROR(38): Symbol 'ba' is not defined.
+ERROR(38): Symbol 'ba' is not defined.
+ERROR(40): Symbol 'ia' is not defined.
+ERROR(40): Symbol 'ia' is not defined.
+ERROR(41): Symbol 'ia' is not defined.
+ERROR(41): Symbol 'ba' is not defined.
+ERROR(42): Symbol 'ba' is not defined.
+ERROR(42): Symbol 'ia' is not defined.
+ERROR(43): Symbol 'ba' is not defined.
+ERROR(43): Symbol 'ba' is not defined.
+ERROR(45): Symbol 'ia' is not defined.
+ERROR(45): Symbol 'ia' is not defined.
+ERROR(46): Symbol 'ia' is not defined.
+ERROR(46): Symbol 'ba' is not defined.
+ERROR(47): Symbol 'ba' is not defined.
+ERROR(47): Symbol 'ia' is not defined.
+ERROR(48): Symbol 'ba' is not defined.
+ERROR(48): Symbol 'ba' is not defined.
+ERROR(50): Symbol 'b' is not defined.
+ERROR(50): Symbol 'i' is not defined.
+ERROR(50): Symbol 'i' is not defined.
+ERROR(51): Symbol 'i' is not defined.
+ERROR(51): Symbol 'b' is not defined.
+ERROR(51): Symbol 'i' is not defined.
+ERROR(52): Symbol 'i' is not defined.
+ERROR(52): Symbol 'i' is not defined.
+ERROR(52): Symbol 'b' is not defined.
+ERROR(54): Symbol 'i' is not defined.
+ERROR(54): Symbol 'b' is not defined.
+ERROR(54): Symbol 'b' is not defined.
+ERROR(55): Symbol 'b' is not defined.
+ERROR(55): Symbol 'i' is not defined.
+ERROR(55): Symbol 'b' is not defined.
+ERROR(56): Symbol 'b' is not defined.
+ERROR(56): Symbol 'b' is not defined.
+ERROR(56): Symbol 'i' is not defined.
+ERROR(58): Symbol 'b' is not defined.
+ERROR(59): Symbol 'i' is not defined.
+ERROR(60): Symbol 'ba' is not defined.
+ERROR(61): Symbol 'ia' is not defined.
+ERROR(63): Symbol 'b' is not defined.
+ERROR(64): Symbol 'i' is not defined.
+ERROR(65): Symbol 'ba' is not defined.
+ERROR(66): Symbol 'ia' is not defined.
+ERROR(68): Symbol 'i' is not defined.
+ERROR(68): Symbol 'i' is not defined.
+ERROR(68): Symbol 'i' is not defined.
+ERROR(68): Symbol 'i' is not defined.
+ERROR(69): Symbol 'b' is not defined.
+ERROR(69): Symbol 'i' is not defined.
+ERROR(69): Symbol 'i' is not defined.
+ERROR(69): Symbol 'i' is not defined.
+ERROR(70): Symbol 'i' is not defined.
+ERROR(70): Symbol 'b' is not defined.
+ERROR(70): Symbol 'i' is not defined.
+ERROR(70): Symbol 'i' is not defined.
+ERROR(71): Symbol 'i' is not defined.
+ERROR(71): Symbol 'i' is not defined.
+ERROR(71): Symbol 'b' is not defined.
+ERROR(71): Symbol 'i' is not defined.
+ERROR(72): Symbol 'b' is not defined.
+ERROR(72): Symbol 'i' is not defined.
+ERROR(72): Symbol 'i' is not defined.
+ERROR(72): Symbol 'b' is not defined.
+ERROR(73): Symbol 'b' is not defined.
+ERROR(73): Symbol 'b' is not defined.
+ERROR(73): Symbol 'b' is not defined.
+ERROR(73): Symbol 'b' is not defined.
+ERROR(75): Expecting Boolean test condition in if statement but got type int.
+ERROR(75): Symbol 'i' is not defined.
+ERROR(75): Symbol 'i' is not defined.
+ERROR(76): Symbol 'b' is not defined.
+ERROR(76): Symbol 'b' is not defined.
+ERROR(78): Symbol 'ba' is not defined.
+ERROR(78): Symbol 'i' is not defined.
+ERROR(78): Symbol 'i' is not defined.
+ERROR(79): Symbol 'b' is not defined.
+ERROR(79): Symbol 'b' is not defined.
+ERROR(81): Symbol 'ia' is not defined.
+ERROR(81): Symbol 'i' is not defined.
+ERROR(81): Symbol 'i' is not defined.
+ERROR(82): Symbol 'b' is not defined.
+ERROR(82): Symbol 'b' is not defined.
+ERROR(84): Symbol 'b' is not defined.
+ERROR(84): Symbol 'i' is not defined.
+ERROR(84): Symbol 'i' is not defined.
+ERROR(85): Symbol 'b' is not defined.
+ERROR(85): Symbol 'b' is not defined.
+ERROR(87): Symbol 'i' is not defined.
+ERROR(87): Symbol 'i' is not defined.
+ERROR(87): Symbol 'i' is not defined.
+ERROR(88): Symbol 'b' is not defined.
+ERROR(88): Symbol 'b' is not defined.
+ERROR(90): Expecting Boolean test condition in while statement but got type int.
+ERROR(90): Symbol 'i' is not defined.
+ERROR(90): Symbol 'i' is not defined.
+ERROR(91): Symbol 'ba' is not defined.
+ERROR(91): Symbol 'i' is not defined.
+ERROR(91): Symbol 'i' is not defined.
+ERROR(92): Symbol 'ia' is not defined.
+ERROR(92): Symbol 'i' is not defined.
+ERROR(92): Symbol 'i' is not defined.
+ERROR(93): Symbol 'b' is not defined.
+ERROR(93): Symbol 'i' is not defined.
+ERROR(93): Symbol 'i' is not defined.
+ERROR(94): Symbol 'i' is not defined.
+ERROR(94): Symbol 'i' is not defined.
+ERROR(94): Symbol 'i' is not defined.
+WARNING(3): Expecting to return type int but function 'main' has no return statement.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Func main [ref: Global, size: -2, loc: 0] [type int] [line: 3]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 4]
+!   !   Child: 1  Op: + [type int] [line: 5]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 5]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 5]
+!   !   Sibling: 0  Op: + [type int] [line: 6]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 6]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 6]
+!   !   Sibling: 1  Op: + [type int] [line: 7]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 7]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 7]
+!   !   Sibling: 2  Op: + [type int] [line: 8]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 8]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 8]
+!   !   Sibling: 3  Op: and [type bool] [line: 10]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 10]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 10]
+!   !   Sibling: 4  Op: and [type bool] [line: 11]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 11]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 11]
+!   !   Sibling: 5  Op: and [type bool] [line: 12]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 12]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 12]
+!   !   Sibling: 6  Op: and [type bool] [line: 13]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 13]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 13]
+!   !   Sibling: 7  Assign: = [undefined type] [line: 15]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 15]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 15]
+!   !   Sibling: 8  Assign: = [undefined type] [line: 16]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 16]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 16]
+!   !   Sibling: 9  Assign: = [undefined type] [line: 17]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 17]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 17]
+!   !   Sibling: 10  Assign: = [undefined type] [line: 18]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 18]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 18]
+!   !   Sibling: 11  Op: == [type bool] [line: 20]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 20]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 20]
+!   !   Sibling: 12  Op: == [type bool] [line: 21]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 21]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 21]
+!   !   Sibling: 13  Op: == [type bool] [line: 22]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 22]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 22]
+!   !   Sibling: 14  Op: == [type bool] [line: 23]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 23]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 23]
+!   !   Sibling: 15  Op: != [type bool] [line: 25]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 25]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 25]
+!   !   Sibling: 16  Op: != [type bool] [line: 26]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 26]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 26]
+!   !   Sibling: 17  Op: != [type bool] [line: 27]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 27]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 27]
+!   !   Sibling: 18  Op: != [type bool] [line: 28]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 28]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 28]
+!   !   Sibling: 19  Op: + [type int] [line: 30]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 30]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 30]
+!   !   Sibling: 20  Op: + [type int] [line: 31]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 31]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 31]
+!   !   Sibling: 21  Op: + [type int] [line: 32]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 32]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 32]
+!   !   Sibling: 22  Op: + [type int] [line: 33]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 33]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 33]
+!   !   Sibling: 23  Op: and [type bool] [line: 35]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 35]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 35]
+!   !   Sibling: 24  Op: and [type bool] [line: 36]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 36]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 36]
+!   !   Sibling: 25  Op: and [type bool] [line: 37]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 37]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 37]
+!   !   Sibling: 26  Op: and [type bool] [line: 38]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 38]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 38]
+!   !   Sibling: 27  Assign: = [undefined type] [line: 40]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 40]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 40]
+!   !   Sibling: 28  Assign: = [undefined type] [line: 41]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 41]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 41]
+!   !   Sibling: 29  Assign: = [undefined type] [line: 42]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 42]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 42]
+!   !   Sibling: 30  Assign: = [undefined type] [line: 43]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 43]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 43]
+!   !   Sibling: 31  Op: == [type bool] [line: 45]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 45]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 45]
+!   !   Sibling: 32  Op: == [type bool] [line: 46]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 46]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 46]
+!   !   Sibling: 33  Op: == [type bool] [line: 47]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 47]
+!   !   !   Child: 1  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 47]
+!   !   Sibling: 34  Op: == [type bool] [line: 48]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 48]
+!   !   !   Child: 1  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 48]
+!   !   Sibling: 35  Op: + [type int] [line: 50]
+!   !   !   Child: 0  Op: + [type int] [line: 50]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 50]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 50]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 50]
+!   !   Sibling: 36  Op: + [type int] [line: 51]
+!   !   !   Child: 0  Op: + [type int] [line: 51]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 51]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 51]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 51]
+!   !   Sibling: 37  Op: + [type int] [line: 52]
+!   !   !   Child: 0  Op: + [type int] [line: 52]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 52]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 52]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 52]
+!   !   Sibling: 38  Op: or [type bool] [line: 54]
+!   !   !   Child: 0  Op: or [type bool] [line: 54]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 54]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 54]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 54]
+!   !   Sibling: 39  Op: or [type bool] [line: 55]
+!   !   !   Child: 0  Op: or [type bool] [line: 55]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 55]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 55]
+!   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 55]
+!   !   Sibling: 40  Op: or [type bool] [line: 56]
+!   !   !   Child: 0  Op: or [type bool] [line: 56]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 56]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 56]
+!   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 56]
+!   !   Sibling: 41  Op: not [type bool] [line: 58]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 58]
+!   !   Sibling: 42  Op: not [type bool] [line: 59]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 59]
+!   !   Sibling: 43  Op: not [type bool] [line: 60]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 60]
+!   !   Sibling: 44  Op: not [type bool] [line: 61]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 61]
+!   !   Sibling: 45  Op: - [type int] [line: 63]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 63]
+!   !   Sibling: 46  Op: - [type int] [line: 64]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 64]
+!   !   Sibling: 47  Op: - [type int] [line: 65]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 65]
+!   !   Sibling: 48  Op: - [type int] [line: 66]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 66]
+!   !   Sibling: 49  Op: or [type bool] [line: 68]
+!   !   !   Child: 0  Op: > [type bool] [line: 68]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 68]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 68]
+!   !   !   Child: 1  Op: > [type bool] [line: 68]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 68]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 68]
+!   !   Sibling: 50  Op: or [type bool] [line: 69]
+!   !   !   Child: 0  Op: > [type bool] [line: 69]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 69]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 69]
+!   !   !   Child: 1  Op: > [type bool] [line: 69]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 69]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 69]
+!   !   Sibling: 51  Op: or [type bool] [line: 70]
+!   !   !   Child: 0  Op: > [type bool] [line: 70]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 70]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 70]
+!   !   !   Child: 1  Op: > [type bool] [line: 70]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 70]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 70]
+!   !   Sibling: 52  Op: or [type bool] [line: 71]
+!   !   !   Child: 0  Op: > [type bool] [line: 71]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 71]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 71]
+!   !   !   Child: 1  Op: > [type bool] [line: 71]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 71]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 71]
+!   !   Sibling: 53  Op: or [type bool] [line: 72]
+!   !   !   Child: 0  Op: > [type bool] [line: 72]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 72]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 72]
+!   !   !   Child: 1  Op: > [type bool] [line: 72]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 72]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 72]
+!   !   Sibling: 54  Op: and [type bool] [line: 73]
+!   !   !   Child: 0  Op: or [type bool] [line: 73]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 73]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 73]
+!   !   !   Child: 1  Op: or [type bool] [line: 73]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 73]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 73]
+!   !   Sibling: 55  If  [type void] [line: 75]
+!   !   !   Child: 0  Const: 1 [type int] [line: 75]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 75]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 75]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 75]
+!   !   !   Child: 2  Assign: = [undefined type] [line: 76]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 76]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 76]
+!   !   Sibling: 56  If  [type void] [line: 78]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 78]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 78]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 78]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 78]
+!   !   !   Child: 2  Assign: = [undefined type] [line: 79]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 79]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 79]
+!   !   Sibling: 57  If  [type void] [line: 81]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 81]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 81]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 81]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 81]
+!   !   !   Child: 2  Assign: = [undefined type] [line: 82]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 82]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 82]
+!   !   Sibling: 58  If  [type void] [line: 84]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 84]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 84]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 84]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 84]
+!   !   !   Child: 2  Assign: = [undefined type] [line: 85]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 85]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 85]
+!   !   Sibling: 59  If  [type void] [line: 87]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 87]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 87]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 87]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 87]
+!   !   !   Child: 2  Assign: = [undefined type] [line: 88]
+!   !   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 88]
+!   !   !   !   Child: 1  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 88]
+!   !   Sibling: 60  While  [type void] [line: 90]
+!   !   !   Child: 0  Const: 1 [type int] [line: 90]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 90]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 90]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 90]
+!   !   Sibling: 61  While  [type void] [line: 91]
+!   !   !   Child: 0  Id: ba [ref: None, size: 1, loc: 0] [undefined type] [line: 91]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 91]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 91]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 91]
+!   !   Sibling: 62  While  [type void] [line: 92]
+!   !   !   Child: 0  Id: ia [ref: None, size: 1, loc: 0] [undefined type] [line: 92]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 92]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 92]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 92]
+!   !   Sibling: 63  While  [type void] [line: 93]
+!   !   !   Child: 0  Id: b [ref: None, size: 1, loc: 0] [undefined type] [line: 93]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 93]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 93]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 93]
+!   !   Sibling: 64  While  [type void] [line: 94]
+!   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 94]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 94]
+!   !   !   !   Child: 0  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 94]
+!   !   !   !   Child: 1  Id: i [ref: None, size: 1, loc: 0] [undefined type] [line: 94]
+Offset for end of global space: 0
+Number of warnings: 1
+Number of errors: 162

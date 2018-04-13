@@ -1,0 +1,5 @@
+ERROR(3): Syntax error, unexpected '%'.
+ERROR(6): Syntax error, unexpected '+'.
+ERROR(6): Syntax error, unexpected ';', expecting ')'.
+Number of warnings: 0
+Number of errors: 3

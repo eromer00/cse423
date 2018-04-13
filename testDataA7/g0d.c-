@@ -1,0 +1,7 @@
+// C-F13
+int cat(int x) return x+x;
+
+main()
+{
+    output(42 + cat(88) + 44);
+}

@@ -19,12 +19,10 @@
 
 //AST definition import
 #include "printtree.h"
-#include "semantic.h"
 #include <string.h>
 
 //Reference line number from parser
 extern int line_num;
-static int function_size = 0;
 
 /*
 * Track indentation level for AST printing
@@ -45,8 +43,6 @@ int identNum = 0;
 */
 long pos;
 
-int negflag = 0;
-
 /*
  * Expression string array
  *
@@ -57,6 +53,17 @@ int negflag = 0;
  * Unknown |4
  */
 extern char* expString[5];
+
+/*
+ * Reference type string array
+ *
+ * 0 - None
+ * 1 - Global
+ * 2 - Static
+ * 3 - Param
+ * 4 - Local
+ */
+char* refString[] = {"None", "Global", "Static", "Param", "Local"};
 
 //Reference parser error function
 void yyerror(const char* s);
@@ -74,9 +81,9 @@ TreeNode* newStmtNode(StmtKind kind) {
 	//Check for allocation success
 	if(t == NULL)
 		yyerror("Failure to allocate STMT node\n");
-	int i;
+
 	//Initialize children to NULL
-	for (i = 0; i<MAXCHILDREN; i++)
+	for (int i = 0; i<MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -89,15 +96,16 @@ TreeNode* newStmtNode(StmtKind kind) {
 	//Set line number to parser line count
 	t->lineno = line_num;
 
-    //set size 
-    t->size = 0;
-
 	//Zero out flags
 	t->isArray = 0;
 	t->isRecord = 0;
 	t->isStatic = 0;
 	t->isParam = 0;
 	t->isFunc = 0;
+
+	t->size = 0;
+	t->offset = 0;
+	t->ref = 0;
 
 	//Set return type to Unknown type default
 	t->expType = Unknown;
@@ -119,9 +127,9 @@ TreeNode* newExpNode(ExpKind kind) {
 	//Check for allocation success
 	if(t == NULL)
 		yyerror("Failure to allocate EXP node\n");
-	int i;
+
 	//Initialize children to NULL
-	for (i = 0; i<MAXCHILDREN; i++)
+	for (int i = 0; i<MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -134,12 +142,6 @@ TreeNode* newExpNode(ExpKind kind) {
 	//Set line number to parser line count
 	t->lineno = line_num;
 
-    //set size 
-    t->size = 0;
-
-    t->global = 0;
-
-    t->loc = 0;
 	//Set return type to Unknown type default
 	t->expType = Unknown;
 
@@ -149,6 +151,10 @@ TreeNode* newExpNode(ExpKind kind) {
 	t->isStatic = 0;
 	t->isParam = 0;
 	t->isFunc = 0;
+
+	t->size = 0;
+	t->offset = 0;
+	t->ref = 0;
 
 	//Return finished node
 	return t;
@@ -167,9 +173,9 @@ TreeNode* newDeclNode(DeclKind kind) {
 	//Check for allocation success
 	if(t == NULL)
 		yyerror("Failure to allocate DECL node\n");
-	int i;
+
 	//Initialize children to NULL
-	for (i = 0; i<MAXCHILDREN; i++)
+	for (int i = 0; i<MAXCHILDREN; i++)
 		t->child[i] = NULL;
 
 	//Initialize next node to NULL
@@ -182,12 +188,6 @@ TreeNode* newDeclNode(DeclKind kind) {
 	//Set line number to parser line count
 	t->lineno = line_num;
 
-    //set size 
-    t->size = 0;
-
-    t->global = 0;
-
-    t->loc = 0;
 	//Zero out flags
 	t->isArray = 0;
 	t->isRecord = 0;
@@ -195,49 +195,16 @@ TreeNode* newDeclNode(DeclKind kind) {
 	t->isParam = 0;
 	t->isFunc = 0;
 
+	t->size = 0;
+	t->offset = 0;
+	t->ref = 0;
+
 	//Set return type to Unknown type default
 	t->expType = Unknown;
 
 	//Return finished node
 	return t;
 }
-
-/*
-* Insert the new child node into the given node
-*/
-void insertChild(TreeNode *tree, TreeNode *n){
-	int c = 0;
-	if(tree != NULL){
-	    while(c < MAXCHILDREN){
-	        if(tree->child[c] == NULL){
-	            tree->child[c] = n;
-	            return;
-	        }
-	        c++;
-	    }
-	    yyerror("InsertChild: Out of space! Max number of children allocated!");
-	}else{
-	    yyerror("InsertChild: attempted to insert child to NULL parent!");
-	}
-}
-/*
-* Insert the new sibling node into the given node
-*/
-void insertSibling(TreeNode *tree, TreeNode *n){
-    TreeNode *t = tree;
-	if(t != NULL)
-	{
-	    while(t->sibling != NULL)
-		    t = t->sibling;
-
-	    t->sibling = n;
-	}
-	else
-		yyerror("InsertSibling: NULL param tree!");
-}
-
-
-
 
 /*
  * Add input/output prototypes to AST
@@ -276,6 +243,19 @@ TreeNode* addProto(TreeNode* tree) {
 	//Check for allocation success
 	if((t0 == NULL) || (t1 == NULL) || (t2 == NULL) || (t3 == NULL) || (t4 == NULL) || (t5 == NULL) || (t6 == NULL) || (t7 == NULL) || (t8 == NULL) || (t9 == NULL))
 		yyerror("Failure to allocate proto node\n");
+
+	//Set sizes
+	t0->size = t2->size = t4->size = t6->size = -2;
+	t1->size = t3->size = t5->size = -3;
+	t7->size = t8->size = t9->size = 1;
+
+	//Set offsets
+	t0->offset = t1->offset = t2->offset = t3->offset = t4->offset = t5->offset = t6->offset = 0;
+	t7->offset = t8->offset = t9->offset = -2;
+
+	//Set reference types
+	t0->ref = t1->ref = t2->ref = t3->ref = t4->ref = t5->ref = t6->ref = Global;
+	t7->ref = t8->ref = t9->ref = Param;
 
 	//Assign names
 	t0->attr.name = strdup("input");
@@ -373,10 +353,6 @@ TreeNode* addProto(TreeNode* tree) {
 	t8->expType = Boolean;
 	t9->expType = Char;
 
-    t0->size = t2->size = t4->size = t6->size = 2;
-    t1->size = t3->size = t5->size = 2;
-    t7->size = t8->size = t9->size = 1;
-    t7->loc = t8->loc = t9->loc = 2;
 	//Return new root
 	return t0;
 }
@@ -387,9 +363,9 @@ TreeNode* addProto(TreeNode* tree) {
 * out - File pointer to print to
 */
 void printSpaces(FILE* out, int z) {
-	int i;
+
 	//Print indent chars repeatedly
-	for (i = 0; i < z; i++)
+	for (int i = 0; i < z; i++)
 		fprintf(out, "!   ");
 }
 
@@ -397,8 +373,8 @@ void printSpaces(FILE* out, int z) {
 * Indents are printed preemptively before the code
 * can indicate an unindent. This function removes
 * an extra indent that was already printed by
-* moving the cursor back and reprinting the
-* correct number of indents. This results in
+* moving the cursor back and reprinting the 
+* correct number of indents. This results in 
 * correct appearance both in STDOUT and file
 */
 void removeSpace(FILE* out, long placeholder) {
@@ -408,8 +384,7 @@ void removeSpace(FILE* out, long placeholder) {
 	* stdout to be happy and display properly
 	* that the current indent level will be cleared
 	*/
-	int i;
-	for (i = 0; i<identNum; i++)
+	for (int i = 0; i<identNum; i++)
 		fprintf(out,"\b\b\b\b");
 
 	/*
@@ -433,7 +408,6 @@ void printProbs(int wno, int eno) {
 	printf("Number of errors: %d\n",eno);
 }
 
-
 /*
 * Print the AST
 *
@@ -444,10 +418,6 @@ void printTree(TreeNode* tree, int tFlag) {
 
 	FILE* output = stdout;
 
-    /*
-    * checks whether or not to print reference/size information
-    */
-    int pflag = 0;
 	/*
 	* Sibling index
 	*
@@ -487,19 +457,19 @@ void printTree(TreeNode* tree, int tFlag) {
 			switch (tree->kind.stmt)
 			{
 				case IfK:
-					fprintf(output, "If ");
+					fprintf(output, "If");
 				break;
 
 				case RepeatK:
-					fprintf(output, "While ");
+					fprintf(output, "While");
 				break;
 
 				case BreakK:
-					fprintf(output, "Break ");
+					fprintf(output, "Break");
 				break;
 
 				case ReturnK:
-					fprintf(output, "Return ");
+					fprintf(output, "Return");
 				break;
 
 				case CompoundK:
@@ -521,99 +491,99 @@ void printTree(TreeNode* tree, int tFlag) {
 					switch (tree->attr.op)
 					{
 						case mod:
-							fprintf(output, "Op: %% ");
+							fprintf(output, "Op: %%");
 						break;
 
 						case bNOT:
-							fprintf(output, "Op: not ");
+							fprintf(output, "Op: not");
 						break;
 
 						case bAND:
-							fprintf(output, "Op: and ");
+							fprintf(output, "Op: and");
 						break;
 
 						case bOR:
-							fprintf(output, "Op: or ");
+							fprintf(output, "Op: or");
 						break;
 
 						case eqeq:
-							fprintf(output, "Op: == ");
+							fprintf(output, "Op: ==");
 						break;
 
 						case neq:
-							fprintf(output, "Op: != ");
+							fprintf(output, "Op: !=");
 						break;
 
 						case lteq:
-							fprintf(output, "Op: <= ");
+							fprintf(output, "Op: <=");
 						break;
 
 						case lthan:
-							fprintf(output, "Op: < ");
+							fprintf(output, "Op: <");
 						break;
 
 						case gteq:
-							fprintf(output, "Op: >= ");
+							fprintf(output, "Op: >=");
 						break;
 
 						case gthan:
-							fprintf(output, "Op: > ");
+							fprintf(output, "Op: >");
 						break;
 
 						case qmark:
-							fprintf(output, "Op: ? ");
+							fprintf(output, "Op: ?");
 						break;
 
 						case plus:
-							fprintf(output, "Op: + ");
+							fprintf(output, "Op: +");
 						break;
 
 						case pplus:
-							fprintf(output, "Assign: ++ ");
+							fprintf(output, "Assign: ++");
 						break;
 
 						case dash:
-							fprintf(output, "Op: - ");
+							fprintf(output, "Op: -");
 						break;
 
 						case ddash:
-							fprintf(output, "Assign: -- ");
+							fprintf(output, "Assign: --");
 						break;
 
 						case assign:
-							fprintf(output, "Assign: = ");
+							fprintf(output, "Assign: =");
 						break;
 
 						case passign:
-							fprintf(output, "Assign: += ");
+							fprintf(output, "Assign: +=");
 						break;
 
 						case sassign:
-							fprintf(output, "Assign: -= ");
+							fprintf(output, "Assign: -=");
 						break;
 
 						case massign:
-							fprintf(output, "Assign: *= ");
+							fprintf(output, "Assign: *=");
 						break;
 
 						case dassign:
-							fprintf(output, "Assign: /= ");
+							fprintf(output, "Assign: /=");
 						break;
 
 						case period:
-							fprintf(output, "Op: . ");
+							fprintf(output, "Op: .");
 						break;
 
 						case lsb:
-							fprintf(output, "Op: [ ");
+							fprintf(output, "Op: [");
 						break;
 
 						case asterisk:
-							fprintf(output, "Op: * ");
+							fprintf(output, "Op: *");
 						break;
 
 						case fslash:
-							fprintf(output, "Op: / ");
+							fprintf(output, "Op: /");
 						break;
 
 						default:
@@ -630,22 +600,21 @@ void printTree(TreeNode* tree, int tFlag) {
 						fprintf(output, "Const: ");
 
 						if(tree->expType != Char)
-							fprintf(output,"%d ",tree->attr.value);
+							fprintf(output,"%d",tree->attr.value);
 						else
-							fprintf(output,"'%c' ",tree->attr.cvalue);
+							fprintf(output,"'%c'",tree->attr.cvalue);
 					}
 					else
 					{
 						if(tree->attr.value == 1)
-							fprintf(output, "Const: true ");
+							fprintf(output, "Const: true");
 						else
-							fprintf(output, "Const: false ");
+							fprintf(output, "Const: false");
 					}
 				break;
 
 				//ID expression
 				case IdK:
-                    pflag = 2;
 					if(!tree->isFunc)
 					{
 						fprintf(output, "Id: %s ", tree->attr.name);
@@ -653,11 +622,8 @@ void printTree(TreeNode* tree, int tFlag) {
 						if(tree->isArray)
 							fprintf(output, "is array ");
 					}
-					else {
-                        negflag = 1;
-                        tree->global = 4;
+					else
 						fprintf(output, "Call: %s", tree->attr.name);
-                    }
 				break;
 
 				default:
@@ -672,7 +638,7 @@ void printTree(TreeNode* tree, int tFlag) {
 			{
 				//Variable
 				case varDec:
-                    pflag = 1;
+
 					if(!tree->isParam)
 						fprintf(output, "Var %s ", tree->attr.name);
 					else
@@ -680,29 +646,29 @@ void printTree(TreeNode* tree, int tFlag) {
 
 					if(tree->isArray)
 						fprintf(output, "is array ");
-
+/*
 					//if(tree->isStatic)
 					//	fprintf(output, "is static ");
 
 					//Check if variable is a custom type
-                    /*
+
 					if(!tree->isRecord)
 						switch (tree->expType)
 						{
 							case Void:
-								fprintf(output, "of type void ");
+								fprintf(output, "of type void");
 							break;
 
 							case Integer:
-								fprintf(output, "of type int ");
+								fprintf(output, "of type int");
 							break;
 
 							case Boolean:
-								fprintf(output, "of type bool ");
+								fprintf(output, "of type bool");
 							break;
 
 							case Char:
-								fprintf(output, "of type char ");
+								fprintf(output, "of type char");
 							break;
 
 							default:
@@ -713,17 +679,16 @@ void printTree(TreeNode* tree, int tFlag) {
 
 						//fprintf(output, "of record type %s", tree->recType);
 						fprintf(output, "of type record");
-                    */
+*/
 				break;
 
 				//Function
 				case funDec:
-                    pflag = 1;
-                    negflag = 1;
-					fprintf(output, "Func %s returns type ", tree->attr.name);
 
-					//fprintf(output, "Func %s ", tree->attr.name);
+					//fprintf(output, "Func %s returns type ", tree->attr.name);
 
+					fprintf(output, "Func %s ", tree->attr.name);
+/*
 					switch (tree->expType)
 					{
 						case Void:
@@ -750,7 +715,7 @@ void printTree(TreeNode* tree, int tFlag) {
 							yyerror("Unknown function return type");
 						break;
 					}
-
+*/
 				break;
 
 				//Record
@@ -771,17 +736,16 @@ void printTree(TreeNode* tree, int tFlag) {
 		*/
 		if(tFlag)
 		{
-            if(pflag) {
-                fprintf(output," [ref: %s, size: %s%d, loc: %s%d] ", (tree->global == 0) ? "Local" : (tree->global == 1) ? "Global" : (tree->global == 2) ? "Static" : (tree->global == 3) ? "Param" : "None", (negflag == 1) ? "-" : "", tree->size, (tree->loc == 0) ? "" : "-", (tree->loc < 0) ? 0 : tree->loc);
-                
-                pflag = 0;
-            }
+			//Print mem info for IDs only
+			if( ((tree->nodekind == DeclK) || (tree->kind.exp == IdK)) || (tree->kind.stmt == CompoundK) )
+				fprintf(output,"[ref: %s, size: %d, loc: %d]",refString[tree->ref],tree->size,tree->offset);
+
 			if(tree->expType != Unknown)
-				fprintf(output,"[type %s]", expString[tree->expType]);
+				fprintf(output," [type %s]", expString[tree->expType]);
 			else
-				fprintf(output,"[undefined type]");
+				fprintf(output," [undefined type]");
 		}
-        negflag = 0;
+
 		/*
 		* Print line number of node after AST properties
 		*/
@@ -801,8 +765,7 @@ void printTree(TreeNode* tree, int tFlag) {
 		* Now that we've printed ourself and the next level
 		* of indentation, try printing any children we have
 		*/
-		int i;
-		for (i = 0; i < MAXCHILDREN; i++)
+		for (int i = 0; i < MAXCHILDREN; i++)
 		{
 			/*
 			* Check if current child exists
@@ -871,10 +834,5 @@ void printTree(TreeNode* tree, int tFlag) {
 	//END WHILE
 
 	return;
-}
-
-void globalOffsetPrint() {
-	FILE* output = stdout;
-    fprintf(output, "Offset for end of global space: %s%d\n", (returnGlobal() == 0) ? "" : "-", returnGlobal());
 }
 //END printTREE

@@ -1,0 +1,15 @@
+int walace, gromit;
+char preston;
+
+int dog(bool corgi) {
+    int aspergillus, fungus, cat, dog2;
+
+    aspergillus = fungus;
+    cat = 666;
+    cat = dog2;
+    dog2 = cat;
+
+    return cat;
+}
+
+main();

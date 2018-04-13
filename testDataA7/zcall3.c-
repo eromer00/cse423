@@ -1,0 +1,42 @@
+int ant(int a)
+    return 666*a;   // tmp = -3
+
+
+int bat(int b) {
+    return 777*b;   // tmp = -3
+}
+
+
+int cow(int c) {
+    int stuff;
+    
+    return 888*c;   // tmp = -4
+}
+
+
+int dog(int d) { 
+    int stuff;
+
+    {
+        int moreStuff;
+
+        return 999*d;   // tmp = -5
+    }
+    return 555*d;       // tmp = -5
+
+    {
+        int moreStuff;
+
+        return 999*d;   // tmp = -5
+    }
+    return 555*d;       // tmp = -5
+}
+
+
+main()
+{
+    ant(111);
+    bat(222);
+    cow(333);
+    dog(444);
+}

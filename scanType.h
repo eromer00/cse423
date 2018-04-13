@@ -3,7 +3,7 @@
 
 /**
  *
- * @date Fall 2017
+ * @date Spring 2018
  * @author Omar Soliman
  * @title Scanner Definitions
  *    _____

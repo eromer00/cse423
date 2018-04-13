@@ -1,0 +1,19 @@
+Number of warnings: 0
+Number of errors: 0
+------------------------------------
+run tm on op1.tm
+
+Memory Configuration: Data Addresses: 0-9999  Instruction Addresses: 0-9999
+Loading file: op1.tm
+T F T 
+T F F 
+F T F 
+F T T 
+F F T 
+T T F 
+T T F 
+F F F T 
+F T T T 
+T F 
+Bye.
+op1.tm test run complete

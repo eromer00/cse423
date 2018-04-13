@@ -16,7 +16,7 @@
 #############################################
 
 #Group name
-GROUP = spaghet_code
+GROUP = TAgroup
 
 #Output executable name
 BIN = c-
@@ -28,7 +28,7 @@ CC = gcc
 BASE = parser
 
 #Code files
-FILES := scanType printtree semantic yyerror
+FILES := scanType printtree semantic codegen
 CFILES := $(FILES:=.c)
 OFILES := $(FILES:=.o)
 HFILES := $(FILES:=.h)
@@ -86,5 +86,5 @@ clean:
 
 #Keyword to type after make to create tarball of source code
 tar:
-	tar -cvf $(GROUP)_PA_5.tar $(SRCS) makefile
+	tar -cvf $(GROUP)_PA_.tar $(SRCS) makefile
 

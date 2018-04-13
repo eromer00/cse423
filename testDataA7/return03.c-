@@ -1,0 +1,23 @@
+int ant();
+bool boa();
+char cow();
+
+int dog() return 111;
+
+bool elk() return true;
+
+char fox() return 'z';
+
+
+main()
+{
+    output(ant());
+    outputb(boa());
+    outputc(cow());
+    outnl();
+
+    output(dog());
+    outputb(elk());
+    outputc(fox());
+    outnl();
+}

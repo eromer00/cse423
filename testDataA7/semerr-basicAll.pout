@@ -1,0 +1,414 @@
+ERROR(16): Function 'cat' is not defined.
+ERROR(18): Function 'dog' at line 12 is expecting to return type int but instead returns type bool.
+ERROR(25): Function 'cat' at line 21 is expecting to return type int but return has no return value.
+ERROR(28): Symbol 'cat' is already defined at line 21.
+ERROR(39): Function 'ox' at line 37 is expecting no return value, but return has return value.
+WARNING(42): Expecting to return type int but function 'emu' has no return statement.
+ERROR(53): Symbol 'x' is already defined at line 52.
+ERROR(54): Symbol 'x' is already defined at line 52.
+ERROR(62): Symbol 'v' is not defined.
+ERROR(64): Expecting Boolean test condition in if statement but got type int.
+ERROR(65): Expecting Boolean test condition in while statement but got type int.
+ERROR(66): Expecting Boolean test condition in while statement but got type void.
+ERROR(68): Cannot use function 'cat' as a variable.
+ERROR(69): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(70): '+=' requires operands of type int but rhs is of type bool.
+ERROR(71): '-=' requires operands of type int but lhs is of type bool.
+ERROR(72): '>' requires operands of type char or type int but lhs is of type bool.
+ERROR(73): Unary '++' requires an operand of type int but was given type bool.
+ERROR(75): Cannot use array as test condition in if statement.
+ERROR(76): Cannot use array as test condition in while statement.
+ERROR(78): Cannot have a break statement outside of loop.
+ERROR(82): The operation '+' does not work with arrays.
+ERROR(83): The operation '<' does not work with arrays.
+ERROR(84): '<' requires operands of type char or type int but lhs is of type bool.
+ERROR(84): '<' requires operands of type char or type int but rhs is of type bool.
+ERROR(84): The operation '<' does not work with arrays.
+ERROR(86): '==' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(90): '+' requires operands of type int but lhs is of type bool.
+ERROR(92): '*' requires operands of type int but rhs is of type bool.
+ERROR(94): Unary 'not' requires an operand of type bool but was given type int.
+ERROR(95): '+' requires operands of type int but rhs is of type bool.
+ERROR(95): Unary 'not' requires an operand of type bool but was given type int.
+ERROR(96): Unary '-' requires an operand of type int but was given type bool.
+ERROR(98): Cannot index nonarray 'x'.
+ERROR(99): 'and' requires operands of type bool but lhs is of type int.
+ERROR(99): 'and' requires operands of type bool but rhs is of type int.
+ERROR(99): '*' requires operands of type int but rhs is of type bool.
+ERROR(100): Symbol 'y' is not defined.
+ERROR(100): 'and' requires operands of type bool but lhs is of type int.
+ERROR(100): '*' requires operands of type int but rhs is of type bool.
+ERROR(101): 'and' requires operands of type bool but lhs is of type int.
+ERROR(101): 'and' requires operands of type bool but rhs is of type int.
+ERROR(101): '*' requires operands of type int but rhs is of type bool.
+ERROR(101): 'or' requires operands of type bool but rhs is of type int.
+ERROR(103): The operation '*' only works with arrays.
+ERROR(104): 'and' requires operands of type bool but lhs is of type int.
+ERROR(108): Array 'aa' should be indexed by type int but got type bool.
+ERROR(110): Cannot use function 'cat' as a variable.
+ERROR(112): Array index is the unindexed array 'aa'.
+ERROR(113): Symbol 'AA' is not defined.
+ERROR(113): Cannot index nonarray 'AA'.
+ERROR(115): Symbol 'meerkat' is not defined.
+ERROR(117): Symbol 'xyzzy' is not defined.
+ERROR(118): Function 'meerkat' is not defined.
+ERROR(119): Symbol 'xyzzy' is not defined.
+ERROR(119): 'and' requires operands of type bool but rhs is of type int.
+ERROR(121): Function 'flight' is not defined.
+ERROR(121): Unary 'not' requires an operand of type bool but was given type int.
+ERROR(121): Unary '-' requires an operand of type int but was given type bool.
+ERROR(121): Symbol 'uu' is not defined.
+ERROR(121): Symbol 'y' is not defined.
+ERROR(121): '*' requires operands of type int but rhs is of type bool.
+ERROR(123): 'x' is a simple variable and cannot be called.
+ERROR(125): Too many parameters passed for function 'dog' defined on line 12.
+ERROR(126): Too few parameters passed for function 'ibex' defined on line 31.
+ERROR(128): Expecting type int in parameter 1 of call to 'dog' defined on line 12 but got type bool.
+ERROR(130): Not expecting array in parameter 1 of call to 'cat' defined on line 21.
+ERROR(132): Expecting array in parameter 1 of call to 'ibex' defined on line 31.
+ERROR(133): Expecting type int in parameter 1 of call to 'ibex' defined on line 31 but got type bool.
+ERROR(134): Cannot use function 'ibex' as a variable.
+ERROR(134): Cannot index nonarray 'ibex'.
+ERROR(136): Cannot use function 'ibex' as a variable.
+ERROR(139): Array index is the unindexed array 'zz'.
+ERROR(140): Expecting type int in parameter 1 of call to 'ox' defined on line 37 but got type bool.
+ERROR(140): Array 'aa' should be indexed by type int but got type void.
+ERROR(142): '=' requires operands of NONVOID but rhs is of type void.
+ERROR(143): '+' requires operands of type int but rhs is of type void.
+ERROR(144): Expecting type int in parameter 1 of call to 'cat' defined on line 21 but got type void.
+ERROR(145): Expecting type int in parameter 1 of call to 'cat' defined on line 21 but got type bool.
+ERROR(148): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(149): '=' requires operands of the same type but lhs is type bool and rhs is type int.
+ERROR(150): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(150): '=' requires operands of the same type but lhs is type bool and rhs is type int.
+ERROR(150): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(152): '*' requires operands of type int but rhs is of type bool.
+ERROR(152): '*' requires operands of type int but lhs is of type bool.
+ERROR(152): 'and' requires operands of type bool but lhs is of type int.
+ERROR(152): 'and' requires operands of type bool but rhs is of type int.
+ERROR(154): '+' requires operands of type int but rhs is of type bool.
+ERROR(154): Symbol 'parrot' is not defined.
+ERROR(154): 'and' requires operands of type bool but rhs is of type int.
+ERROR(154): Expecting type int in parameter 3 of call to 'emu' defined on line 42 but got type bool.
+ERROR(155): Expecting type int in parameter 1 of call to 'emu' defined on line 42 but got type bool.
+ERROR(155): '+' requires operands of type int but rhs is of type bool.
+ERROR(155): Symbol 'parrot' is not defined.
+ERROR(155): 'and' requires operands of type bool but rhs is of type int.
+ERROR(155): Expecting type int in parameter 3 of call to 'emu' defined on line 42 but got type bool.
+ERROR(155): 'and' requires operands of type bool but rhs is of type int.
+ERROR(155): Expecting type int in parameter 2 of call to 'emu' defined on line 42 but got type bool.
+ERROR(155): Expecting type int in parameter 3 of call to 'emu' defined on line 42 but got type bool.
+ERROR(155): Too many parameters passed for function 'emu' defined on line 42.
+ERROR(155): '*' requires operands of type int but rhs is of type bool.
+ERROR(157): Cannot return an array.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Func dog [ref: Global, size: -4, loc: 0] [type int] [line: 12]
+!   Child: 0  Param x [ref: Param, size: 1, loc: -2] [type int] [line: 12]
+!   Child: 1  Compound [ref: None, size: -4, loc: 0] [type void] [line: 13]
+!   !   Child: 0  Var: b [ref: Local, size: 1, loc: -3] [type bool] [line: 14]
+!   !   Child: 1  Call: cat [undefined type] [line: 16]
+!   !   !   Child: 0  Const: 10 [type int] [line: 16]
+!   !   Sibling: 0  Return [type void] [line: 18]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -3] [type bool] [line: 18]
+Sibling: 7  Func cat [ref: Global, size: -4, loc: 0] [type int] [line: 21]
+!   Child: 0  Param x [ref: Param, size: 1, loc: -2] [type int] [line: 21]
+!   Child: 1  Compound [ref: None, size: -4, loc: 0] [type void] [line: 22]
+!   !   Child: 0  Var: b [ref: Local, size: 1, loc: -3] [type bool] [line: 23]
+!   !   Child: 1  Return [type void] [line: 25]
+Sibling: 8  Var: cat [ref: Local, size: 1, loc: 0] [type int] [line: 28]
+Sibling: 9  Var: unusedGlobal [ref: Global, size: 1, loc: 0] [type int] [line: 29]
+Sibling: 10  Func ibex [ref: Global, size: -4, loc: 0] [type bool] [line: 31]
+!   Child: 0  Param x is array [ref: Param, size: 1, loc: -2] [type int] [line: 31]
+!   Child: 1  Compound [ref: None, size: -4, loc: 0] [type void] [line: 32]
+!   !   Child: 0  Var: unusedLocal [ref: Local, size: 1, loc: -3] [type int] [line: 33]
+!   !   Child: 1  Return [type void] [line: 34]
+!   !   !   Child: 0  Const: true [type bool] [line: 34]
+Sibling: 11  Func ox [ref: Global, size: -3, loc: 0] [type void] [line: 37]
+!   Child: 0  Param y [ref: Param, size: 1, loc: -2] [type int] [line: 37]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 38]
+!   !   Child: 1  Return [type void] [line: 39]
+!   !   !   Child: 0  Const: 666 [type int] [line: 39]
+Sibling: 12  Func emu [ref: Global, size: -5, loc: 0] [type int] [line: 42]
+!   Child: 0  Param x [ref: Param, size: 1, loc: -2] [type int] [line: 42]
+!   Sibling: 0  Param y [ref: Param, size: 1, loc: -3] [type int] [line: 42]
+!   Sibling: 1  Param z [ref: Param, size: 1, loc: -4] [type int] [line: 42]
+!   Child: 1  Compound [ref: None, size: -5, loc: 0] [type void] [line: 43]
+Sibling: 13  Func OvisAries [ref: Global, size: -3, loc: 0] [type void] [line: 46]
+!   Child: 0  Param sheep [ref: Param, size: 1, loc: -2] [type int] [line: 46]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 47]
+Sibling: 14  Func main [ref: Global, size: -33, loc: 0] [type int] [line: 50]
+!   Child: 1  Compound [ref: None, size: -33, loc: 0] [type void] [line: 51]
+!   !   Child: 0  Var: x [ref: Local, size: 1, loc: -2] [type int] [line: 52]
+!   !   Sibling: 0  Var: yuri [ref: Local, size: 1, loc: -3] [type int] [line: 52]
+!   !   Sibling: 1  Var: x [ref: Local, size: 1, loc: 0] [type int] [line: 53]
+!   !   Sibling: 2  Var: x [ref: Local, size: 1, loc: 0] [type bool] [line: 54]
+!   !   Sibling: 3  Var: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 56]
+!   !   Sibling: 4  Var: zz is array [ref: Local, size: 7, loc: -12] [type int] [line: 57]
+!   !   Sibling: 5  Var: bb is array [ref: Local, size: 7, loc: -19] [type bool] [line: 58]
+!   !   Sibling: 6  Var: cc is array [ref: Local, size: 7, loc: -26] [type bool] [line: 58]
+!   !   Sibling: 7  Var: b [ref: Local, size: 1, loc: -32] [type bool] [line: 60]
+!   !   Child: 1  Id: v [ref: None, size: 1, loc: 0] [undefined type] [line: 62]
+!   !   Sibling: 0  If  [type void] [line: 64]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 64]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 64]
+!   !   Sibling: 1  While  [type void] [line: 65]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 65]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 65]
+!   !   Sibling: 2  While  [type void] [line: 66]
+!   !   !   Child: 0  Call: ox [type void] [line: 66]
+!   !   !   !   Child: 0  Const: 10 [type int] [line: 66]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 66]
+!   !   Sibling: 3  Assign: = [type int] [line: 68]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 68]
+!   !   !   Child: 1  Id: cat [ref: Global, size: -4, loc: 0] [undefined type] [line: 68]
+!   !   Sibling: 4  Assign: = [type int] [line: 69]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 69]
+!   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 69]
+!   !   Sibling: 5  Assign: += [type int] [line: 70]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 70]
+!   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 70]
+!   !   Sibling: 6  Assign: -= [type int] [line: 71]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 71]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 71]
+!   !   Sibling: 7  Op: > [type bool] [line: 72]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 72]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 72]
+!   !   Sibling: 8  Assign: ++ [type int] [line: 73]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 73]
+!   !   Sibling: 9  If  [type void] [line: 75]
+!   !   !   Child: 0  Id: bb is array [ref: Local, size: 7, loc: -19] [type bool] [line: 75]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 75]
+!   !   Sibling: 10  While  [type void] [line: 76]
+!   !   !   Child: 0  Id: bb is array [ref: Local, size: 7, loc: -19] [type bool] [line: 76]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 76]
+!   !   Sibling: 11  Break [type void] [line: 78]
+!   !   Sibling: 12  While  [type void] [line: 80]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 80]
+!   !   !   Child: 1  Compound [ref: None, size: -33, loc: 0] [type void] [line: 80]
+!   !   !   !   Child: 1  Break [type void] [line: 80]
+!   !   Sibling: 13  Op: + [type int] [line: 82]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 82]
+!   !   !   Child: 1  Const: 6 [type int] [line: 82]
+!   !   Sibling: 14  Op: < [type bool] [line: 83]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 83]
+!   !   !   Child: 1  Id: zz is array [ref: Local, size: 7, loc: -12] [type int] [line: 83]
+!   !   Sibling: 15  Op: < [type bool] [line: 84]
+!   !   !   Child: 0  Id: bb is array [ref: Local, size: 7, loc: -19] [type bool] [line: 84]
+!   !   !   Child: 1  Id: cc is array [ref: Local, size: 7, loc: -26] [type bool] [line: 84]
+!   !   Sibling: 16  Op: == [type bool] [line: 86]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 86]
+!   !   !   Child: 1  Const: true [type bool] [line: 86]
+!   !   Sibling: 17  Op: == [type bool] [line: 87]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 87]
+!   !   !   Child: 1  Const: 1 [type int] [line: 87]
+!   !   Sibling: 18  Op: == [type bool] [line: 88]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 88]
+!   !   !   Child: 1  Const: true [type bool] [line: 88]
+!   !   Sibling: 19  Op: + [type int] [line: 90]
+!   !   !   Child: 0  Const: false [type bool] [line: 90]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 90]
+!   !   Sibling: 20  Op: * [type int] [line: 92]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 92]
+!   !   !   Child: 1  Const: false [type bool] [line: 92]
+!   !   Sibling: 21  Op: not [type bool] [line: 94]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 94]
+!   !   Sibling: 22  Op: not [type bool] [line: 95]
+!   !   !   Child: 0  Op: + [type int] [line: 95]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 95]
+!   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 95]
+!   !   Sibling: 23  Op: - [type int] [line: 96]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 96]
+!   !   Sibling: 24  Op: [ [type int] [line: 98]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 98]
+!   !   !   Child: 1  Const: 496 [type int] [line: 98]
+!   !   Sibling: 25  Assign: = [type bool] [line: 99]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 99]
+!   !   !   Child: 1  Op: == [type bool] [line: 99]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 99]
+!   !   !   !   Child: 1  Op: + [type int] [line: 99]
+!   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 99]
+!   !   !   !   !   Child: 1  Op: * [type int] [line: 99]
+!   !   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 99]
+!   !   !   !   !   !   Child: 1  Op: and [type bool] [line: 99]
+!   !   !   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 99]
+!   !   !   !   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 99]
+!   !   Sibling: 26  Assign: = [type bool] [line: 100]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 100]
+!   !   !   Child: 1  Op: == [type bool] [line: 100]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 100]
+!   !   !   !   Child: 1  Op: + [type int] [line: 100]
+!   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 100]
+!   !   !   !   !   Child: 1  Op: * [type int] [line: 100]
+!   !   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 100]
+!   !   !   !   !   !   Child: 1  Op: and [type bool] [line: 100]
+!   !   !   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 100]
+!   !   !   !   !   !   !   Child: 1  Id: y [ref: None, size: 1, loc: 0] [undefined type] [line: 100]
+!   !   Sibling: 27  Assign: = [type bool] [line: 101]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 101]
+!   !   !   Child: 1  Op: or [type bool] [line: 101]
+!   !   !   !   Child: 0  Op: == [type bool] [line: 101]
+!   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 101]
+!   !   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 101]
+!   !   !   !   Child: 1  Op: * [type int] [line: 101]
+!   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 101]
+!   !   !   !   !   Child: 1  Op: and [type bool] [line: 101]
+!   !   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 101]
+!   !   !   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 101]
+!   !   Sibling: 28  Op: * [type int] [line: 103]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 103]
+!   !   Sibling: 29  Op: and [type bool] [line: 104]
+!   !   !   Child: 0  Op: * [type int] [line: 104]
+!   !   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 104]
+!   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 104]
+!   !   Sibling: 30  Op: [ [type int] [line: 105]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 105]
+!   !   !   Child: 1  Op: * [type int] [line: 105]
+!   !   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 105]
+!   !   Sibling: 31  Op: [ [type int] [line: 106]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 106]
+!   !   !   Child: 1  Const: 666 [type int] [line: 106]
+!   !   Sibling: 32  Op: [ [type int] [line: 108]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 108]
+!   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 108]
+!   !   Sibling: 33  Op: [ [type int] [line: 110]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 110]
+!   !   !   Child: 1  Id: cat [ref: Global, size: -4, loc: 0] [undefined type] [line: 110]
+!   !   Sibling: 34  Op: [ [type int] [line: 112]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 112]
+!   !   !   Child: 1  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 112]
+!   !   Sibling: 35  Op: [ [undefined type] [line: 113]
+!   !   !   Child: 0  Id: AA [ref: None, size: 1, loc: 0] [undefined type] [line: 113]
+!   !   !   Child: 1  Const: 1 [type int] [line: 113]
+!   !   Sibling: 36  Op: [ [type int] [line: 115]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 115]
+!   !   !   Child: 1  Id: meerkat [ref: None, size: 1, loc: 0] [undefined type] [line: 115]
+!   !   Sibling: 37  Id: xyzzy [ref: None, size: 1, loc: 0] [undefined type] [line: 117]
+!   !   Sibling: 38  Call: meerkat [undefined type] [line: 118]
+!   !   Sibling: 39  Op: and [type bool] [line: 119]
+!   !   !   Child: 0  Const: true [type bool] [line: 119]
+!   !   !   Child: 1  Op: / [type int] [line: 119]
+!   !   !   !   Child: 0  Id: xyzzy [ref: None, size: 1, loc: 0] [undefined type] [line: 119]
+!   !   !   !   Child: 1  Const: 666 [type int] [line: 119]
+!   !   Sibling: 40  Call: flight [undefined type] [line: 121]
+!   !   !   Child: 0  Op: not [type bool] [line: 121]
+!   !   !   !   Child: 0  Const: 5 [type int] [line: 121]
+!   !   !   Sibling: 0  Op: - [type int] [line: 121]
+!   !   !   !   Child: 0  Const: true [type bool] [line: 121]
+!   !   !   Sibling: 1  Id: uu [ref: None, size: 1, loc: 0] [undefined type] [line: 121]
+!   !   !   Sibling: 2  Id: y [ref: None, size: 1, loc: 0] [undefined type] [line: 121]
+!   !   !   Sibling: 3  Op: + [type int] [line: 121]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 121]
+!   !   !   !   Child: 1  Op: * [type int] [line: 121]
+!   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 121]
+!   !   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 121]
+!   !   Sibling: 41  Call: x [type int] [line: 123]
+!   !   Sibling: 42  Call: dog [type int] [line: 125]
+!   !   !   Child: 0  Const: 3 [type int] [line: 125]
+!   !   !   Sibling: 0  Const: 5 [type int] [line: 125]
+!   !   Sibling: 43  Call: ibex [type bool] [line: 126]
+!   !   Sibling: 44  Call: dog [type int] [line: 128]
+!   !   !   Child: 0  Const: true [type bool] [line: 128]
+!   !   Sibling: 45  Call: cat [type int] [line: 130]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 130]
+!   !   Sibling: 46  Call: ibex [type bool] [line: 132]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 132]
+!   !   Sibling: 47  Call: ibex [type bool] [line: 133]
+!   !   !   Child: 0  Id: bb is array [ref: Local, size: 7, loc: -19] [type bool] [line: 133]
+!   !   Sibling: 48  Op: [ [undefined type] [line: 134]
+!   !   !   Child: 0  Id: ibex [ref: Global, size: -4, loc: 0] [undefined type] [line: 134]
+!   !   !   Child: 1  Const: 3 [type int] [line: 134]
+!   !   Sibling: 49  Op: + [type int] [line: 136]
+!   !   !   Child: 0  Id: ibex [ref: Global, size: -4, loc: 0] [undefined type] [line: 136]
+!   !   !   Child: 1  Const: 4 [type int] [line: 136]
+!   !   Sibling: 50  Op: [ [type int] [line: 138]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 138]
+!   !   !   Child: 1  Op: [ [type int] [line: 138]
+!   !   !   !   Child: 0  Id: zz is array [ref: Local, size: 7, loc: -12] [type int] [line: 138]
+!   !   !   !   Child: 1  Const: 1 [type int] [line: 138]
+!   !   Sibling: 51  Op: [ [type int] [line: 139]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 139]
+!   !   !   Child: 1  Id: zz is array [ref: Local, size: 7, loc: -12] [type int] [line: 139]
+!   !   Sibling: 52  Op: [ [type int] [line: 140]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 140]
+!   !   !   Child: 1  Call: ox [type void] [line: 140]
+!   !   !   !   Child: 0  Const: true [type bool] [line: 140]
+!   !   Sibling: 53  Assign: = [type int] [line: 142]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 142]
+!   !   !   Child: 1  Call: ox [type void] [line: 142]
+!   !   !   !   Child: 0  Const: 28 [type int] [line: 142]
+!   !   Sibling: 54  Assign: = [type int] [line: 143]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 143]
+!   !   !   Child: 1  Op: + [type int] [line: 143]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 143]
+!   !   !   !   Child: 1  Call: ox [type void] [line: 143]
+!   !   !   !   !   Child: 0  Const: 6 [type int] [line: 143]
+!   !   Sibling: 55  Call: cat [type int] [line: 144]
+!   !   !   Child: 0  Call: ox [type void] [line: 144]
+!   !   !   !   Child: 0  Const: 492 [type int] [line: 144]
+!   !   Sibling: 56  Call: cat [type int] [line: 145]
+!   !   !   Child: 0  Const: true [type bool] [line: 145]
+!   !   Sibling: 57  Call: cat [type int] [line: 146]
+!   !   !   Child: 0  Call: cat [type int] [line: 146]
+!   !   !   !   Child: 0  Const: 492 [type int] [line: 146]
+!   !   Sibling: 58  Assign: = [type int] [line: 148]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 148]
+!   !   !   Child: 1  Assign: = [type int] [line: 148]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 148]
+!   !   !   !   Child: 1  Const: true [type bool] [line: 148]
+!   !   Sibling: 59  Assign: = [type bool] [line: 149]
+!   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 149]
+!   !   !   Child: 1  Assign: = [type bool] [line: 149]
+!   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 149]
+!   !   !   !   Child: 1  Const: 666 [type int] [line: 149]
+!   !   Sibling: 60  Assign: = [type int] [line: 150]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 150]
+!   !   !   Child: 1  Assign: = [type bool] [line: 150]
+!   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 150]
+!   !   !   !   Child: 1  Assign: = [type int] [line: 150]
+!   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 150]
+!   !   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 150]
+!   !   Sibling: 61  Op: and [type bool] [line: 152]
+!   !   !   Child: 0  Op: * [type int] [line: 152]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 152]
+!   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 152]
+!   !   !   Child: 1  Op: * [type int] [line: 152]
+!   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 152]
+!   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 152]
+!   !   Sibling: 62  Call: emu [type int] [line: 154]
+!   !   !   Child: 0  Op: + [type int] [line: 154]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 154]
+!   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 154]
+!   !   !   Sibling: 0  Id: parrot [ref: None, size: 1, loc: 0] [undefined type] [line: 154]
+!   !   !   Sibling: 1  Op: and [type bool] [line: 154]
+!   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 154]
+!   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 154]
+!   !   Sibling: 63  Call: emu [type int] [line: 155]
+!   !   !   Child: 0  Const: false [type bool] [line: 155]
+!   !   !   Sibling: 0  Op: and [type bool] [line: 155]
+!   !   !   !   Child: 0  Const: true [type bool] [line: 155]
+!   !   !   !   Child: 1  Call: emu [type int] [line: 155]
+!   !   !   !   !   Child: 0  Op: + [type int] [line: 155]
+!   !   !   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 155]
+!   !   !   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 155]
+!   !   !   !   !   Sibling: 0  Id: parrot [ref: None, size: 1, loc: 0] [undefined type] [line: 155]
+!   !   !   !   !   Sibling: 1  Op: and [type bool] [line: 155]
+!   !   !   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 155]
+!   !   !   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 155]
+!   !   !   Sibling: 1  Const: true [type bool] [line: 155]
+!   !   !   Sibling: 2  Op: * [type int] [line: 155]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 155]
+!   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -32] [type bool] [line: 155]
+!   !   Sibling: 64  Return [type void] [line: 157]
+!   !   !   Child: 0  Id: aa is array [ref: Local, size: 7, loc: -5] [type int] [line: 157]
+Offset for end of global space: -1
+Number of warnings: 1
+Number of errors: 102

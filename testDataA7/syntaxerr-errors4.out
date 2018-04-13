@@ -1,0 +1,9 @@
+ERROR(3): Syntax error, unexpected '+', expecting identifier.
+WARNING(18): Invalid input character: '^'.  Character ignored.
+ERROR(44): Syntax error, unexpected '+'.
+ERROR(45): Syntax error, unexpected '%'.
+Number of warnings: 1
+Number of errors: 3
+------------------------------------
+ERROR: syntaxerr-errors4.tm not produced
+syntaxerr-errors4.tm test run complete

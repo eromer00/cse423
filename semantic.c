@@ -20,7 +20,6 @@
 
 //Type check library
 #include "semantic.h"
-#include "yyerror.h"
 
 //Track warnings and errors
 #define WARN numWarnings++
@@ -64,12 +63,19 @@ int funcRetType = -1;
 //Variable to hold last fundec
 TreeNode* lastFunDec = NULL;
 
-//location pointers
-static int glob_loc = 0;
-static int local_loc = 0;
-
 //Flag for parameter checking
 int paramCheck = 0;
+
+//Counters for memory offset
+int globalOffset = 0;
+int frameOffset = 0;
+
+/*
+ * Flag for counting function frame size
+ * 1 - new function
+ * 2 - redefinition
+ */
+int updateFunSize = 0;
 
 //Reference parser error function
 void yyerror(const char* s);
@@ -238,7 +244,7 @@ Scope* newScope(char* string, int l) {
 	stable->tail = scope;
 
 	//Add scope label to parent scope symbols
-	Symbol* temp = newSymbol(string, string, l, 0, 0, 0);
+	Symbol* temp = newSymbol(string, string, l);
 	if(temp == NULL)
 		yyerror("Failed to allocate scope label symbol.");
 	insertSymbol(scope->parent,temp);
@@ -253,7 +259,7 @@ Scope* newScope(char* string, int l) {
 * d - Symbol data
 * l - Symbol line number
 */
-Symbol* newSymbol(char* n, char* d, int l, int global, int size, int loc) {
+Symbol* newSymbol(char* n, char* d, int l) {
 
 	//Allocate symbol
 	Symbol* symbol = malloc(sizeof(Symbol));
@@ -271,9 +277,19 @@ Symbol* newSymbol(char* n, char* d, int l, int global, int size, int loc) {
 
 	//Set symbol line number
 	symbol->line = l;
-    symbol->global = global;
-    symbol->size = size;
-    symbol->loc = loc;
+
+	//Set symbol offset
+	symbol->offset = 0;
+
+	//Set symbol size
+	symbol->size = 0;
+
+	//Set symbol ref
+	symbol->ref = 0;
+
+	//Set space source to global by default
+	symbol->spaceFlag = 0;
+
 	//Init type string
 	symbol->paramType[0] = '\0';
 
@@ -330,7 +346,7 @@ Symbol* stackSearch(char* string) {
 			break;
 	}
 
-	return(sym);
+	return(sym); 
 }
 
 /*
@@ -445,7 +461,7 @@ void printSymbol(FILE* o, Symbol* sym) {
 	if(isdigit((int) sym->name[0]))
 		fprintf(o,"__Symbol %s is a scope label from line [%d].\n",sym->name,sym->line);
 	else
-		fprintf(o,"__Symbol %s is of type %s from line [%d].\n",sym->name,sym->data,sym->line);
+		fprintf(o,"__Symbol %s is of type %s with size %d and offset %d from line [%d].\n",sym->name,sym->data,sym->size,sym->offset,sym->line);
 
 	return;
 }
@@ -1887,7 +1903,7 @@ void operatorCheck(TreeNode* tree) {
 		case lthan:
 		case gteq:
 		case gthan:
-
+			
 			//Check LHS ID
 			switch(idCheck(tree->child[0], "ARRAY", 1))
 			{
@@ -2178,19 +2194,10 @@ void treeTraverse(TreeNode* tree) {
 				 * Either a function/variable/record name
 				 */
 				case IdK:
-                    //Check if symbol exists
-					search = stackSearch(tree->attr.name);
 
-					//Symbol was found
-					if(search != NULL) {
-                        tree->size = search->size;
-                        tree->loc = search->loc;
-                    }
-                    
 					//ID followed by ()
 					if(tree->isFunc)
 					{
-
 						//Check operand ID
 						switch(idCheck(tree, "ARRAY", 1))
 						{
@@ -2231,6 +2238,8 @@ void treeTraverse(TreeNode* tree) {
 							case 1:
 								//Var as func error
 								printError(1,tree->lineno,tree->attr.name,"","",0,0);
+
+								tree->size = 1;
 
 								switch(gsym->data[0])
 								{
@@ -2289,7 +2298,7 @@ void treeTraverse(TreeNode* tree) {
 									break;
 								}
 
-								//Indicate call param check
+								//Indicate call param check 
 								callCheck = 1;
 							break;
 
@@ -2302,6 +2311,7 @@ void treeTraverse(TreeNode* tree) {
 							case -2:
 								printError(22,tree->lineno,tree->attr.name,"","",0,0);
 
+								tree->size = 1;
 								tree->expType = Unknown;
 							break;
 
@@ -2321,16 +2331,26 @@ void treeTraverse(TreeNode* tree) {
 						if(search == NULL)
 						{
 							printError(12,tree->lineno,tree->attr.name,"","",0,0);
+							tree->expType = Unknown;
+							tree->size = 1;
 							break;
 						}
 						else
 						{
-                            tree->size = search->size;
-                            tree->global = search->global;
+							tree->size = search->size;
+							tree->ref = search->ref;
+							tree->offset = search->offset;
+
 							//Check found symbol type for function
 							if(search->data[0] == 'F')
 							{
 								printError(10,tree->lineno,tree->attr.name,"","",0,0);
+
+								if(!strcmp(tree->attr.name,lastFunDec->attr.name))
+								{
+									tree->ref = Local;
+									tree->size = -2 - (int)strlen(search->paramType);
+								}
 
 								break;
 							}
@@ -2345,6 +2365,8 @@ void treeTraverse(TreeNode* tree) {
 							if(strcmp(varInitSym->name,tree->attr.name) == 0)
 							{
 								printError(12,tree->lineno,tree->attr.name,"","",0,0);
+
+								tree->ref = None;
 
 								break;
 							}
@@ -2440,46 +2462,14 @@ void treeTraverse(TreeNode* tree) {
 				 * Build our symbol data string using strcpy and strcat
 				 */
 				case varDec:
-                    if(lastFunDec == NULL) {
-                        tree->global = 1;
-                        
-                        //set loc value
-                        if(tree->size > 1) {
-                            tree->loc = glob_loc + 1;
-                            glob_loc += tree->size;   
-                        } else {
-                            tree->loc = glob_loc;
-                            glob_loc += tree->size; 
-                        }
-                    }
 
-                    //update function size
-                    else if(lastFunDec != NULL) {
-
-                        if(tree->size > 1) {
-                            lastFunDec->size += tree->size + 1;
-                            tree->loc = local_loc + 1;
-                            local_loc += tree->size;
-                        } else {
-                            lastFunDec->size += tree->size;
-                            tree->loc = local_loc;
-                            local_loc += tree->size;
-                        }
-
-					    search = findSymbol(stable->current, lastFunDec->attr.name);
-
-					    if(search != NULL)
-					    {
-						    search->size += lastFunDec->size;
-                        }
-                    }
-
-                    if(tree->isStatic == 1) {
-                            tree->global = 2;
-                    } 
-                    if(tree->isParam == 1) {
-                            tree->global = 3;
-                    }
+					if(tree->lineno < 0)
+					{
+						tree->ref = Param;
+						tree->size = 1;
+						tree->offset = frameOffset;
+						frameOffset--;
+					}
 
 					//Init temp string
 					strcpy(tempType, "");
@@ -2534,8 +2524,57 @@ void treeTraverse(TreeNode* tree) {
 					if(search == NULL)
 					{
 						//Variable declaration does not exist in current scope, need to add it
-						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno, tree->global, tree->size, tree->loc);
+						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno);
 
+						if(tree->lineno > -1)
+						{
+							//Set reference type
+							if(tree->isStatic)
+								tree->ref = Static;
+							else if(stable->current == stable->head)
+								tree->ref = Global;
+							else if(tree->isParam)
+								tree->ref = Param;
+							else
+								tree->ref = Local;
+
+							z->ref = tree->ref;
+
+							//Calculate global offset
+							if((tree->ref == Global || tree->ref == Static))
+							{
+								if(tree->isArray)
+									globalOffset--;
+
+								tree->offset = globalOffset;
+
+								z->offset = globalOffset;
+								z->spaceFlag = 0;
+								z->size = tree->size;
+
+								if(tree->isArray)
+									globalOffset = globalOffset - tree->size + 1;
+								else
+									globalOffset -= tree->size;
+							}
+							//Calculate local offset
+							else
+							{
+								if(tree->isArray && !tree->isParam)
+									frameOffset--;
+
+								tree->offset = frameOffset;
+
+								z->offset = frameOffset;
+								z->spaceFlag = 1;
+								z->size = tree->size;
+
+								if(tree->isArray && !tree->isParam)
+									frameOffset = frameOffset - tree->size + 1;
+								else
+									frameOffset -= tree->size;
+							}
+						}
 						//Insert into current scope
 						insertSymbol(stable->current, z);
 
@@ -2555,6 +2594,15 @@ void treeTraverse(TreeNode* tree) {
 					else
 					{
 						printError(11,tree->lineno,tree->attr.name,"","",search->line,0);
+
+						//Set reference type
+						if(tree->isParam)
+							tree->ref = Param;
+						else
+							tree->ref = Local;
+
+						if(tree->isArray && !tree->isParam)
+							tree->offset--;
 					}
 
 					//Build paramter string
@@ -2633,14 +2681,9 @@ void treeTraverse(TreeNode* tree) {
 
 				//Function declaration
 				case funDec:
-                    tree->global = 1;
-                        
-                                        
+
 					//Save this as the last fundec found
-					lastFunDec = tree; 
-                    local_loc = 0;                       
-                    tree->loc = local_loc;
-                    local_loc += 2;
+					lastFunDec = tree;
 
 					//Build the function symbol data string
 					strcpy(tempType, "FUNCTION ");
@@ -2691,7 +2734,18 @@ void treeTraverse(TreeNode* tree) {
 					if(search == NULL)
 					{
 						//Function declaration does not exist in current scope, need to add it
-						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno, tree->global, tree->size, 0);
+						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno);
+
+						/*
+						 * Currently storing new function symbol
+						 * Indicate the need to calculate total stack frame size
+						 * Also reset local offset and reserve 2 words
+						 */
+						frameOffset = -2;
+						updateFunSize = 1;
+
+						//Set reference type
+						tree->ref = z->ref = Global;
 
 						//Add to current scope
 						insertSymbol(stable->current, z);
@@ -2700,6 +2754,11 @@ void treeTraverse(TreeNode* tree) {
 					else
 					{
 						printError(11,tree->lineno,tree->attr.name,"","",search->line,0);
+
+						tree->ref = search->ref;
+						tree->size = search->size;
+						frameOffset = -2;
+						updateFunSize = 2;
 
 						//Prevent editing the param list
 						noNewFunc = 1;
@@ -2728,13 +2787,7 @@ void treeTraverse(TreeNode* tree) {
 
 				//Record
 				case recDec:
-                    if(lastFunDec == NULL) {
-                            tree->global = 1;
-                    } else if(tree->isStatic == 1) {
-                            tree->global = 2;
-                    } else if(tree->isParam == 1) {
-                            tree->global = 3;
-                    }
+
 					//Build the record symbol data string
 					strcpy(tempType, "RECORD");
 
@@ -2745,7 +2798,54 @@ void treeTraverse(TreeNode* tree) {
 					if(search == NULL)
 					{
 						//Variable declaration does not exist in current scope, need to add it
-						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno, tree->global, tree->size, tree->loc);
+						Symbol* z = newSymbol(tree->attr.name, tempType, tree->lineno);
+
+						//Set reference type
+						if(tree->isStatic)
+							tree->ref = Static;
+						else if(stable->current == stable->head)
+							tree->ref = Global;
+						else if(tree->isParam)
+							tree->ref = Param;
+						else
+							tree->ref = Local;
+
+						z->ref = tree->ref;
+
+						//Calculate global offset
+						if((tree->ref == Global || tree->ref == Static))
+						{
+							if(tree->isArray)
+								globalOffset--;
+
+							tree->offset = globalOffset;
+
+							z->offset = globalOffset;
+							z->spaceFlag = 0;
+							z->size = tree->size;
+
+							if(tree->isArray)
+								globalOffset = globalOffset - tree->size + 1;
+							else
+								globalOffset -= tree->size;
+						}
+						//Calculate local offset
+						else
+						{
+							if(tree->isArray)
+								frameOffset--;
+
+							tree->offset = frameOffset;
+
+							z->offset = frameOffset;
+							z->spaceFlag = 1;
+							z->size = tree->size;
+
+							if(tree->isArray)
+								frameOffset = frameOffset - tree->size + 1;
+							else
+								frameOffset -= tree->size;
+						}
 
 						//Insert into current scope
 						insertSymbol(stable->current,z);
@@ -2768,15 +2868,15 @@ void treeTraverse(TreeNode* tree) {
 		//Bad tree node
 		else
 			yyerror("Unknown node");
-		int i;
+
 		//If children exist traverse the child trees
-		for (i = 0; i < MAXCHILDREN; i++)
+		for (int i = 0; i < MAXCHILDREN; i++)
 		{
 			if(tree->child[i] != NULL)
 			{
 				//Indicate a parameter check if currently in a function
 				if((i == 0) && (tree->nodekind == DeclK) && (tree->kind.decl == funDec) && (!noNewFunc))
-					paramCheck = 1;
+					paramCheck = 1;					
 
 				//Check child only if it exists
 				treeTraverse(tree->child[i]);
@@ -2811,6 +2911,21 @@ void treeTraverse(TreeNode* tree) {
 			retType = -1;
 			lastFunDec = NULL;
 
+			//Update function sizes
+			if(updateFunSize)
+			{
+				tree->size = frameOffset;
+
+				search = findSymbol(stable->head, tree->attr.name);
+
+				if(search == NULL)
+					yyerror("Function disappeared!");
+				else if(!search->size)
+					search->size = tree->size;
+
+				frameOffset = 0;
+				updateFunSize = 0;
+			}
 		}
 
 		/*
@@ -2826,7 +2941,7 @@ void treeTraverse(TreeNode* tree) {
 			{
 				//Init is an array
 				case 0:
-
+				
 				//Init is not an array
 				case 1:
 
@@ -2883,6 +2998,12 @@ void treeTraverse(TreeNode* tree) {
 
 			if(search == NULL)
 				yyerror("Couldn't find function for call");
+
+			//Lookup function size
+			if(tree->lineno > 0)
+				//Non-recursive call OR Recursive but not novel
+				if(strcmp(tree->attr.name,lastFunDec->attr.name) || (!strcmp(tree->attr.name,lastFunDec->attr.name) && (updateFunSize != 1) ) )
+					tree->size = search->size;
 
 			//Temp string for holding the call params
 			char cparams[MAXPARAMS];
@@ -2963,7 +3084,7 @@ void treeTraverse(TreeNode* tree) {
 			}
 
 			//Compare params
-			for(i= 0; (i < (int)strlen(cparams)) && (i < (int)strlen(search->paramType)); i++)
+			for(int i = 0; (i < (int)strlen(cparams)) && (i < (int)strlen(search->paramType)); i++)
 			{
 				//Params don't match
 				if( (cparams[i] != search->paramType[i]) && (cparams[i] != search->paramType[i]+32) && (cparams[i] != search->paramType[i]-32) && (cparams[i] != 'u') && (cparams[i] != 'U'))
@@ -2983,6 +3104,18 @@ void treeTraverse(TreeNode* tree) {
 			//Too many params
 			else if((int)strlen(search->paramType) < (int)strlen(cparams))
 				printError(27,tree->lineno,search->name,"","",search->line,0);
+
+			//Lookup function size
+			if((tree->lineno > 0) && !(tree->size))
+			{
+				if((int)strlen(search->paramType) == (int)strlen(cparams))
+				{
+					if(!strcmp(tree->attr.name,lastFunDec->attr.name) && (updateFunSize))
+						tree->size = -2 - (int)strlen(cparams);
+				}
+				else
+					tree->size = -2 - (int)strlen(search->paramType);
+			}
 
 			//Reset flag
 			callCheck = 0;
@@ -3262,7 +3395,6 @@ void treeTraverse(TreeNode* tree) {
 				stable->current = stable->current->parent;
 				stable->depth--;
 			}
-            
 		}
 
 		//Point to the next node in the AST
@@ -3271,9 +3403,5 @@ void treeTraverse(TreeNode* tree) {
 	//END WHILE
 
 	return;
-}
-
-int returnGlobal() {
-    return glob_loc;
 }
 //END treeTraverse

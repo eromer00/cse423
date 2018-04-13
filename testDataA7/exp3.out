@@ -1,0 +1,15 @@
+Number of warnings: 0
+Number of errors: 0
+------------------------------------
+run tm on exp3.tm
+
+Memory Configuration: Data Addresses: 0-9999  Instruction Addresses: 0-9999
+Loading file: exp3.tm
+1 
+2 
+20000210 
+357948178 
+715896356 
+110000 715896256 T T 
+Bye.
+exp3.tm test run complete

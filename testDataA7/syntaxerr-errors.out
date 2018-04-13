@@ -1,0 +1,7 @@
+ERROR(4): Syntax error, unexpected ';', expecting ')'.
+ERROR(6): Syntax error, unexpected ')', expecting ';'.
+Number of warnings: 0
+Number of errors: 2
+------------------------------------
+ERROR: syntaxerr-errors.tm not produced
+syntaxerr-errors.tm test run complete

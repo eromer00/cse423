@@ -1,0 +1,143 @@
+ERROR(19): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(19): '=' requires operands of the same type but lhs is type bool and rhs is type int.
+ERROR(20): '=' requires operands of the same type but lhs is type bool and rhs is type int.
+ERROR(20): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(21): Symbol 'p' is not defined.
+ERROR(21): Symbol 'q' is not defined.
+ERROR(21): Symbol 'r' is not defined.
+ERROR(22): '+=' requires operands of type int but rhs is of type bool.
+ERROR(25): Too many parameters passed for function 'fred' defined on line 8.
+ERROR(25): '+' requires operands of type int but rhs is of type bool.
+ERROR(26): Function 'linda' is not defined.
+ERROR(27): Function 'linda' is not defined.
+ERROR(27): '+' requires operands of type int but rhs is of type bool.
+ERROR(31): The operation '+' does not work with arrays.
+ERROR(32): The operation '+' does not work with arrays.
+ERROR(32): '=' requires operands of the same type but lhs is type bool and rhs is type int.
+ERROR(33): 'and' requires operands of type bool but lhs is of type int.
+ERROR(33): 'and' requires operands of type bool but rhs is of type int.
+ERROR(33): The operation 'and' does not work with arrays.
+ERROR(33): '=' requires operands of the same type but lhs is type int and rhs is type bool.
+ERROR(34): The operation '+' does not work with arrays.
+ERROR(34): Symbol 'xylophone' is not defined.
+ERROR(37): '+' requires operands of type int but lhs is of type bool.
+ERROR(38): '+' requires operands of type int but rhs is of type bool.
+ERROR(39): '+' requires operands of type int but rhs is of type bool.
+ERROR(41): '+' requires operands of type int but rhs is of type void.
+ERROR(42): Too many parameters passed for function 'annie' defined on line 4.
+WARNING(12): Expecting to return type int but function 'main' has no return statement.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Func annie [ref: Global, size: -2, loc: 0] [type void] [line: 4]
+Sibling: 7  Func wu [ref: Global, size: -2, loc: 0] [type void] [line: 6]
+!   Child: 1  Return [type void] [line: 6]
+Sibling: 8  Func fred [ref: Global, size: -3, loc: 0] [type void] [line: 8]
+!   Child: 0  Param x [ref: Param, size: 1, loc: -2] [type int] [line: 8]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 9]
+Sibling: 9  Func main [ref: Global, size: -39, loc: 0] [type int] [line: 12]
+!   Child: 0  Param xraydeltaniner [ref: Param, size: 1, loc: -2] [type int] [line: 12]
+!   Child: 1  Compound [ref: None, size: -7, loc: 0] [type void] [line: 13]
+!   !   Child: 0  Var: x [ref: Local, size: 1, loc: -3] [type int] [line: 14]
+!   !   Sibling: 0  Var: y [ref: Local, size: 1, loc: -4] [type int] [line: 14]
+!   !   Sibling: 1  Var: a [ref: Local, size: 1, loc: -5] [type bool] [line: 15]
+!   !   Sibling: 2  Var: b [ref: Local, size: 1, loc: -6] [type bool] [line: 15]
+!   !   Child: 1  Assign: = [type bool] [line: 17]
+!   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 17]
+!   !   !   Child: 1  Assign: = [type bool] [line: 17]
+!   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -6] [type bool] [line: 17]
+!   !   !   !   Child: 1  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 17]
+!   !   Sibling: 0  Assign: = [type int] [line: 18]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 18]
+!   !   !   Child: 1  Assign: = [type int] [line: 18]
+!   !   !   !   Child: 0  Id: y [ref: Local, size: 1, loc: -4] [type int] [line: 18]
+!   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 18]
+!   !   Sibling: 1  Assign: = [type bool] [line: 19]
+!   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 19]
+!   !   !   Child: 1  Assign: = [type int] [line: 19]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 19]
+!   !   !   !   Child: 1  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 19]
+!   !   Sibling: 2  Assign: = [type int] [line: 20]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 20]
+!   !   !   Child: 1  Assign: = [type bool] [line: 20]
+!   !   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 20]
+!   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 20]
+!   !   Sibling: 3  Assign: = [undefined type] [line: 21]
+!   !   !   Child: 0  Id: p [ref: None, size: 1, loc: 0] [undefined type] [line: 21]
+!   !   !   Child: 1  Assign: = [undefined type] [line: 21]
+!   !   !   !   Child: 0  Id: q [ref: None, size: 1, loc: 0] [undefined type] [line: 21]
+!   !   !   !   Child: 1  Id: r [ref: None, size: 1, loc: 0] [undefined type] [line: 21]
+!   !   Sibling: 4  Op: + [type int] [line: 22]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 22]
+!   !   !   Child: 1  Assign: += [type int] [line: 22]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 22]
+!   !   !   !   Child: 1  Const: true [type bool] [line: 22]
+!   !   Sibling: 5  Call: fred [type void] [line: 24]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 24]
+!   !   Sibling: 6  Call: fred [type void] [line: 25]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 25]
+!   !   !   Sibling: 0  Op: + [type int] [line: 25]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 25]
+!   !   !   !   Child: 1  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 25]
+!   !   Sibling: 7  Call: linda [undefined type] [line: 26]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 26]
+!   !   Sibling: 8  Call: linda [undefined type] [line: 27]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 27]
+!   !   !   Sibling: 0  Op: + [type int] [line: 27]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 27]
+!   !   !   !   Child: 1  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 27]
+!   !   Sibling: 9  Compound [ref: None, size: -39, loc: 0] [type void] [line: 29]
+!   !   !   Child: 0  Var: p is array [ref: Local, size: 11, loc: -8] [type int] [line: 30]
+!   !   !   Sibling: 0  Var: q is array [ref: Local, size: 21, loc: -19] [type int] [line: 30]
+!   !   !   Child: 1  Assign: = [type int] [line: 31]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 31]
+!   !   !   !   Child: 1  Op: + [type int] [line: 31]
+!   !   !   !   !   Child: 0  Id: p is array [ref: Local, size: 11, loc: -8] [type int] [line: 31]
+!   !   !   !   !   Child: 1  Id: q is array [ref: Local, size: 21, loc: -19] [type int] [line: 31]
+!   !   !   Sibling: 0  Assign: = [type bool] [line: 32]
+!   !   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -5] [type bool] [line: 32]
+!   !   !   !   Child: 1  Op: + [type int] [line: 32]
+!   !   !   !   !   Child: 0  Id: p is array [ref: Local, size: 11, loc: -8] [type int] [line: 32]
+!   !   !   !   !   Child: 1  Id: q is array [ref: Local, size: 21, loc: -19] [type int] [line: 32]
+!   !   !   Sibling: 1  Assign: = [type int] [line: 33]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 33]
+!   !   !   !   Child: 1  Op: and [type bool] [line: 33]
+!   !   !   !   !   Child: 0  Id: p is array [ref: Local, size: 11, loc: -8] [type int] [line: 33]
+!   !   !   !   !   Child: 1  Id: q is array [ref: Local, size: 21, loc: -19] [type int] [line: 33]
+!   !   !   Sibling: 2  Assign: = [type int] [line: 34]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 34]
+!   !   !   !   Child: 1  Op: + [type int] [line: 34]
+!   !   !   !   !   Child: 0  Op: + [type int] [line: 34]
+!   !   !   !   !   !   Child: 0  Id: p is array [ref: Local, size: 11, loc: -8] [type int] [line: 34]
+!   !   !   !   !   !   Child: 1  Id: q is array [ref: Local, size: 21, loc: -19] [type int] [line: 34]
+!   !   !   !   !   Child: 1  Id: xylophone [ref: None, size: 1, loc: 0] [undefined type] [line: 34]
+!   !   Sibling: 10  Op: + [type int] [line: 37]
+!   !   !   Child: 0  Op: + [type int] [line: 37]
+!   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -6] [type bool] [line: 37]
+!   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 37]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 37]
+!   !   Sibling: 11  Op: + [type int] [line: 38]
+!   !   !   Child: 0  Op: + [type int] [line: 38]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 38]
+!   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -6] [type bool] [line: 38]
+!   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 38]
+!   !   Sibling: 12  Op: + [type int] [line: 39]
+!   !   !   Child: 0  Op: + [type int] [line: 39]
+!   !   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 39]
+!   !   !   !   Child: 1  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 39]
+!   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -6] [type bool] [line: 39]
+!   !   Sibling: 13  Op: + [type int] [line: 41]
+!   !   !   Child: 0  Id: x [ref: Local, size: 1, loc: -3] [type int] [line: 41]
+!   !   !   Child: 1  Call: annie [type void] [line: 41]
+!   !   Sibling: 14  Call: annie [type void] [line: 42]
+!   !   !   Child: 0  Const: 42 [type int] [line: 42]
+Offset for end of global space: 0
+Number of warnings: 1
+Number of errors: 27

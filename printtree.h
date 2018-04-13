@@ -102,6 +102,11 @@ dassign, asterisk, fslash, bNOT, bAND, bOR, eqeq, neq, lteq, lthan, gteq, gthan,
 qmark, mod, lsb, period, colon} OpKind;
 
 /*
+ * Reference types
+ */
+typedef enum {None, Global, Static, Param, Local} Reference;
+
+/*
 * Structure to hold AST node properties
 * Essentially chained in a large linked list
 * Holds essential code elements
@@ -122,11 +127,6 @@ typedef struct TreeNode {
 	* Line number of AST element
 	*/
 	int lineno;
-
-    /*
-    * Size of AST element
-    */
-    int size;
 
 	/*
 	* Node's main type
@@ -173,15 +173,21 @@ typedef struct TreeNode {
 	ExpType expType;
 
 	/*
+	 * Variables to help with codegen
+	 *
+	 * size - Node memory size in words
+	 * offset - Address offset
+	 * reference - Type of reference
+	 */
+	int size;
+	int offset;
+	Reference ref;
+
+	/*
 	* Holds custom type if rectype var
 	*/
 	char* recType;
 
-    /*
-    * Holds value to determine scope id
-    */
-    int global;
-    int loc;
 	/*
 	* Special flags
 	*
@@ -205,12 +211,6 @@ typedef struct TreeNode {
  * tree - AST root
  */
 TreeNode* addProto(TreeNode* tree);
-
-/*
- * Updates function sizes to match variables inside
- */
-//void updateFuncSize(TreeNode* tree);
-//int findparamsizes(TreeNode* tree);
 
 /*
 * Print the AST
@@ -251,10 +251,6 @@ void removeSpace(FILE* out, long placeholder);
 */
 TreeNode* newDeclNode(DeclKind);
 
-//functions to simplify insertion of nodes
-void insertChild(TreeNode *, TreeNode *);
-void insertSibling(TreeNode *, TreeNode *);
-void globalOffsetPrint();
 /*
 * Allocate new Expression node
 *

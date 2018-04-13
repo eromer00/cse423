@@ -1,0 +1,6 @@
+ERROR(5): Syntax error, unexpected ';', expecting identifier.
+ERROR(6): Syntax error, unexpected '='.
+ERROR(7): Syntax error, unexpected '=', expecting identifier.
+ERROR(8): Syntax error, unexpected '=', expecting identifier.
+Number of warnings: 0
+Number of errors: 4

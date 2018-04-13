@@ -1,0 +1,23 @@
+ERROR(178): Syntax error, unexpected identifier 'in', expecting ')'.
+ERROR(178): Syntax error, unexpected ';', expecting ')'.
+ERROR(179): Syntax error, unexpected identifier 'b', expecting ')'.
+ERROR(179): Syntax error, unexpected ';', expecting ')'.
+ERROR(181): Syntax error, unexpected identifier 'xx', expecting ')'.
+ERROR(181): Syntax error, unexpected ';', expecting ')'.
+ERROR(182): Syntax error, unexpected identifier 'bb', expecting ')'.
+ERROR(182): Syntax error, unexpected ';', expecting ')'.
+ERROR(184): Syntax error, unexpected identifier 'xx', expecting ')'.
+ERROR(184): Syntax error, unexpected ';', expecting ')'.
+ERROR(185): Syntax error, unexpected identifier 'bb', expecting ')'.
+ERROR(185): Syntax error, unexpected ';', expecting ')'.
+ERROR(186): Syntax error, unexpected identifier 'xx', expecting ')'.
+ERROR(186): Syntax error, unexpected ';', expecting ')'.
+ERROR(198): Syntax error, unexpected '{', expecting ';'.
+ERROR(227): Syntax error, unexpected int.
+ERROR(228): Syntax error, unexpected int.
+ERROR(229): Syntax error, unexpected '{', expecting ')'.
+Number of warnings: 0
+Number of errors: 18
+------------------------------------
+ERROR: syntaxerr-allErrors2.tm not produced
+syntaxerr-allErrors2.tm test run complete

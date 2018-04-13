@@ -1,0 +1,71 @@
+ERROR(6): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(7): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(10): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(11): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(12): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(14): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(15): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(16): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(17): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(18): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(19): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Func main [ref: Global, size: -4, loc: 0] [type void] [line: 2]
+!   Child: 1  Compound [ref: None, size: -4, loc: 0] [type void] [line: 3]
+!   !   Child: 0  Var: a [ref: Local, size: 1, loc: -2] [type bool] [line: 4]
+!   !   Sibling: 0  Var: b [ref: Local, size: 1, loc: -3] [type bool] [line: 4]
+!   !   Child: 1  Call: output [type void] [line: 6]
+!   !   !   Child: 0  Assign: = [type bool] [line: 6]
+!   !   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -2] [type bool] [line: 6]
+!   !   !   !   Child: 1  Const: true [type bool] [line: 6]
+!   !   Sibling: 0  Call: output [type void] [line: 7]
+!   !   !   Child: 0  Assign: = [type bool] [line: 7]
+!   !   !   !   Child: 0  Id: b [ref: Local, size: 1, loc: -3] [type bool] [line: 7]
+!   !   !   !   Child: 1  Const: false [type bool] [line: 7]
+!   !   Sibling: 1  Call: output [type void] [line: 10]
+!   !   !   Child: 0  Op: and [type bool] [line: 10]
+!   !   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -2] [type bool] [line: 10]
+!   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -3] [type bool] [line: 10]
+!   !   Sibling: 2  Call: output [type void] [line: 11]
+!   !   !   Child: 0  Op: or [type bool] [line: 11]
+!   !   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -2] [type bool] [line: 11]
+!   !   !   !   Child: 1  Id: b [ref: Local, size: 1, loc: -3] [type bool] [line: 11]
+!   !   Sibling: 3  Call: output [type void] [line: 12]
+!   !   !   Child: 0  Op: not [type bool] [line: 12]
+!   !   !   !   Child: 0  Id: a [ref: Local, size: 1, loc: -2] [type bool] [line: 12]
+!   !   Sibling: 4  Call: output [type void] [line: 14]
+!   !   !   Child: 0  Op: > [type bool] [line: 14]
+!   !   !   !   Child: 0  Const: 111 [type int] [line: 14]
+!   !   !   !   Child: 1  Const: 222 [type int] [line: 14]
+!   !   Sibling: 5  Call: output [type void] [line: 15]
+!   !   !   Child: 0  Op: < [type bool] [line: 15]
+!   !   !   !   Child: 0  Const: 111 [type int] [line: 15]
+!   !   !   !   Child: 1  Const: 222 [type int] [line: 15]
+!   !   Sibling: 6  Call: output [type void] [line: 16]
+!   !   !   Child: 0  Op: == [type bool] [line: 16]
+!   !   !   !   Child: 0  Const: 111 [type int] [line: 16]
+!   !   !   !   Child: 1  Const: 222 [type int] [line: 16]
+!   !   Sibling: 7  Call: output [type void] [line: 17]
+!   !   !   Child: 0  Op: >= [type bool] [line: 17]
+!   !   !   !   Child: 0  Const: 111 [type int] [line: 17]
+!   !   !   !   Child: 1  Const: 222 [type int] [line: 17]
+!   !   Sibling: 8  Call: output [type void] [line: 18]
+!   !   !   Child: 0  Op: <= [type bool] [line: 18]
+!   !   !   !   Child: 0  Const: 111 [type int] [line: 18]
+!   !   !   !   Child: 1  Const: 222 [type int] [line: 18]
+!   !   Sibling: 9  Call: output [type void] [line: 19]
+!   !   !   Child: 0  Op: != [type bool] [line: 19]
+!   !   !   !   Child: 0  Const: 111 [type int] [line: 19]
+!   !   !   !   Child: 1  Const: 222 [type int] [line: 19]
+Offset for end of global space: 0
+Number of warnings: 0
+Number of errors: 11

@@ -1,0 +1,37 @@
+ERROR(5): Symbol 'z' is already defined at line 3.
+WARNING(5): Expecting to return type int but function 'z' has no return statement.
+WARNING(9): Expecting to return type int but function 'y' has no return statement.
+ERROR(13): Symbol 'y' is already defined at line 9.
+ERROR(20): 'x' is a simple variable and cannot be called.
+WARNING(15): Expecting to return type int but function 'x' has no return statement.
+ERROR(25): Cannot use function 'x' as a variable.
+WARNING(23): Expecting to return type int but function 'w' has no return statement.
+ERROR(LINKER): Procedure main is not defined.
+Func input [ref: Global, size: -2, loc: 0] [type int] [line: -1]
+Sibling: 0  Func output [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type int] [line: -1]
+Sibling: 1  Func inputb [ref: Global, size: -2, loc: 0] [type bool] [line: -1]
+Sibling: 2  Func outputb [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type bool] [line: -1]
+Sibling: 3  Func inputc [ref: Global, size: -2, loc: 0] [type char] [line: -1]
+Sibling: 4  Func outputc [ref: Global, size: -3, loc: 0] [type void] [line: -1]
+!   Child: 0  Param *dummy* [ref: Param, size: 1, loc: -2] [type char] [line: -1]
+Sibling: 5  Func outnl [ref: Global, size: -2, loc: 0] [type void] [line: -1]
+Sibling: 6  Var: z [ref: Global, size: 1, loc: 0] [type int] [line: 3]
+Sibling: 7  Func z [ref: Global, size: -2, loc: 0] [type int] [line: 5]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 6]
+Sibling: 8  Func y [ref: Global, size: -2, loc: 0] [type int] [line: 9]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 10]
+Sibling: 9  Var: y [ref: Local, size: 1, loc: 0] [type int] [line: 13]
+Sibling: 10  Func x [ref: Global, size: -3, loc: 0] [type int] [line: 15]
+!   Child: 1  Compound [ref: None, size: -3, loc: 0] [type void] [line: 16]
+!   !   Child: 0  Var: x [ref: Local, size: 1, loc: -2] [type int] [line: 17]
+!   !   Child: 1  Id: x [ref: Local, size: 1, loc: -2] [type int] [line: 19]
+!   !   Sibling: 0  Call: x [type int] [line: 20]
+Sibling: 11  Func w [ref: Global, size: -2, loc: 0] [type int] [line: 23]
+!   Child: 1  Compound [ref: None, size: -2, loc: 0] [type void] [line: 24]
+!   !   Child: 1  Id: x [ref: Global, size: -3, loc: 0] [undefined type] [line: 25]
+!   !   Sibling: 0  Call: x [type int] [line: 26]
+Offset for end of global space: -1
+Number of warnings: 4
+Number of errors: 5

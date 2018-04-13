@@ -1,0 +1,11 @@
+ERROR(5): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type bool.
+ERROR(6): Expecting type int in parameter 1 of call to 'output' defined on line -1 but got type char.
+ERROR(7): Expecting type bool in parameter 1 of call to 'outputb' defined on line -1 but got type int.
+ERROR(8): Expecting type bool in parameter 1 of call to 'outputb' defined on line -1 but got type char.
+ERROR(9): Expecting type char in parameter 1 of call to 'outputc' defined on line -1 but got type int.
+ERROR(10): Expecting type char in parameter 1 of call to 'outputc' defined on line -1 but got type bool.
+Number of warnings: 0
+Number of errors: 6
+------------------------------------
+ERROR: semerr-aamain3.tm not produced
+semerr-aamain3.tm test run complete
