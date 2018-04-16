@@ -22,6 +22,7 @@ extern char *filename;
 void codeGen(TreeNode* t);
 void printFileInfo(char *fname, FILE* out);
 void genPrototypes();
+void printCodeTree(TreeNode* tree, FILE *output);
 
 
 #endif

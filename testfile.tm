@@ -1,75 +1,34 @@
-* C- compiler version C-F16
-* Built: April 13, 2018
-* Author: Franz Chavez
-* File compiled:  testDataA7/a00.c-
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
-* FUNCTION input
-  1:     ST  3,-1(1)	Store return address 
-  2:     IN  2,2,2	Grab int input 
-  3:     LD  3,-1(1)	Load return address 
-  4:     LD  1,0(1)	Adjust fp 
-  5:    LDA  7,0(3)	Return 
-* END FUNCTION input
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
-* FUNCTION output
-  6:     ST  3,-1(1)	Store return address 
-  7:     LD  3,-2(1)	Load parameter 
-  8:    OUT  3,3,3	Output integer 
-  9:    LDC  2,0(6)	Set return to 0 
- 10:     LD  3,-1(1)	Load return address 
- 11:     LD  1,0(1)	Adjust fp 
- 12:    LDA  7,0(3)	Return 
-* END FUNCTION output
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
-* FUNCTION inputb
- 13:     ST  3,-1(1)	Store return address 
- 14:    INB  2,2,2	Grab bool input 
- 15:     LD  3,-1(1)	Load return address 
- 16:     LD  1,0(1)	Adjust fp 
- 17:    LDA  7,0(3)	Return 
-* END FUNCTION inputb
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
-* FUNCTION outputb
- 18:     ST  3,-1(1)	Store return address 
- 19:     LD  3,-2(1)	Load parameter 
- 20:   OUTB  3,3,3	Output bool 
- 21:    LDC  2,0(6)	Set return to 0 
- 22:     LD  3,-1(1)	Load return address 
- 23:     LD  1,0(1)	Adjust fp 
- 24:    LDA  7,0(3)	Return 
-* END FUNCTION outputb
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
-* FUNCTION inputc
- 25:     ST  3,-1(1)	Store return address 
- 26:    INC  2,2,2	Grab char input 
- 27:     LD  3,-1(1)	Load return address 
- 28:     LD  1,0(1)	Adjust fp 
- 29:    LDA  7,0(3)	Return 
-* END FUNCTION inputc
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
-* FUNCTION outputc
- 30:     ST  3,-1(1)	Store return address
- 31:     LD  3,-2(1)	Load parameter 
- 32:   OUTC  3,3,3	Output char 
- 33:    LDC  2,0(6)	Set return to 0 
- 34:     LD  3,-1(1)	Load return address 
- 35:     LD  1,0(1)	Adjust fp 
- 36:    LDA  7,0(3)	Return 
-* END FUNCTION outputc
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
-* FUNCTION outnl
- 37:     ST  3,-1(1)	Store return address
- 38:  OUTNL  3,3,3	Output a newline 
- 39:     LD  3,-1(1)	Load return address 
- 40:     LD  1,0(1)	Adjust fp 
- 41:    LDA  7,0(3)	Return 
-* END FUNCTION outnl
-* 
-* ** ** ** ** ** ** ** ** ** ** ** **
+Func input  [line: -1]
+Sibling: 0  Func output  [line: -1]
+!   Child: 0  Param *dummy*  [line: -1]
+Sibling: 1  Func inputb  [line: -1]
+Sibling: 2  Func outputb  [line: -1]
+!   Child: 0  Param *dummy*  [line: -1]
+Sibling: 3  Func inputc  [line: -1]
+Sibling: 4  Func outputc  [line: -1]
+!   Child: 0  Param *dummy*  [line: -1]
+Sibling: 5  Func outnl  [line: -1]
+Sibling: 6  Func dog  [line: 3]
+!   Child: 0  Param x  [line: 3]
+!   Child: 1  Compound  [line: 4]
+!   !   Child: 0  Var y  [line: 5]
+!   !   Sibling: 0  Var z  [line: 6]
+!   !   Child: 1  Assign: = [line: 8]
+!   !   !   Child: 0  Id: y  [line: 8]
+!   !   !   Child: 1  Op: + [line: 8]
+!   !   !   !   Child: 0  Op: * [line: 8]
+!   !   !   !   !   Child: 0  Id: x  [line: 8]
+!   !   !   !   !   Child: 1  Const: 111 [line: 8]
+!   !   !   !   Child: 1  Const: 222 [line: 8]
+!   !   Sibling: 0  Assign: = [line: 9]
+!   !   !   Child: 0  Id: z  [line: 9]
+!   !   !   Child: 1  Id: y  [line: 9]
+!   !   Sibling: 1  Return [line: 11]
+!   !   !   Child: 0  Id: z  [line: 11]
+Sibling: 7  Func main  [line: 15]
+!   Child: 1  Compound  [line: 16]
+!   !   Child: 1  Call: output [line: 17]
+!   !   !   Child: 0  Call: dog [line: 17]
+!   !   !   !   Child: 0  Const: 666 [line: 17]
+!   !   Sibling: 0  Call: outnl [line: 18]
+!   !   
