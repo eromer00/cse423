@@ -17,8 +17,11 @@
 
 #include "semantic.h"
 
+extern char *filename;
 
 void codeGen(TreeNode* t);
+void printFileInfo(char *fname, FILE* out);
+void genPrototypes();
 
 
 #endif

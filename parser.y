@@ -47,6 +47,7 @@ int numWarnings = 0;
 int numErrors = 0;
 
 extern int globalOffset;
+char *filename = NULL;
 
 //Main AST to parse into
 static TreeNode* syntaxTree;
@@ -1154,6 +1155,7 @@ int main(int argc, char* argv[]) {
 	{
 		//Open file handle to read input
 		FILE* myfile = fopen(argv[optind],"r");
+		filename = argv[optind];
 
 		//Check if input file opened
 		if(!myfile) {
