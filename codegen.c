@@ -14,23 +14,16 @@
  **/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "codegen.h"
 #include "printtree.h"
 #include "semantic.h"
 
+int linecode = 42;
 
-/*
-* Track indentation level for AST printing
-*
-* identNum - Current indent level
-* Macro indent increases level by 1
-* Macro unindent decreases level by 1
-*/
-#define INDENT idNum++
-#define UNINDENT idNum--
-int idNum;
-long pos;
-
+//marks if return present in compound
+int hasReturn = 0;
 
 /*
  * Generate TM machine code
@@ -42,56 +35,60 @@ void codeGen(TreeNode* t) {
 	//printFileInfo(filename, codeout);
 	//genPrototypes(codeout);
 	//printSymbolTable(stdout);
+    TreeNode *tmp = t;
+    int i = 0;
+    //set tree past I/O functions
+    for(i = 0; i < 7; i++) {
+        tmp = tmp->sibling;
+    }
 
-    printCodeTree(t, codeout);
-    printCodeTree(t, stdout);
+
+    //reset values in between
+
+    genPrototypes(stdout);
+    genPrototypes(codeout);
+
+    printCodeTree(tmp, codeout);
+    initPrintCode(codeout);
+
+    linecode = 42;
+
+    printCodeTree(tmp, stdout);
+    initPrintCode(stdout);
 	fclose(codeout);
 
 	return;
 }
 
 
+
+
+
 /*
 * Print the AST
 *
 * tree - Root node to start printing at
-* tFlag - Flag to print types
 */
 void printCodeTree(TreeNode* tree, FILE *output) {
 
-    int tFlag = 0;
-	/*
-	* Sibling index
-	*
-	* Start at -1 since it increments on first run
-	* Keeps track of sibling count
-	*/
-	int sibCnt = -1;
+    //stores name of function for comments
+    char *curfun = NULL;
 
-	/*
-	* Sibling flag
-	*
-	* Indicate if current node is a sibling
-	* This tells us to start printing Sibling tag
-	*/
-	int isSib = 0;
-
-	/*
-	* Child flag
-	*
-	* Indicate if current node had children
-	* This tells us if we need to unindent
-	*/
-	int hadChild = 0;
+    int isCompound = 0;
+    /* 
+    * Values for printing
+    *
+    * Store everything besides constants in storeVal
+    * if constant a char, set storeChar to 1
+    */
+    char *storeVal = NULL;
+    int storeInt = 0;
+    int storeChar = 0;
 
 	//Check if we exist before printing
 	while (tree != NULL)
 	{
-		/*
-		* If we are a sibling, print our tag and count
-		*/
-		if(isSib == 1)
-			fprintf(output, "Sibling: %d  ", sibCnt);
+
 
 		//Statement node printing
 		if (tree->nodekind == StmtK)
@@ -99,23 +96,26 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 			switch (tree->kind.stmt)
 			{
 				case IfK:
-					fprintf(output, "If");
+					storeVal = "If";
 				break;
 
 				case RepeatK:
-					fprintf(output, "While");
+					storeVal = "While";
 				break;
 
 				case BreakK:
-					fprintf(output, "Break");
+					storeVal = "Break";
 				break;
 
 				case ReturnK:
-					fprintf(output, "Return");
+                    hasReturn = 1;
+					storeVal = "Return";
 				break;
 
 				case CompoundK:
-					fprintf(output, "Compound ");
+					storeVal = "Compound";
+                    isCompound = 1;
+                    fprintf(output, "* COMPOUND\n* Compound Body\n");
 				break;
 
 				default:
@@ -132,99 +132,99 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					switch (tree->attr.op)
 					{
 						case mod:
-							fprintf(output, "Op: %%");
+					        storeVal = "%";
 						break;
 
 						case bNOT:
-							fprintf(output, "Op: not");
+					        storeVal = "NOT";
 						break;
 
 						case bAND:
-							fprintf(output, "Op: and");
+					        storeVal = "AND";
 						break;
 
 						case bOR:
-							fprintf(output, "Op: or");
+					        storeVal = "OR";
 						break;
 
 						case eqeq:
-							fprintf(output, "Op: ==");
+					        storeVal = "==";
 						break;
 
 						case neq:
-							fprintf(output, "Op: !=");
+					        storeVal = "!=";
 						break;
 
 						case lteq:
-							fprintf(output, "Op: <=");
+					        storeVal, "<=";
 						break;
 
 						case lthan:
-							fprintf(output, "Op: <");
+					        storeVal = "<";
 						break;
 
 						case gteq:
-							fprintf(output, "Op: >=");
+					        storeVal = ">=";
 						break;
 
 						case gthan:
-							fprintf(output, "Op: >");
+					        storeVal = ">";
 						break;
 
 						case qmark:
-							fprintf(output, "Op: ?");
+					        storeVal = "?";
 						break;
 
 						case plus:
-							fprintf(output, "Op: +");
+					        storeVal = "+";
 						break;
 
 						case pplus:
-							fprintf(output, "Assign: ++");
+					        storeVal = "++";
 						break;
 
 						case dash:
-							fprintf(output, "Op: -");
+					        storeVal = "-";
 						break;
 
 						case ddash:
-							fprintf(output, "Assign: --");
+					        storeVal = "--";
 						break;
 
 						case assign:
-							fprintf(output, "Assign: =");
+					        storeVal = "=";
 						break;
 
 						case passign:
-							fprintf(output, "Assign: +=");
+					        storeVal = "+=";
 						break;
 
 						case sassign:
-							fprintf(output, "Assign: -=");
+					        storeVal = "-=";
 						break;
 
 						case massign:
-							fprintf(output, "Assign: *=");
+					        storeVal = "*=";
 						break;
 
 						case dassign:
-							fprintf(output, "Assign: /=");
+					        storeVal = "/=";
 						break;
 
 						case period:
-							fprintf(output, "Op: .");
+					        storeVal = ".";
 						break;
 
 						case lsb:
-							fprintf(output, "Op: [");
+					        storeVal = "[";
 						break;
 
 						case asterisk:
-							fprintf(output, "Op: *");
+					        storeVal = "*";
 						break;
 
 						case fslash:
-							fprintf(output, "Op: /");
+					        storeVal = "/";
 						break;
 
 						default:
@@ -237,19 +237,18 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 					if(tree->expType != Boolean)
 					{
-						fprintf(output, "Const: ");
-
 						if(tree->expType != Char)
-							fprintf(output,"%d",tree->attr.value);
+					        storeInt = tree->attr.value;
 						else
-							fprintf(output,"'%c'",tree->attr.cvalue);
+					        storeChar = 1;
+                            storeInt = tree->attr.cvalue;
 					}
 					else
 					{
 						if(tree->attr.value == 1)
-							fprintf(output, "Const: true");
+					        storeVal = "true";
 						else
-							fprintf(output, "Const: false");
+					        storeVal = "false";
 					}
 				break;
 
@@ -257,13 +256,14 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 				case IdK:
 					if(!tree->isFunc)
 					{
-						fprintf(output, "Id: %s ", tree->attr.name);
-
-						if(tree->isArray)
-							fprintf(output, "is array ");
+						if(tree->isArray) { 
+                            storeVal = tree->attr.name;
+                        } else
+					        storeVal = tree->attr.name;
 					}
-					else
-						fprintf(output, "Call: %s", tree->attr.name);
+					else {
+                        storeVal = tree->attr.name;
+                    }
 				break;
 
 				default:
@@ -274,90 +274,23 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 		else if (tree->nodekind == DeclK)
 		{
 			switch (tree->kind.decl)
-			{
+			{ 
 				//Variable
 				case varDec:
-
-					if(!tree->isParam)
-						fprintf(output, "Var %s ", tree->attr.name);
-					else
-						fprintf(output, "Param %s ", tree->attr.name);
-
-					if(tree->isArray)
-						fprintf(output, "is array ");
-/*
-					//if(tree->isStatic)
-					//	fprintf(output, "is static ");
-
-					//Check if variable is a custom type
-
-					if(!tree->isRecord)
-						switch (tree->expType)
-						{
-							case Void:
-								fprintf(output, "of type void");
-							break;
-
-							case Integer:
-								fprintf(output, "of type int");
-							break;
-
-							case Boolean:
-								fprintf(output, "of type bool");
-							break;
-
-							case Char:
-								fprintf(output, "of type char");
-							break;
-
-							default:
-							break;
-						}
-					else
-
-						//fprintf(output, "of record type %s", tree->recType);
-						fprintf(output, "of type record");
-*/
+                        storeVal = tree->attr.name;
 				break;
 
 				//Function
 				case funDec:
-
-					//fprintf(output, "Func %s returns type ", tree->attr.name);
-
-					fprintf(output, "Func %s ", tree->attr.name);
-/*
-					switch (tree->expType)
-					{
-						case Void:
-							fprintf(output, "void");
-						break;
-
-						case Integer:
-							fprintf(output, "int");
-						break;
-
-						case Boolean:
-							fprintf(output, "bool");
-						break;
-
-						case Char:
-							fprintf(output, "char");
-						break;
-
-						case Unknown:
-							fprintf(output, "UNKNOWN");
-						break;
-
-						default:
-						break;
-					}
-*/
+                        fprintf(output, "* FUNCTION %s\n", tree->attr.name);
+                        fprintf(output, " %d:     ST  3,-1(1)\tStore return address.\n", linecode); linecode++;
+                        curfun = tree->attr.name;
+                        storeVal = tree->attr.name;
 				break;
 
 				//Record
 				case recDec:
-					fprintf(output, "Record %s ", tree->attr.name);
+                        storeVal = tree->attr.name;
 				break;
 
 				default:
@@ -365,35 +298,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 			}
 		}
 
-		/*
-		* Print type if tFlag is set
-		*/
-		if(tFlag)
-		{
-			//Print mem info for IDs only
-			if( ((tree->nodekind == DeclK) || (tree->kind.exp == IdK)) || (tree->kind.stmt == CompoundK) )
-				fprintf(output,"[ref: %d, size: %d, loc: %d]",1,tree->size,tree->offset);
 
-			if(tree->expType != Unknown)
-				fprintf(output," [type %d]", tree->expType);
-			else
-				fprintf(output," [undefined type]");
-		}
 
-		/*
-		* Print line number of node after AST properties
-		*/
-		fprintf(output, " [line: %d]\n", tree->lineno);
 
-		/*
-		* Memorize our location in the output file
-		* before printing the current level of indents.
-		* Initially there will be none, and later if we
-		* are actually leaving a child node we will have
-		* to adjust the amount printed (it will be too much)
-		*/
-		pos = ftell(output);
-		printSpaces(output,idNum);
 
 		/*
 		* Now that we've printed ourself and the next level
@@ -407,63 +314,52 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 			if(tree->child[i] != NULL)
 			{
 				/*
-				* If this is the first child, we have to increase
-				* indent, print the extra indent to the already
-				* printed level, and indicate we encountered a child
-				*/
-				if(i == 0)
-				{
-					INDENT;
-					printSpaces(output,1);
-					hadChild = 1;
-				}
-
-				/*
 				* Print the child tag and our child node
 				*/
-				fprintf(output, "Child: %d  ", i);
 				printCodeTree(tree->child[i], output);
 			}
-			/*
-			* If child 0 doesn't exist, and one of the next childs
-			* do exist, we have to increase indent anyways, print
-			* the extra indent to the already printed level, and
-			* indicate we encountered a child
-			*/
-			else if( (i == 0) && ( (tree->child[1] != NULL) || (tree->child[2] != NULL) ) )
-			{
-				INDENT;
-				printSpaces(output,1);
-				hadChild = 1;
-			}
 		}
 
-		/*
-		* Now that we are done printing our children,
-		* we need to check if we actually did anything
-		* before we print our siblings. If we did print
-		* childs, we need to overwrite the preemptively
-		* written indent level, unindent, then reprint
-		* the correct amount
-		*/
-		if(hadChild) {
-			removeSpace(output,pos);
-			UNINDENT;
-			printSpaces(output,idNum);
-		}
 
-		//Reset child flag before printing siblings
-		hadChild = 0;
+        //check scope of function
+        if(curfun != NULL) {
+            //check return value of function, give generic return code
+            if(hasReturn == 0) {
+                fprintf(output, "* Add standard closing in case there is no return statement\n");
+                fprintf(output, " %d:    LDC  2,0(6)\tSet return value to 0\n", linecode); linecode++;
+                fprintf(output, " %d:     LD  3,-1(1)\tLoad return address\n", linecode); linecode++;
+                fprintf(output, " %d:     LD  1,0(1)\tAdjust fp\n", linecode); linecode++;
+                fprintf(output, " %d:    LDA 7,0(3)\tReturn\n", linecode); linecode++;
+            }
+            fprintf(output, "* END FUNCTION %s\n", curfun);
+            if(strcmp("main", curfun) == 0) {
+                fprintf(output, "  0:    LDA  7,%d(7)\tJump to init [backpatch]\n", linecode - 1);  
+            }
+            curfun = NULL;
+        }
+
+        //just adding comments for compounds
+        if(isCompound) {
+            fprintf(output, "* END COMPOUND\n");
+        }
+
 
 		//Point to the next node in the AST
 		tree = tree->sibling;
 
-		/*
-		* Indicate you are now a sibling and increment
-		* index, so that the first sibling is 0, etc.
-		*/
-		isSib = 1;
-		sibCnt++;
+
+        //NEW - printing prefix to better understand code generation process
+        /*
+        if(storeVal != NULL) {
+            fprintf(output, "%s\n", storeVal);
+        } else {
+            if(storeChar == 1)
+                fprintf(output, "%c\n", storeInt);
+            else
+                fprintf(output, "%d\n", storeInt);
+        }
+        */
+
 	}
 	//END WHILE
 
@@ -553,4 +449,20 @@ void genPrototypes(FILE* out){
     
     //Now we need to set up the function start address information
     //these function addresses were added during addProto() call in semantic.h
+}
+
+void initPrintCode(FILE *output) {
+    //done looping the tree, do init code
+    fprintf(output, "* INIT\n");
+    fprintf(output, " %d:     LD  0,0(0)\tSet the global pointer\n", linecode); linecode++;
+    fprintf(output, " %d:    LDA  1,0(0)\tset first frame at end of globals\n", linecode); linecode++;
+    fprintf(output, " %d:     ST  1,0(1)\tstore old fp (point to self)\n", linecode); linecode++;
+
+    fprintf(output, "* INIT GLOBALS AND STATICS\n");
+    fprintf(output, "* END INIT GLOBALS AND STATICS\n");
+    fprintf(output, " %d:    LDA  3,1(7)\tReturn address in ac\n", linecode); linecode++;
+    //TODO jump to functions wrong (hardcoded for a00, setup pseudo symbol table to track later
+    fprintf(output, " %d:    LDA  7,%d(7)\tJump to main\n", linecode, -10); linecode++;
+    fprintf(output, " %d:   HALT  0,0,0\tDONE!\n", linecode); linecode++;
+    fprintf(output, "* END INIT\n");
 }
