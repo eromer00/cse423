@@ -249,8 +249,14 @@ TreeNode* addProto(TreeNode* tree) {
 	t1->size = t3->size = t5->size = -3;
 	t7->size = t8->size = t9->size = 1;
 
-	//Set offsets
-	t0->offset = t1->offset = t2->offset = t3->offset = t4->offset = t5->offset = t6->offset = 0;
+	//Set offsets, these will be used by CodeGen later to mark starts of the functions.
+	t0->offset = 1;
+	t1->offset = 6;
+	t2->offset = 13;
+	t3->offset = 18;
+	t4->offset = 25;
+	t5->offset = 30;
+	t6->offset = 37;
 	t7->offset = t8->offset = t9->offset = -2;
 
 	//Set reference types

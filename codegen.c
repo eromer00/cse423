@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include "codegen.h"
 #include "printtree.h"
+#include "semantic.h"
 
 
 /*
@@ -31,7 +32,6 @@ int idNum;
 long pos;
 
 
-
 /*
  * Generate TM machine code
  */
@@ -41,6 +41,7 @@ void codeGen(TreeNode* t) {
 	//printf("we made it!\n");
 	//printFileInfo(filename, codeout);
 	//genPrototypes(codeout);
+	//printSymbolTable(stdout);
 
     printCodeTree(t, codeout);
     printCodeTree(t, stdout);
@@ -549,4 +550,7 @@ void genPrototypes(FILE* out){
     "* END FUNCTION outnl\n"
     "* \n"
     "* ** ** ** ** ** ** ** ** ** ** ** **\n");
+    
+    //Now we need to set up the function start address information
+    //these function addresses were added during addProto() call in semantic.h
 }
