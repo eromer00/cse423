@@ -78,7 +78,7 @@
  45:     LD  1,0(1)	Adjust fp
  46:    LDA 7,0(3)	Return
 * END FUNCTION main
-0:    LDA  7,46(7)	Jump to init [backpatch]
+  0:    LDA  7,46(7)	Jump to init [backpatch]
 * INIT
  47:     LD  0,0(0)	Set the global pointer
  48:    LDA  1,0(0)	set first frame at end of globals

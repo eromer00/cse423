@@ -262,6 +262,12 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					        storeVal = tree->attr.name;
 					}
 					else {
+					    //we found a function call. Do these things:
+					    //move frame pointer
+					    //setup parameters
+					    //store return address in ac
+					    //call function
+					    //save result in ac
                         storeVal = tree->attr.name;
                     }
 				break;
@@ -369,7 +375,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 void printFileInfo(char *fname, FILE* out){
     fprintf(out, "* C- compiler version C-F16\n"
     "* Built: April 13, 2018\n"
-    "* Author: Franz Chavez\n"
+    "* Author: Franz Chavez, Erik Romero, Carlos Rubio\n"
     "* File compiled:  %s\n"
     "* \n"
     "* ** ** ** ** ** ** ** ** ** ** ** **\n", fname);
