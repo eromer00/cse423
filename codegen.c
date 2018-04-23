@@ -272,7 +272,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					    printf("found a call!\n");
                         storeVal = tree->attr.name;
                         fprintf(output, "*\t\t\t Begin call to %s\n", tree->attr.name);
-                        fprintf(output,"%d:     ST  1,-2(1)    Store old fp in ghost frame\n", linecode); linecode++;
+                        fprintf(output,"%d:     ST  1,-2(1)\tStore old fp in ghost frame\n", linecode); linecode++;
                         isCalling = tree->attr.name;
                         
                     }
@@ -296,8 +296,13 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 				case funDec:
                         fprintf(output, "* FUNCTION %s\n", tree->attr.name);
                         fprintf(output, " %d:     ST  3,-1(1)\tStore return address.\n", linecode); linecode++;
+                        
+                        
                         curfun = tree->attr.name;
                         storeVal = tree->attr.name;
+                        
+                        Symbol *s = stackSearch(curfun);
+                        s->offset = linecode-1;
 				break;
 
 				//Record
@@ -357,11 +362,11 @@ void printCodeTree(TreeNode* tree, FILE *output) {
         //make the call since parameters have been loaded
         if(isCalling){
             fprintf(output, "*\t\t\t Jump to %s\n",isCalling);
-            fprintf(output, "%d:    LDA 1, -2(1)    Load address of new frame\n", linecode); linecode++;
-            fprintf(output, "%d:    LDA 3, 1(7)     Return address in ac\n",linecode);linecode++;
+            fprintf(output, "%d:    LDA 1, -2(1)\tLoad address of new frame\n", linecode); linecode++;
+            fprintf(output, "%d:    LDA 3, 1(7)\tReturn address in ac\n",linecode);linecode++;
             Symbol *s = stackSearch(isCalling);
-            fprintf(output, "%d:    LDA 3, -%d(7)   CALL %s\n", linecode, linecode-(s->offset)+1, isCalling); linecode++;
-            fprintf(output, "%d:    LDA 3, 0(2)     save result in ac\n",linecode);linecode++;
+            fprintf(output, "%d:    LDA 3, -%d(7)\tCALL %s\n", linecode, linecode-(s->offset)+1, isCalling); linecode++;
+            fprintf(output, "%d:    LDA 3, 0(2)\tsave result in ac\n",linecode);linecode++;
         }
 
 
@@ -482,8 +487,9 @@ void initPrintCode(FILE *output) {
     fprintf(output, "* INIT GLOBALS AND STATICS\n");
     fprintf(output, "* END INIT GLOBALS AND STATICS\n");
     fprintf(output, " %d:    LDA  3,1(7)\tReturn address in ac\n", linecode); linecode++;
-    //TODO jump to functions wrong (hardcoded for a00, setup pseudo symbol table to track later
-    fprintf(output, " %d:    LDA  7,%d(7)\tJump to main\n", linecode, -10); linecode++;
+    //TODO jump to functions may need to handle functions declared ahead of pc.
+    Symbol *s = stackSearch("main");
+    fprintf(output, " %d:    LDA  7,-%d(7)\tJump to main\n", linecode, linecode-(s->offset)+1); linecode++;
     fprintf(output, " %d:   HALT  0,0,0\tDONE!\n", linecode); linecode++;
     fprintf(output, "* END INIT\n");
 }

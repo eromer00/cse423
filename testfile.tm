@@ -72,12 +72,12 @@
 * COMPOUND
 * Compound Body
 *			 Begin call to output
-43:     ST  1,-2(1)    Store old fp in ghost frame
+43:     ST  1,-2(1)	Store old fp in ghost frame
 *			 Jump to output
-44:    LDA 1, -2(1)    Load address of new frame
-45:    LDA 3, 1(7)     Return address in ac
-46:    LDA 3, -41(7)   CALL output
-47:    LDA 3, 0(2)     save result in ac
+44:    LDA 1, -2(1)	Load address of new frame
+45:    LDA 3, 1(7)	Return address in ac
+46:    LDA 3, -41(7)	CALL output
+47:    LDA 3, 0(2)	save result in ac
 * END COMPOUND
 * Add standard closing in case there is no return statement
  48:    LDC  2,0(6)	Set return value to 0
@@ -93,6 +93,6 @@
 * INIT GLOBALS AND STATICS
 * END INIT GLOBALS AND STATICS
  55:    LDA  3,1(7)	Return address in ac
- 56:    LDA  7,-10(7)	Jump to main
+ 56:    LDA  7,-15(7)	Jump to main
  57:   HALT  0,0,0	DONE!
 * END INIT
