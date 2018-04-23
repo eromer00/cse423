@@ -2743,6 +2743,7 @@ void treeTraverse(TreeNode* tree) {
 						 */
 						frameOffset = -2;
 						updateFunSize = 1;
+						z->offset = tree->offset;
 
 						//Set reference type
 						tree->ref = z->ref = Global;

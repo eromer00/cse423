@@ -42,7 +42,7 @@ OBJS := lex.yy.o $(BASE).tab.o $(OFILES)
 
 
 #Uncomment for gcc debugging
-#CFLAGS = -g
+CFLAGS = -g
 
 #Declare compiler libraries to use
 LIBS = -lfl

@@ -75,6 +75,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
     char *curfun = NULL;
 
     int isCompound = 0;
+    char* isCalling = NULL;
     /* 
     * Values for printing
     *
@@ -268,7 +269,12 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					    //store return address in ac
 					    //call function
 					    //save result in ac
+					    printf("found a call!\n");
                         storeVal = tree->attr.name;
+                        fprintf(output, "*\t\t\t Begin call to %s\n", tree->attr.name);
+                        fprintf(output,"%d:     ST  1,-2(1)    Store old fp in ghost frame\n", linecode); linecode++;
+                        isCalling = tree->attr.name;
+                        
                     }
 				break;
 
@@ -347,6 +353,15 @@ void printCodeTree(TreeNode* tree, FILE *output) {
         //just adding comments for compounds
         if(isCompound) {
             fprintf(output, "* END COMPOUND\n");
+        }
+        //make the call since parameters have been loaded
+        if(isCalling){
+            fprintf(output, "*\t\t\t Jump to %s\n",isCalling);
+            fprintf(output, "%d:    LDA 1, -2(1)    Load address of new frame\n", linecode); linecode++;
+            fprintf(output, "%d:    LDA 3, 1(7)     Return address in ac\n",linecode);linecode++;
+            Symbol *s = stackSearch(isCalling);
+            fprintf(output, "%d:    LDA 3, -%d(7)   CALL %s\n", linecode, linecode-(s->offset)+1, isCalling); linecode++;
+            fprintf(output, "%d:    LDA 3, 0(2)     save result in ac\n",linecode);linecode++;
         }
 
 

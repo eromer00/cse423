@@ -71,21 +71,28 @@
  42:     ST  3,-1(1)	Store return address.
 * COMPOUND
 * Compound Body
+*			 Begin call to output
+43:     ST  1,-2(1)    Store old fp in ghost frame
+*			 Jump to output
+44:    LDA 1, -2(1)    Load address of new frame
+45:    LDA 3, 1(7)     Return address in ac
+46:    LDA 3, -41(7)   CALL output
+47:    LDA 3, 0(2)     save result in ac
 * END COMPOUND
 * Add standard closing in case there is no return statement
- 43:    LDC  2,0(6)	Set return value to 0
- 44:     LD  3,-1(1)	Load return address
- 45:     LD  1,0(1)	Adjust fp
- 46:    LDA 7,0(3)	Return
+ 48:    LDC  2,0(6)	Set return value to 0
+ 49:     LD  3,-1(1)	Load return address
+ 50:     LD  1,0(1)	Adjust fp
+ 51:    LDA 7,0(3)	Return
 * END FUNCTION main
-  0:    LDA  7,46(7)	Jump to init [backpatch]
+  0:    LDA  7,51(7)	Jump to init [backpatch]
 * INIT
- 47:     LD  0,0(0)	Set the global pointer
- 48:    LDA  1,0(0)	set first frame at end of globals
- 49:     ST  1,0(1)	store old fp (point to self)
+ 52:     LD  0,0(0)	Set the global pointer
+ 53:    LDA  1,0(0)	set first frame at end of globals
+ 54:     ST  1,0(1)	store old fp (point to self)
 * INIT GLOBALS AND STATICS
 * END INIT GLOBALS AND STATICS
- 50:    LDA  3,1(7)	Return address in ac
- 51:    LDA  7,-10(7)	Jump to main
- 52:   HALT  0,0,0	DONE!
+ 55:    LDA  3,1(7)	Return address in ac
+ 56:    LDA  7,-10(7)	Jump to main
+ 57:   HALT  0,0,0	DONE!
 * END INIT
