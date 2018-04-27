@@ -26,6 +26,7 @@
 #include "printtree.h"
 #include "semantic.h"
 #include "codegen.h"
+#include "optimizer.h"
 
 //Enable detailed error messages
 #define YYERROR_VERBOSE 1
@@ -1237,8 +1238,12 @@ int main(int argc, char* argv[]) {
 		}
 
 		//Generate assembly language
-		if(numErrors == 0)
+		if(numErrors == 0){
+		    if(redundant)
+		        redundantCodeCheck(syntaxTree);
+		
 			codeGen(syntaxTree);
+		}
 	}
 
 	//Close read-in file

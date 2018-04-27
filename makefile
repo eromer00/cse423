@@ -28,7 +28,7 @@ CC = gcc
 BASE = parser
 
 #Code files
-FILES := scanType printtree semantic codegen
+FILES := scanType printtree semantic codegen optimizer
 CFILES := $(FILES:=.c)
 OFILES := $(FILES:=.o)
 HFILES := $(FILES:=.h)
