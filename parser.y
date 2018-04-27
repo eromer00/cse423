@@ -1112,6 +1112,7 @@ int main(int argc, char* argv[]) {
 	int c;
 	struct option long_options[] = {};
 	int option_index = 0;
+	int redundant = 0, deadCode = 0, strengthReduction = 0;
 
 	//Check for command line args
 	do {
@@ -1122,7 +1123,7 @@ int main(int argc, char* argv[]) {
 		* p - print AST
 		* P - print annotated AST
 		*/
-		c = getopt_long(argc, argv, "dpP", long_options, &option_index);
+		c = getopt_long(argc, argv, "dpPrcsAh", long_options, &option_index);
 		switch(c)
 		{
 			//Long option present
@@ -1140,11 +1141,42 @@ int main(int argc, char* argv[]) {
 			case 'P':
 				printAnnotatedSyntaxTree = 1;
 				break;
+		    //redundant expression Optimization
+		    case 'r':
+		        redundant = 1;
+		        break;
+	        //dead code optimization
+	        case 'c':
+	            deadCode = 1;
+	            break;
+            case 's':
+                strengthReduction = 1;
+                break;
+            //do all optimizations
+            case 'A':
+                redundant = 1;
+                deadCode = 1;
+                strengthReduction = 1;
+                break;
+		    
 			//No more options
 			case -1:
 				break;
 			//Unknown option
+			
+			case 'h':
 			default:
+		        printf(""
+		            "******************\n"
+		            "Usage: ./c- -[dpPrcsAh] filepath\n"
+		            "d: debug printing in parser\n"
+		            "p: print AST\n"
+		            "P: print Full AST\n"
+		            "r: enable redundant expression optimization\n"
+		            "c: enable dead code optimization\n"
+		            "s: enable strength reduction optimization\n"
+		            "A: enable all optimizations\n"
+		        );
 				return(-1);
 				break;
 		}
