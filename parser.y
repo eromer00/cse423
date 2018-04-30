@@ -1222,6 +1222,10 @@ int main(int argc, char* argv[]) {
 
 		//Add prototypes to AST
 		syntaxTree = addProto(syntaxTree);
+		
+		//check for Dead code
+		if(redundant)
+	        redundantCodeCheck(syntaxTree);
 
 		//Check AST scopes and types
 		scopeAndType(syntaxTree);
@@ -1239,8 +1243,6 @@ int main(int argc, char* argv[]) {
 
 		//Generate assembly language
 		if(numErrors == 0){
-		    if(redundant)
-		        redundantCodeCheck(syntaxTree);
 		
 			codeGen(syntaxTree);
 		}

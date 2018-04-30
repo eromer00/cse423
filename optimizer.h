@@ -18,4 +18,4 @@
 #include "printtree.h"
 
 void redundantCodeCheck(TreeNode *tree);
-
+int searchForUsage(TreeNode *t, TreeNode *search);
