@@ -14,7 +14,7 @@
  
  #include "optimizer.h"
  
- void redundantCodeCheck(TreeNode *tree){
+ void deadCodeCheck(TreeNode *tree){
     int ret;
     TreeNode * head = tree;
     while(tree != NULL){
@@ -37,7 +37,7 @@
         }
         for(int i = 0; i < MAXCHILDREN; i++)
             if(tree->child[i] != NULL)
-                redundantCodeCheck(tree->child[i]);
+                deadCodeCheck(tree->child[i]);
         
         tree = tree->sibling;
     }

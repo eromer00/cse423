@@ -1113,7 +1113,7 @@ int main(int argc, char* argv[]) {
 	int c;
 	struct option long_options[] = {};
 	int option_index = 0;
-	int redundant = 0, deadCode = 0, strengthReduction = 0;
+	int constantProp = 0, deadCode = 0, strengthReduction = 0;
 
 	//Check for command line args
 	do {
@@ -1143,11 +1143,11 @@ int main(int argc, char* argv[]) {
 				printAnnotatedSyntaxTree = 1;
 				break;
 		    //redundant expression Optimization
-		    case 'r':
-		        redundant = 1;
+		    case 'c':
+		        constantProp = 1;
 		        break;
 	        //dead code optimization
-	        case 'c':
+	        case 'u':
 	            deadCode = 1;
 	            break;
             case 's':
@@ -1155,7 +1155,7 @@ int main(int argc, char* argv[]) {
                 break;
             //do all optimizations
             case 'A':
-                redundant = 1;
+                constantProp = 1;
                 deadCode = 1;
                 strengthReduction = 1;
                 break;
@@ -1173,8 +1173,8 @@ int main(int argc, char* argv[]) {
 		            "d: debug printing in parser\n"
 		            "p: print AST\n"
 		            "P: print Full AST\n"
-		            "r: enable redundant expression optimization\n"
-		            "c: enable dead code optimization\n"
+		            "c: enable constant propagation and folding optimization\n"
+		            "u: enable dead/unreachable code optimization\n"
 		            "s: enable strength reduction optimization\n"
 		            "A: enable all optimizations\n"
 		        );
@@ -1224,8 +1224,8 @@ int main(int argc, char* argv[]) {
 		syntaxTree = addProto(syntaxTree);
 		
 		//check for Dead code
-		if(redundant)
-	        redundantCodeCheck(syntaxTree);
+		if(deadCode)
+	        deadCodeCheck(syntaxTree);
 
 		//Check AST scopes and types
 		scopeAndType(syntaxTree);

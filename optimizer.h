@@ -17,5 +17,5 @@
 
 #include "printtree.h"
 
-void redundantCodeCheck(TreeNode *tree);
+void deadCodeCheck(TreeNode *tree);
 int searchForUsage(TreeNode *t, TreeNode *search);
