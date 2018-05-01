@@ -16,10 +16,12 @@
  
  void redundantCodeCheck(TreeNode *tree){
     int ret;
+    TreeNode * head = tree;
     while(tree != NULL){
         if(tree->nodekind == ExpK && tree->kind.exp == OpK){
             switch(tree->attr.op){
                 case assign:
+                case passign:
                 case sassign:
                 case massign:
                 case dassign:
@@ -56,6 +58,7 @@
                     case pplus:
                     case ddash:
                     case assign:
+                    case passign:
                     case sassign:
                     case massign:
                     case dassign:
