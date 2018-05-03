@@ -30,7 +30,11 @@ typedef struct GlobalStorage {
 } GlobalStorage;
 
 //setup storage of ghost frames for referencing, hopefully won't need more than 64 active frames
-int ghostFrames[64];
+typedef struct ghost {
+    int offset;
+    char *name;
+} ghost;
+ghost ghostFrames[64];
 int counterGhost = 0;
 
 GlobalStorage *globals;
@@ -51,8 +55,7 @@ char *currentOffsetName = NULL;
 //flips between register 3/4 for processing expressions
 int flip = 0;
 
-char *isCalling = NULL;
-
+int isCall = 0;
 /*
  * Generate TM machine code
  */
@@ -69,7 +72,7 @@ void codeGen(TreeNode* t) {
         tmp = tmp->sibling;
     }
 
-
+    printCodeInfo(tmp, stdout, "");
     //reset values in between
 
     genPrototypes(stdout);
@@ -293,7 +296,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 						if(tree->expType != Char) {
 					        storeInt = tree->attr.value;
                             //is a parameter
-                            if(isCalling == NULL) {
+                            if(isCall <= 0) {
                                 fprintf(output, "%d:    LDC  3,%d(6)\tLoad int constant\n", linecode, tree->attr.value);
                             } else {
                                 fprintf(output, "%d:    LDC  3,%d(6)\tLoad int constant\n", linecode, tree->attr.value); linecode++;
@@ -305,7 +308,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					        storeChar = 1;
                             storeInt = tree->attr.cvalue;                            
                             //convert to integer representation, load constant
-                            if(isCalling == NULL) {
+                            if(isCall <= 0) {
                                 fprintf(output, "%d:    LDC  3,%d(6)\tLoad char constant\n", linecode, tree->attr.cvalue - '0'); 
                             } else {
                                 fprintf(output, "%d:    LDC  3,%d(6)\tLoad char constant\n", linecode, tree->attr.cvalue - '0'); linecode++;
@@ -318,7 +321,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					{
 						if(tree->attr.value == 1) {
 					        storeVal = "true";
-                            if(isCalling == NULL) {
+                            if(isCall <= 0) {
                                 fprintf(output, "%d:    LDC  3,1(6)\tLoad true constant\n", linecode);
                             } else {
                                 fprintf(output, "%d:    LDC  3,1(6)\tLoad true constant\n", linecode); linecode++;
@@ -327,7 +330,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                             linecode++;
 						} else {
 					        storeVal = "false";
-                            if(isCalling == NULL) {
+                            if(isCall <= 0) {
                                 fprintf(output, "%d:    LDC  3,0(6)\tLoad false constant\n", linecode);
                             } else {
                                 fprintf(output, "%d:    LDC  3,0(6)\tLoad false constant\n", linecode); linecode++;
@@ -346,14 +349,26 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                             storeVal = tree->attr.name;
                             currentOffset = tree->offset;
                             currentOffsetName = tree->attr.name;
+
+                            if(isCall <= 0) {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad array variable\n", linecode, tree->offset);
+                            } else {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad array variable\n", linecode, tree->offset); linecode++;
+                                fprintf(output, "%d:     ST  3,%d(1)\tStore Parameter\n", linecode, varstart);
+                            }
+                            linecode++;
                         } else {
 					        storeVal = tree->attr.name;
                             currentOffset = tree->offset;
                             currentOffsetName = tree->attr.name;
 
-                            if(isCalling != NULL) {
-
+                            if(isCall <= 0) {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad variable\n", linecode, tree->offset);
+                            } else {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad variable\n", linecode, tree->offset); linecode++;
+                                fprintf(output, "%d:     ST  3,%d(1)\tStore Parameter\n", linecode, varstart);
                             }
+                            linecode++;
                         }
                         
 					}
@@ -369,12 +384,13 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                         
                         //generating ghost frame information
                         fprintf(output,"%d:     ST  1,%d(1)\tStore old fp in ghost frame\n", linecode, varstart); linecode++;
-                        ghostFrames[counterGhost] = varstart;
+                        ghostFrames[counterGhost].offset = varstart;
+                        ghostFrames[counterGhost].name = tree->attr.name;
                         counterGhost++;
 
                         //adjust for ghost frame
                         varstart -= 2;
-                        isCalling = tree->attr.name;
+                        isCall += 1;
                     }
 				break;
 
@@ -453,6 +469,8 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                 fprintf(output, "%d:     LD  3,-1(1)\tLoad return address\n", linecode); linecode++;
                 fprintf(output, "%d:     LD  1,0(1)\tAdjust fp\n", linecode); linecode++;
                 fprintf(output, "%d:    LDA 7,0(3)\tReturn\n", linecode); linecode++;
+            } else {
+                hasReturn = 0;
             }
             fprintf(output, "* END FUNCTION %s\n", curfun);
             if(strcmp("main", curfun) == 0) {
@@ -466,20 +484,19 @@ void printCodeTree(TreeNode* tree, FILE *output) {
             fprintf(output, "* END COMPOUND\n");
         }
         //make the call since parameters have been loaded
-        if(isCalling){
-            fprintf(output, "*\t\t\t Jump to %s\n",isCalling);
+        if(isCall > 0){
+            fprintf(output, "*\t\t\t Jump to %s\n",ghostFrames[counterGhost - 1].name);
             //adjusting for ghost frame            
             counterGhost--;
-            fprintf(output, "%d:    LDA 1, %d(1)\tLoad address of new frame\n", linecode, ghostFrames[counterGhost]); linecode++;
-            varstart = ghostFrames[counterGhost];
-            ghostFrames[counterGhost] = 0;
+            fprintf(output, "%d:    LDA 1,%d(1)\tLoad address of new frame\n", linecode, ghostFrames[counterGhost].offset); linecode++;
+            varstart = ghostFrames[counterGhost].offset;
 
-            fprintf(output, "%d:    LDA 3, 1(7)\tReturn address in ac\n",linecode);linecode++;
-            Symbol *s = stackSearch(isCalling);
-            fprintf(output, "%d:    LDA 3, -%d(7)\tCALL %s\n", linecode, linecode-(s->offset)+1, isCalling); linecode++;
-            fprintf(output, "%d:    LDA 3, 0(2)\tsave result in ac\n",linecode);linecode++;
+            fprintf(output, "%d:    LDA 3,1(7)\tReturn address in ac\n",linecode);linecode++;
+            Symbol *s = stackSearch(ghostFrames[counterGhost].name);
+            fprintf(output, "%d:    LDA 7,-%d(7)\tCALL %s\n", linecode, linecode-(s->offset)+1, ghostFrames[counterGhost].name); linecode++;
+            fprintf(output, "%d:    LDA 3,0(2)\tsave result in ac\n",linecode);linecode++;
 
-            isCalling = NULL;
+            isCall -= 1;
         }
 
 
@@ -496,8 +513,275 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                 fprintf(output, "%c\n", storeInt);
             else
                 fprintf(output, "%d\n", storeInt);
-        } */
+        } 
+        */
+
+	}
+	//END WHILE
+
+	return;
+}
+
+void printCodeInfo(TreeNode* tree, FILE *output, char *off) {
+
+    /* 
+    * Values for printing
+    *
+    * Store everything besides constants in storeVal
+    * if constant a char, set storeChar to 1
+    */
+    char *storeVal = NULL;
+    int storeInt = 0;
+    int storeChar = 0;
+
+	//Check if we exist before printing
+	while (tree != NULL)
+	{
+
+		//Statement node printing
+		if (tree->nodekind == StmtK)
+		{
+			switch (tree->kind.stmt)
+			{
+				case IfK:
+					storeVal = "If";
+				break;
+
+				case RepeatK:
+					storeVal = "While";
+				break;
+
+				case BreakK:
+					storeVal = "Break";
+				break;
+
+				case ReturnK:
+					storeVal = "Return";
+				break;
+
+				case CompoundK:
+					storeVal = "Compound";
+				break;
+
+				default:
+				break;
+			}
+		}
+		//Expression node printing
+		else if (tree->nodekind == ExpK)
+		{
+			switch (tree->kind.exp)
+			{
+				//Operational expression
+				case OpK:
+					switch (tree->attr.op)
+					{
+						case mod:
+					        storeVal = "%";
+						break;
+
+						case bNOT:
+					        storeVal = "NOT";
+						break;
+
+						case bAND:
+					        storeVal = "AND";
+						break;
+
+						case bOR:
+					        storeVal = "OR";
+						break;
+
+						case eqeq:
+					        storeVal = "==";
+						break;
+
+						case neq:
+					        storeVal = "!=";
+						break;
+
+						case lteq:
+					        storeVal, "<=";
+						break;
+
+						case lthan:
+					        storeVal = "<";
+						break;
+
+						case gteq:
+					        storeVal = ">=";
+						break;
+
+						case gthan:
+					        storeVal = ">";
+						break;
+
+						case qmark:
+					        storeVal = "?";
+						break;
+
+						case plus:
+					        storeVal = "+";
+						break;
+
+						case pplus:
+					        storeVal = "++";
+						break;
+
+						case dash:
+					        storeVal = "-";
+						break;
+
+						case ddash:
+					        storeVal = "--";
+						break;
+
+						case assign:
+					        storeVal = "=";
+						break;
+
+						case passign:
+					        storeVal = "+=";
+						break;
+
+						case sassign:
+					        storeVal = "-=";
+						break;
+
+						case massign:
+					        storeVal = "*=";
+						break;
+
+						case dassign:
+					        storeVal = "/=";
+						break;
+
+						case period:
+					        storeVal = ".";
+						break;
+
+						case lsb:
+					        storeVal = "[";
+						break;
+
+						case asterisk:
+					        storeVal = "*";
+						break;
+
+						case fslash:
+					        storeVal = "/";
+						break;
+
+						default:
+						break;
+					}
+				break;
+
+				//Constant expression
+				case ConstK:
+
+					if(tree->expType != Boolean)
+					{
+						if(tree->expType != Char) {
+					        storeInt = tree->attr.value;
+						} else {
+					        storeChar = 1;
+                            storeInt = tree->attr.cvalue;          
+                        }
+					}
+					else
+					{
+						if(tree->attr.value == 1) {
+					        storeVal = "true";
+						} else {
+					        storeVal = "false";
+                        }
+					}
+				break;
+
+				//ID expression
+				case IdK:
+					if(!tree->isFunc)
+					{
+						if(tree->isArray) { 
+                            storeVal = tree->attr.name;
+                        } else {
+					        storeVal = tree->attr.name;
+
+                        }
+                        
+					}
+					else {
+                        storeVal = tree->attr.name;
+                    }
+				break;
+
+				default:
+				break;
+			}
+		}
+		//Declaration node printing
+		else if (tree->nodekind == DeclK)
+		{
+			switch (tree->kind.decl)
+			{ 
+				//Variable
+				case varDec:
+                        storeVal = tree->attr.name;
+				break;
+
+				//Function
+				case funDec:
+                        storeVal = tree->attr.name;
+                        
+				break;
+
+				//Record - ignored
+				case recDec:
+                        storeVal = tree->attr.name;
+				break;
+
+				default:
+				break;
+			}
+		}
+
+
+		/*
+		* Now that we've printed ourself and the next level
+		* of indentation, try printing any children we have
+		*/
+		for (int i = 0; i < MAXCHILDREN; i++)
+		{
+			/*
+			* Check if current child exists
+			*/
+			if(tree->child[i] != NULL)
+			{
+				/*
+				* Print the child tag and our child node
+				*/
+                char buf[256];
+                strcpy(buf, off);
+                strcat(buf, "|___");
+				printCodeInfo(tree->child[i], output, buf);
+			}
+		}
+
+
+		//Point to the next node in the AST
+		tree = tree->sibling;
+
+        //NEW - printing prefix to better understand code generation process
         
+        if(storeVal != NULL) {
+            fprintf(output, "%s%s\n", off, storeVal);
+        } else {
+            if(storeChar == 1)
+                fprintf(output, "%s%c\n", off, storeInt);
+            else
+                fprintf(output, "%s%d\n", off, storeInt);
+        } 
 
 	}
 	//END WHILE

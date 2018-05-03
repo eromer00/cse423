@@ -72,45 +72,60 @@
 * COMPOUND
 * Compound Body
 43:     ST  3,0(1)	Store variable (null)
- 44:    ADD  3,4,3	Op +
- 45:    MUL  3,4,3	Op *
-46:    LDC  3,111(6)	Load int constant
-47:    LDC  3,222(6)	Load int constant
-48:     ST  3,-2(1)	Store variable x
+44:    LDC  3,-3(6)	Load variable
+ 45:    ADD  3,4,3	Op +
+ 46:    MUL  3,4,3	Op *
+47:    LDC  3,-2(6)	Load variable
+48:    LDC  3,111(6)	Load int constant
+49:    LDC  3,222(6)	Load int constant
+50:     ST  3,-2(1)	Store variable x
+51:    LDC  3,-4(6)	Load variable
+52:    LDC  3,-3(6)	Load variable
+53:    LDC  3,-4(6)	Load variable
 * END COMPOUND
 * END FUNCTION dog
 * FUNCTION main
-49:     ST  3,-1(1)	Store return address.
+54:     ST  3,-1(1)	Store return address.
 * COMPOUND
 * Compound Body
 *			 Begin call to output
-50:     ST  1,-2(1)	Store old fp in ghost frame
+55:     ST  1,-2(1)	Store old fp in ghost frame
 *			 Begin call to dog
-51:     ST  1,-4(1)	Store old fp in ghost frame
-52:    LDC  3,666(6)	Load int constant
-53:     ST  3,-6(1)	Store Parameter
+56:     ST  1,-4(1)	Store old fp in ghost frame
+57:    LDC  3,666(6)	Load int constant
+58:     ST  3,-6(1)	Store Parameter
 *			 Jump to dog
-54:    LDA 1, -4(1)	Load address of new frame
-55:    LDA 3, 1(7)	Return address in ac
-56:    LDA 3, -15(7)	CALL dog
-57:    LDA 3, 0(2)	save result in ac
+59:    LDA 1,-4(1)	Load address of new frame
+60:    LDA 3,1(7)	Return address in ac
+61:    LDA 7,-20(7)	CALL dog
+62:    LDA 3,0(2)	save result in ac
+*			 Jump to output
+63:    LDA 1,-2(1)	Load address of new frame
+64:    LDA 3,1(7)	Return address in ac
+65:    LDA 7,-60(7)	CALL output
+66:    LDA 3,0(2)	save result in ac
 *			 Begin call to outnl
-58:     ST  1,-4(1)	Store old fp in ghost frame
+67:     ST  1,-2(1)	Store old fp in ghost frame
 *			 Jump to outnl
-59:    LDA 1, -4(1)	Load address of new frame
-60:    LDA 3, 1(7)	Return address in ac
-61:    LDA 3, -25(7)	CALL outnl
-62:    LDA 3, 0(2)	save result in ac
+68:    LDA 1,-2(1)	Load address of new frame
+69:    LDA 3,1(7)	Return address in ac
+70:    LDA 7,-34(7)	CALL outnl
+71:    LDA 3,0(2)	save result in ac
 * END COMPOUND
+* Add standard closing in case there is no return statement
+72:    LDC  2,0(6)	Set return value to 0
+73:     LD  3,-1(1)	Load return address
+74:     LD  1,0(1)	Adjust fp
+75:    LDA 7,0(3)	Return
 * END FUNCTION main
-0:    LDA  7,62(7)	Jump to init [backpatch]
+0:    LDA  7,75(7)	Jump to init [backpatch]
 * INIT
-63:     LD  0,0(0)	Set the global pointer
-64:    LDA  1,0(0)	set first frame at end of globals
-65:     ST  1,0(1)	store old fp (point to self)
+76:     LD  0,0(0)	Set the global pointer
+77:    LDA  1,0(0)	set first frame at end of globals
+78:     ST  1,0(1)	store old fp (point to self)
 * INIT GLOBALS AND STATICS
 * END INIT GLOBALS AND STATICS
-66:    LDA  3,1(7)	Return address in ac
-67:    LDA  7,-19(7)	Jump to main
-68:   HALT  0,0,0	DONE!
+79:    LDA  3,1(7)	Return address in ac
+80:    LDA  7,-27(7)	Jump to main
+81:   HALT  0,0,0	DONE!
 * END INIT
