@@ -67,32 +67,50 @@
 * END FUNCTION outnl
 * 
 * ** ** ** ** ** ** ** ** ** ** ** **
+* FUNCTION dog
+42:     ST  3,-1(1)	Store return address.
+* COMPOUND
+* Compound Body
+43:     ST  3,0(1)	Store variable (null)
+ 44:    ADD  3,4,3	Op +
+ 45:    MUL  3,4,3	Op *
+46:    LDC  3,111(6)	Load int constant
+47:    LDC  3,222(6)	Load int constant
+48:     ST  3,-2(1)	Store variable x
+* END COMPOUND
+* END FUNCTION dog
 * FUNCTION main
- 42:     ST  3,-1(1)	Store return address.
+49:     ST  3,-1(1)	Store return address.
 * COMPOUND
 * Compound Body
 *			 Begin call to output
-43:     ST  1,-2(1)	Store old fp in ghost frame
-*			 Jump to output
-44:    LDA 1, -2(1)	Load address of new frame
-45:    LDA 3, 1(7)	Return address in ac
-46:    LDA 3, -41(7)	CALL output
-47:    LDA 3, 0(2)	save result in ac
+50:     ST  1,-2(1)	Store old fp in ghost frame
+*			 Begin call to dog
+51:     ST  1,-4(1)	Store old fp in ghost frame
+52:    LDC  3,666(6)	Load int constant
+53:     ST  3,-6(1)	Store Parameter
+*			 Jump to dog
+54:    LDA 1, -4(1)	Load address of new frame
+55:    LDA 3, 1(7)	Return address in ac
+56:    LDA 3, -15(7)	CALL dog
+57:    LDA 3, 0(2)	save result in ac
+*			 Begin call to outnl
+58:     ST  1,-4(1)	Store old fp in ghost frame
+*			 Jump to outnl
+59:    LDA 1, -4(1)	Load address of new frame
+60:    LDA 3, 1(7)	Return address in ac
+61:    LDA 3, -25(7)	CALL outnl
+62:    LDA 3, 0(2)	save result in ac
 * END COMPOUND
-* Add standard closing in case there is no return statement
- 48:    LDC  2,0(6)	Set return value to 0
- 49:     LD  3,-1(1)	Load return address
- 50:     LD  1,0(1)	Adjust fp
- 51:    LDA 7,0(3)	Return
 * END FUNCTION main
-  0:    LDA  7,51(7)	Jump to init [backpatch]
+0:    LDA  7,62(7)	Jump to init [backpatch]
 * INIT
- 52:     LD  0,0(0)	Set the global pointer
- 53:    LDA  1,0(0)	set first frame at end of globals
- 54:     ST  1,0(1)	store old fp (point to self)
+63:     LD  0,0(0)	Set the global pointer
+64:    LDA  1,0(0)	set first frame at end of globals
+65:     ST  1,0(1)	store old fp (point to self)
 * INIT GLOBALS AND STATICS
 * END INIT GLOBALS AND STATICS
- 55:    LDA  3,1(7)	Return address in ac
- 56:    LDA  7,-15(7)	Jump to main
- 57:   HALT  0,0,0	DONE!
+66:    LDA  3,1(7)	Return address in ac
+67:    LDA  7,-19(7)	Jump to main
+68:   HALT  0,0,0	DONE!
 * END INIT

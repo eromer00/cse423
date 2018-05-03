@@ -20,16 +20,43 @@
 #include "printtree.h"
 #include "semantic.h"
 
+extern int globalOffset;
+
+typedef struct GlobalStorage {
+
+    TreeNode *t;
+    struct GlobalStorage *next;
+
+} GlobalStorage;
+
+//setup storage of ghost frames for referencing, hopefully won't need more than 64 active frames
+int ghostFrames[64];
+int counterGhost = 0;
+
+GlobalStorage *globals;
+
 int linecode = 42;
 
 //marks if return present in compound
 int hasReturn = 0;
 
+//marks starting point of various variables
+//TODO set as globalOffset when introducing globals
+int varstart = 0;
+
+//saves offset of values to be assigned (=, +=, etc)
+int currentOffset = 0;
+char *currentOffsetName = NULL;
+
+//flips between register 3/4 for processing expressions
+int flip = 0;
+
+char *isCalling = NULL;
+
 /*
  * Generate TM machine code
  */
 void codeGen(TreeNode* t) {
-
 	FILE* codeout = fopen("testfile.tm","w+");
 	//printf("we made it!\n");
 	//printFileInfo(filename, codeout);
@@ -74,8 +101,10 @@ void printCodeTree(TreeNode* tree, FILE *output) {
     //stores name of function for comments
     char *curfun = NULL;
 
+    //sets up calls after children finish
+    int doCalls = 0;
+
     int isCompound = 0;
-    char* isCalling = NULL;
     /* 
     * Values for printing
     *
@@ -89,7 +118,6 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 	//Check if we exist before printing
 	while (tree != NULL)
 	{
-
 
 		//Statement node printing
 		if (tree->nodekind == StmtK)
@@ -138,14 +166,18 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						case bNOT:
 					        storeVal = "NOT";
+                            fprintf(output, "%d:    LDC  4,1(6)\tLoad 1\n", linecode); linecode++;
+                            fprintf(output, "%d:    XOR  3,3,4\tOp NOT\n", linecode); linecode++;
 						break;
 
 						case bAND:
 					        storeVal = "AND";
+                            fprintf(output, "%d:    ADD  3,4,3\tOp AND\n", linecode); linecode++;
 						break;
 
 						case bOR:
 					        storeVal = "OR";
+                            fprintf(output, "%d:    ADD  3,4,3\tOp AND\n", linecode); linecode++;
 						break;
 
 						case eqeq:
@@ -158,18 +190,27 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						case lteq:
 					        storeVal, "<=";
+                            fprintf(output, "%d:    TLE  3,4,3\tOp <=\n", linecode); linecode++;
+                            fprintf(output, "%d:     ST  3,%d(1)\tStore parameter\n", linecode, varstart); linecode++;
 						break;
 
 						case lthan:
 					        storeVal = "<";
+                            fprintf(output, "%d:    TLT  3,4,3\tOp <\n", linecode); linecode++;
+                            fprintf(output, "%d:     ST  3,%d(1)\tStore parameter\n", linecode, varstart); linecode++;
 						break;
 
 						case gteq:
 					        storeVal = ">=";
+                            fprintf(output, "%d:    TGE  3,4,3\tOp >=\n", linecode); linecode++;
+                            fprintf(output, "%d:     ST  3,%d(1)\tStore parameter\n", linecode, varstart); linecode++;
 						break;
 
 						case gthan:
 					        storeVal = ">";
+                            fprintf(output, "%d:    TGT  3,4,3\tOp <\n", linecode); linecode++;
+                            //test call before doing this
+                            fprintf(output, "%d:     ST  3,%d(1)\tStore parameter\n", linecode, varstart); linecode++;
 						break;
 
 						case qmark:
@@ -178,6 +219,8 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						case plus:
 					        storeVal = "+";
+                            fprintf(output, " %d:    ADD  3,4,3\tOp +\n", linecode);
+                            linecode++;
 						break;
 
 						case pplus:
@@ -186,6 +229,8 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						case dash:
 					        storeVal = "-";
+                            fprintf(output, " %d:    SUB  3,4,3\tOp -\n", linecode);
+                            linecode++;
 						break;
 
 						case ddash:
@@ -194,6 +239,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						case assign:
 					        storeVal = "=";
+                            fprintf(output, "%d:     ST  3,%d(1)\tStore variable %s\n", linecode, currentOffset, currentOffsetName); linecode++;
+                            currentOffsetName = NULL;
+                            currentOffset = 0;
 						break;
 
 						case passign:
@@ -222,10 +270,14 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						case asterisk:
 					        storeVal = "*";
+                            fprintf(output, " %d:    MUL  3,4,3\tOp *\n", linecode);
+                            linecode++;
 						break;
 
 						case fslash:
 					        storeVal = "/";
+                            fprintf(output, " %d:    DIV  3,4,3\tOp /\n", linecode);
+                            linecode++;
 						break;
 
 						default:
@@ -238,18 +290,51 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 					if(tree->expType != Boolean)
 					{
-						if(tree->expType != Char)
+						if(tree->expType != Char) {
 					        storeInt = tree->attr.value;
-						else
+                            //is a parameter
+                            if(isCalling == NULL) {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad int constant\n", linecode, tree->attr.value);
+                            } else {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad int constant\n", linecode, tree->attr.value); linecode++;
+                                fprintf(output, "%d:     ST  3,%d(1)\tStore Parameter\n", linecode, varstart);
+                            }
+                            linecode++;
+                            
+						} else {
 					        storeChar = 1;
-                            storeInt = tree->attr.cvalue;
+                            storeInt = tree->attr.cvalue;                            
+                            //convert to integer representation, load constant
+                            if(isCalling == NULL) {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad char constant\n", linecode, tree->attr.cvalue - '0'); 
+                            } else {
+                                fprintf(output, "%d:    LDC  3,%d(6)\tLoad char constant\n", linecode, tree->attr.cvalue - '0'); linecode++;
+                                fprintf(output, "%d:     ST  3,%d(1)\tStore Parameter\n", linecode, varstart);
+                            }
+                            linecode++;
+                        }
 					}
 					else
 					{
-						if(tree->attr.value == 1)
+						if(tree->attr.value == 1) {
 					        storeVal = "true";
-						else
+                            if(isCalling == NULL) {
+                                fprintf(output, "%d:    LDC  3,1(6)\tLoad true constant\n", linecode);
+                            } else {
+                                fprintf(output, "%d:    LDC  3,1(6)\tLoad true constant\n", linecode); linecode++;
+                                fprintf(output, "%d:     ST  3,%d(1)\tStore Parameter\n", linecode, varstart);
+                            }
+                            linecode++;
+						} else {
 					        storeVal = "false";
+                            if(isCalling == NULL) {
+                                fprintf(output, "%d:    LDC  3,0(6)\tLoad false constant\n", linecode);
+                            } else {
+                                fprintf(output, "%d:    LDC  3,0(6)\tLoad false constant\n", linecode); linecode++;
+                                fprintf(output, "%d:     ST  3,%d(1)\tStore Parameter\n", linecode, varstart);
+                            }
+                            linecode++;
+                        }
 					}
 				break;
 
@@ -259,8 +344,18 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					{
 						if(tree->isArray) { 
                             storeVal = tree->attr.name;
-                        } else
+                            currentOffset = tree->offset;
+                            currentOffsetName = tree->attr.name;
+                        } else {
 					        storeVal = tree->attr.name;
+                            currentOffset = tree->offset;
+                            currentOffsetName = tree->attr.name;
+
+                            if(isCalling != NULL) {
+
+                            }
+                        }
+                        
 					}
 					else {
 					    //we found a function call. Do these things:
@@ -269,12 +364,17 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					    //store return address in ac
 					    //call function
 					    //save result in ac
-					    printf("found a call!\n");
                         storeVal = tree->attr.name;
                         fprintf(output, "*\t\t\t Begin call to %s\n", tree->attr.name);
-                        fprintf(output,"%d:     ST  1,-2(1)\tStore old fp in ghost frame\n", linecode); linecode++;
-                        isCalling = tree->attr.name;
                         
+                        //generating ghost frame information
+                        fprintf(output,"%d:     ST  1,%d(1)\tStore old fp in ghost frame\n", linecode, varstart); linecode++;
+                        ghostFrames[counterGhost] = varstart;
+                        counterGhost++;
+
+                        //adjust for ghost frame
+                        varstart -= 2;
+                        isCalling = tree->attr.name;
                     }
 				break;
 
@@ -290,12 +390,16 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 				//Variable
 				case varDec:
                         storeVal = tree->attr.name;
+                        //TODO check if global
+                        if(tree->ref == 1) {
+                            //store to be called in various functions
+                        }
 				break;
 
 				//Function
 				case funDec:
                         fprintf(output, "* FUNCTION %s\n", tree->attr.name);
-                        fprintf(output, " %d:     ST  3,-1(1)\tStore return address.\n", linecode); linecode++;
+                        fprintf(output, "%d:     ST  3,-1(1)\tStore return address.\n", linecode); linecode++;
                         
                         
                         curfun = tree->attr.name;
@@ -303,9 +407,11 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                         
                         Symbol *s = stackSearch(curfun);
                         s->offset = linecode-1;
+
+                        varstart = tree->size;
 				break;
 
-				//Record
+				//Record - ignored
 				case recDec:
                         storeVal = tree->attr.name;
 				break;
@@ -343,14 +449,14 @@ void printCodeTree(TreeNode* tree, FILE *output) {
             //check return value of function, give generic return code
             if(hasReturn == 0) {
                 fprintf(output, "* Add standard closing in case there is no return statement\n");
-                fprintf(output, " %d:    LDC  2,0(6)\tSet return value to 0\n", linecode); linecode++;
-                fprintf(output, " %d:     LD  3,-1(1)\tLoad return address\n", linecode); linecode++;
-                fprintf(output, " %d:     LD  1,0(1)\tAdjust fp\n", linecode); linecode++;
-                fprintf(output, " %d:    LDA 7,0(3)\tReturn\n", linecode); linecode++;
+                fprintf(output, "%d:    LDC  2,0(6)\tSet return value to 0\n", linecode); linecode++;
+                fprintf(output, "%d:     LD  3,-1(1)\tLoad return address\n", linecode); linecode++;
+                fprintf(output, "%d:     LD  1,0(1)\tAdjust fp\n", linecode); linecode++;
+                fprintf(output, "%d:    LDA 7,0(3)\tReturn\n", linecode); linecode++;
             }
             fprintf(output, "* END FUNCTION %s\n", curfun);
             if(strcmp("main", curfun) == 0) {
-                fprintf(output, "  0:    LDA  7,%d(7)\tJump to init [backpatch]\n", linecode - 1);  
+                fprintf(output, "0:    LDA  7,%d(7)\tJump to init [backpatch]\n", linecode - 1);  
             }
             curfun = NULL;
         }
@@ -362,11 +468,18 @@ void printCodeTree(TreeNode* tree, FILE *output) {
         //make the call since parameters have been loaded
         if(isCalling){
             fprintf(output, "*\t\t\t Jump to %s\n",isCalling);
-            fprintf(output, "%d:    LDA 1, -2(1)\tLoad address of new frame\n", linecode); linecode++;
+            //adjusting for ghost frame            
+            counterGhost--;
+            fprintf(output, "%d:    LDA 1, %d(1)\tLoad address of new frame\n", linecode, ghostFrames[counterGhost]); linecode++;
+            varstart = ghostFrames[counterGhost];
+            ghostFrames[counterGhost] = 0;
+
             fprintf(output, "%d:    LDA 3, 1(7)\tReturn address in ac\n",linecode);linecode++;
             Symbol *s = stackSearch(isCalling);
             fprintf(output, "%d:    LDA 3, -%d(7)\tCALL %s\n", linecode, linecode-(s->offset)+1, isCalling); linecode++;
             fprintf(output, "%d:    LDA 3, 0(2)\tsave result in ac\n",linecode);linecode++;
+
+            isCalling = NULL;
         }
 
 
@@ -383,8 +496,8 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                 fprintf(output, "%c\n", storeInt);
             else
                 fprintf(output, "%d\n", storeInt);
-        }
-        */
+        } */
+        
 
 	}
 	//END WHILE
@@ -480,16 +593,16 @@ void genPrototypes(FILE* out){
 void initPrintCode(FILE *output) {
     //done looping the tree, do init code
     fprintf(output, "* INIT\n");
-    fprintf(output, " %d:     LD  0,0(0)\tSet the global pointer\n", linecode); linecode++;
-    fprintf(output, " %d:    LDA  1,0(0)\tset first frame at end of globals\n", linecode); linecode++;
-    fprintf(output, " %d:     ST  1,0(1)\tstore old fp (point to self)\n", linecode); linecode++;
+    fprintf(output, "%d:     LD  0,0(0)\tSet the global pointer\n", linecode); linecode++;
+    fprintf(output, "%d:    LDA  1,0(0)\tset first frame at end of globals\n", linecode); linecode++;
+    fprintf(output, "%d:     ST  1,0(1)\tstore old fp (point to self)\n", linecode); linecode++;
 
     fprintf(output, "* INIT GLOBALS AND STATICS\n");
     fprintf(output, "* END INIT GLOBALS AND STATICS\n");
-    fprintf(output, " %d:    LDA  3,1(7)\tReturn address in ac\n", linecode); linecode++;
+    fprintf(output, "%d:    LDA  3,1(7)\tReturn address in ac\n", linecode); linecode++;
     //TODO jump to functions may need to handle functions declared ahead of pc.
     Symbol *s = stackSearch("main");
-    fprintf(output, " %d:    LDA  7,-%d(7)\tJump to main\n", linecode, linecode-(s->offset)+1); linecode++;
-    fprintf(output, " %d:   HALT  0,0,0\tDONE!\n", linecode); linecode++;
+    fprintf(output, "%d:    LDA  7,-%d(7)\tJump to main\n", linecode, linecode-(s->offset)+1); linecode++;
+    fprintf(output, "%d:   HALT  0,0,0\tDONE!\n", linecode); linecode++;
     fprintf(output, "* END INIT\n");
 }
