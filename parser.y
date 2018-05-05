@@ -1226,6 +1226,9 @@ int main(int argc, char* argv[]) {
 		//check for Dead code
 		if(deadCode)
 	        deadCodeCheck(syntaxTree);
+        
+        if(constantProp)
+	        constantPropagation(syntaxTree);
 
 		//Check AST scopes and types
 		scopeAndType(syntaxTree);

@@ -19,6 +19,6 @@
 
 void deadCodeCheck(TreeNode *tree);
 void constantPropagation(TreeNode *tree);
-int recursiveOpCalc(tree);
+int recursiveOpCalc(TreeNode *tree);
 int searchForPrevUsage(TreeNode *t, TreeNode *search);
 int searchForUsage(TreeNode *t, TreeNode *search);

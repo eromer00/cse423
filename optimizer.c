@@ -15,13 +15,72 @@
  #include "optimizer.h"
  
  void constantPropagation(TreeNode *tree){
-    
+    TreeNode **prev = NULL;
+    TreeNode *new = NULL;
+    int ret;
+    while(tree != NULL){
+        
+        if(tree->nodekind == ExpK && tree->kind.exp == OpK){
+            ret = recursiveOpCalc(tree);
+            if(ret != -1){
+                //we managed to fold the constants. replace the op with a constant
+                tree->nodekind = ExpK;
+                tree->kind.exp = ConstK;
+                tree->attr.value = ret;
+                tree->sibling = NULL;
+                for(int i = 0; i < MAXCHILDREN; i++)
+                    tree->child[i] = NULL;
+            }
+        }
+        
+        for(int i = 0; i < MAXCHILDREN; i++)
+            if(tree->child[i] != NULL)
+                constantPropagation(tree->child[i]);
+        
+        //prev = &tree;
+        tree = tree->sibling;
+    }
     
  }
  
- int recursiveOpCalc(tree){
-    
-    
+ int recursiveOpCalc(TreeNode *tree){
+    int left = 0;
+    int right = 0;
+    if(tree->nodekind == ExpK){
+        if(tree->kind.exp == OpK){
+            switch(tree->attr.op){
+                case plus:
+                case dash:
+                case asterisk:
+                case fslash:
+                    left = recursiveOpCalc(tree->child[0]);
+                    right = recursiveOpCalc(tree->child[1]);
+                    if(left != -1 && right != -1){
+                        switch(tree->attr.op){
+                            case plus:
+                                return left + right;
+                            case dash:
+                                return left - right;
+                            case asterisk:
+                                return left * right;
+                            case fslash:
+                                return left / right;
+                            default:
+                                return -1;
+                        }
+                    }
+                break;
+                default:
+                    return -1;
+            }
+        }
+        else if(tree->kind.exp == ConstK){
+            return tree->attr.value;
+        }
+        else{
+            return -1;
+        }
+    }
  }
  
  void deadCodeCheck(TreeNode *tree){
