@@ -23,6 +23,8 @@ void codeGen(TreeNode* t);
 void printFileInfo(char *fname, FILE* out);
 void genPrototypes();
 void printCodeTree(TreeNode* tree, FILE *output);
+void printCodeInfo(TreeNode* tree, FILE *output, char *off);
 void initPrintCode(FILE *output);
+
 
 #endif
