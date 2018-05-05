@@ -1124,7 +1124,7 @@ int main(int argc, char* argv[]) {
 		* p - print AST
 		* P - print annotated AST
 		*/
-		c = getopt_long(argc, argv, "dpPrcsAh", long_options, &option_index);
+		c = getopt_long(argc, argv, "dpPcusAh", long_options, &option_index);
 		switch(c)
 		{
 			//Long option present

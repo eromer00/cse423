@@ -1,4 +1,4 @@
-/**
+ /**
  *
  * @date Spring 2018
  * @author Franz Chavez
@@ -14,9 +14,20 @@
  
  #include "optimizer.h"
  
+ void constantPropagation(TreeNode *tree){
+    
+    
+ }
+ 
+ int recursiveOpCalc(tree){
+    
+    
+ }
+ 
  void deadCodeCheck(TreeNode *tree){
     int ret;
     TreeNode * head = tree;
+    TreeNode * prev = tree;
     while(tree != NULL){
         if(tree->nodekind == ExpK && tree->kind.exp == OpK){
             switch(tree->attr.op){
@@ -29,26 +40,87 @@
                     ret = searchForUsage(tree, tree->child[0]);
                     if(ret == 0 && tree->child[0]->kind.exp != ConstK){
                         printf("OPTIMIZER: %d: %s is never used.\n", tree->lineno, tree->child[0]->attr.name);
-                        tree->sibling = tree->sibling->sibling;
+                        prev->sibling = tree->sibling;
                     }
                 default:
                 break;
+            }
+        }
+        if(tree->nodekind == StmtK){
+            switch(tree->kind.stmt){
+                case IfK:
+                    //check left and right conditions for usage
+                    if(tree->child[0]->nodekind == ExpK){
+                        ret = searchForPrevUsage(head, tree->child[0]->child[0]);
+                        if(ret == 0){
+                            //left of comparison is detected to not be used
+                            printf("LEFT of COMPARISON NOT changed!\n");
+                            prev->sibling = tree->sibling;
+                        }
+                        //check right child if it's an Id
+                        ret = searchForPrevUsage(head, tree->child[0]->child[1]);
+                        if(ret == 0){
+                            //right of comparison is detected to not be used
+                            printf("RIGHT of COMPARISON NOT changed!\n");
+                            prev->sibling = tree->sibling;
+                        }
+                        
+                    }
+                    break;
+                case RepeatK:
+                    //check left and right conditions for usage
+                    if(tree->child[0]->nodekind == ExpK){
+                        ret = searchForPrevUsage(head, tree->child[0]->child[0]);
+                        if(ret == 0){
+                            //left of comparison is detected to not be used
+                            printf("LEFT of COMPARISON NOT changed!\n");
+                            prev->sibling = tree->sibling;
+                        }
+                        //check right child if it's an Id
+                        ret = searchForPrevUsage(head, tree->child[0]->child[1]);
+                        if(ret == 0){
+                            //right of comparison is detected to not be used
+                            printf("RIGHT of COMPARISON NOT changed!\n");
+                            prev->sibling = tree->sibling;
+                        }
+                    }
+                    break;
             }
         }
         for(int i = 0; i < MAXCHILDREN; i++)
             if(tree->child[i] != NULL)
                 deadCodeCheck(tree->child[i]);
         
+        if(ret != 0)
+            prev = tree;
         tree = tree->sibling;
     }
+ }
+ 
+ int searchForPrevUsage(TreeNode *t, TreeNode *search){
+    TreeNode *temp = NULL;
+    TreeNode *old_t = NULL;
+    TreeNode *head = t;
+    int ret = 0;
+    while(t != NULL){
+        if(t->lineno > search->lineno){
+            old_t = t;
+            temp = t->sibling;
+            t->sibling = NULL;
+        }
+        t = t->sibling;
+    }
+    ret = searchForUsage(head, search);
+    old_t ->sibling = temp;
+    return ret;
  }
  
  int searchForUsage(TreeNode *t, TreeNode *search){
     int isChanged = 0;
     int isUsed = 0;
 
-    if(t == NULL){
-        return -1; //cant search an empty tree
+    if(t == NULL || search == NULL || !(search->nodekind == ExpK && search->kind.exp == IdK)){
+        return -1; //cant search an empty tree, or for invalid data
     }
     while(t != NULL){
         if(t->nodekind == ExpK && t->lineno != search->lineno){
@@ -62,7 +134,7 @@
                     case sassign:
                     case massign:
                     case dassign:
-                        printf("%d, %s, %p\n",t->attr.op, t->child[0]->attr.name, t->child[1]);
+                        //printf("%d, %s, %p\n",t->attr.op, t->child[0]->attr.name, t->child[1]);
                         if(strcmp(t->child[0]->attr.name, search->attr.name) == 0 ){
                             isChanged = 1;
                             printf("%s changes! %d\n", search->attr.name, t->lineno);

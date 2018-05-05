@@ -238,21 +238,37 @@
 164:    LDA 3, 1(7)	Return address in ac
 165:    LDA 3, -129(7)	CALL outnl
 166:    LDA 3, 0(2)	save result in ac
+* COMPOUND
+* Compound Body
+* END COMPOUND
 *			 Jump to outnl
 167:    LDA 1, -2(1)	Load address of new frame
 168:    LDA 3, 1(7)	Return address in ac
 169:    LDA 3, -133(7)	CALL outnl
 170:    LDA 3, 0(2)	save result in ac
+* COMPOUND
+* Compound Body
+* END COMPOUND
+*			 Jump to outnl
+171:    LDA 1, -2(1)	Load address of new frame
+172:    LDA 3, 1(7)	Return address in ac
+173:    LDA 3, -137(7)	CALL outnl
+174:    LDA 3, 0(2)	save result in ac
+*			 Jump to outnl
+175:    LDA 1, -2(1)	Load address of new frame
+176:    LDA 3, 1(7)	Return address in ac
+177:    LDA 3, -141(7)	CALL outnl
+178:    LDA 3, 0(2)	save result in ac
 * END COMPOUND
 * END FUNCTION main
-  0:    LDA  7,170(7)	Jump to init [backpatch]
+  0:    LDA  7,178(7)	Jump to init [backpatch]
 * INIT
- 171:     LD  0,0(0)	Set the global pointer
- 172:    LDA  1,0(0)	set first frame at end of globals
- 173:     ST  1,0(1)	store old fp (point to self)
+ 179:     LD  0,0(0)	Set the global pointer
+ 180:    LDA  1,0(0)	set first frame at end of globals
+ 181:     ST  1,0(1)	store old fp (point to self)
 * INIT GLOBALS AND STATICS
 * END INIT GLOBALS AND STATICS
- 174:    LDA  3,1(7)	Return address in ac
- 175:    LDA  7,-134(7)	Jump to main
- 176:   HALT  0,0,0	DONE!
+ 182:    LDA  3,1(7)	Return address in ac
+ 183:    LDA  7,-142(7)	Jump to main
+ 184:   HALT  0,0,0	DONE!
 * END INIT
