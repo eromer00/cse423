@@ -26,6 +26,7 @@
 #include "printtree.h"
 #include "semantic.h"
 #include "codegen.h"
+#include "optimizer.h"
 
 //Enable detailed error messages
 #define YYERROR_VERBOSE 1
@@ -1112,6 +1113,7 @@ int main(int argc, char* argv[]) {
 	int c;
 	struct option long_options[] = {};
 	int option_index = 0;
+	int constantProp = 0, deadCode = 0, strengthReduction = 0;
 
 	//Check for command line args
 	do {
@@ -1122,7 +1124,7 @@ int main(int argc, char* argv[]) {
 		* p - print AST
 		* P - print annotated AST
 		*/
-		c = getopt_long(argc, argv, "dpP", long_options, &option_index);
+		c = getopt_long(argc, argv, "dpPcusAh", long_options, &option_index);
 		switch(c)
 		{
 			//Long option present
@@ -1140,11 +1142,42 @@ int main(int argc, char* argv[]) {
 			case 'P':
 				printAnnotatedSyntaxTree = 1;
 				break;
+		    //redundant expression Optimization
+		    case 'c':
+		        constantProp = 1;
+		        break;
+	        //dead code optimization
+	        case 'u':
+	            deadCode = 1;
+	            break;
+            case 's':
+                strengthReduction = 1;
+                break;
+            //do all optimizations
+            case 'A':
+                constantProp = 1;
+                deadCode = 1;
+                strengthReduction = 1;
+                break;
+		    
 			//No more options
 			case -1:
 				break;
 			//Unknown option
+			
+			case 'h':
 			default:
+		        printf(""
+		            "******************\n"
+		            "Usage: ./c- -[dpPrcsAh] filepath\n"
+		            "d: debug printing in parser\n"
+		            "p: print AST\n"
+		            "P: print Full AST\n"
+		            "c: enable constant propagation and folding optimization\n"
+		            "u: enable dead/unreachable code optimization\n"
+		            "s: enable strength reduction optimization\n"
+		            "A: enable all optimizations\n"
+		        );
 				return(-1);
 				break;
 		}
@@ -1189,6 +1222,16 @@ int main(int argc, char* argv[]) {
 
 		//Add prototypes to AST
 		syntaxTree = addProto(syntaxTree);
+		
+		//check for Dead code
+		if(deadCode)
+	        deadCodeCheck(syntaxTree);
+        
+        if(constantProp)
+	        constantPropagation(syntaxTree);
+
+        if(strengthReduction)
+            strengthReduce(syntaxTree);
 
 		//Check AST scopes and types
 		scopeAndType(syntaxTree);
@@ -1205,8 +1248,10 @@ int main(int argc, char* argv[]) {
 		}
 
 		//Generate assembly language
-		if(numErrors == 0)
+		if(numErrors == 0){
+		
 			codeGen(syntaxTree);
+		}
 	}
 
 	//Close read-in file
@@ -1226,3 +1271,4 @@ void yyerror(const char* s) {
 
 	return;
 }
+

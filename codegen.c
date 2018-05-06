@@ -22,8 +22,8 @@
 
 extern int globalOffset;
 
+int thencounter = 2;
 int leftside = 1;
-int ifcount = 0;
 
 typedef struct GlobalStorage {
 
@@ -106,7 +106,10 @@ void codeGen(TreeNode* t) {
 */
 void printCodeTree(TreeNode* tree, FILE *output) {
 
+    int ifcount = 0;
     int setIf = 0;
+    int setWhile = 0;
+    int WhileCounter = 0;
 
     int instCounter = 0;
     int inst[2] = {0};
@@ -164,6 +167,8 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 				case RepeatK:
 					storeVal = "While";
                     fprintf(output, "* WHILE\n");
+                    setWhile = 1;
+                    WhileCounter = linecode;
 				break;
 
 				case BreakK:
@@ -345,7 +350,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 
 
-
+        int tmp2 = 0;
 
 		/*
 		* Now that we've printed ourself and the next level
@@ -361,14 +366,28 @@ void printCodeTree(TreeNode* tree, FILE *output) {
             
                 if(setIf > 0 && i == 1) {
 				    printCodeTree(tree->child[i], output);
-                    fprintf(output, "%d:    JZR  3,3(7) Jump around the THEN if false [backpatch]\n", ifcount);
+                    fprintf(output, "%d:    JZR  3,%d(7) Jump around the THEN if false [backpatch]\n", ifcount, thencounter);
                     ifcount = linecode;
                     linecode++;
+                    thencounter++;
                 } else if(setIf > 0 && i == 2) {
+                    tmp2 = linecode;
 				    printCodeTree(tree->child[i], output);
-                    fprintf(output, "%d:    LDA  7,2(7) Jump around the ELSE [backpatch]\n", ifcount);
+                    fprintf(output, "%d:    LDA  7,%d(7) Jump around the ELSE [backpatch]\n", ifcount, linecode - tmp2); linecode++;
                     ifcount = 0;
                     setIf = 0;
+                } else if(setWhile > 0 && i == 0) {
+				    printCodeTree(tree->child[i], output);
+                    fprintf(output, "%d:    JNZ  3,1(7) Jump to while part\n", linecode); linecode++;
+                    ifcount = linecode;
+                    linecode++;
+                } else if(setWhile > 0 && i == 1) {
+                    tmp2 = linecode;
+				    printCodeTree(tree->child[i], output);
+                    fprintf(output, "%d:    LDA  7,%d(7)\tgo to beginning of loop\n", linecode, WhileCounter - linecode - 1); linecode++;
+                    fprintf(output, "%d:    LDA  7,%d(7) Jump past loop [backpatch]\n", ifcount, linecode - tmp2);
+                    ifcount = 0;
+                    setWhile = 0;
                 } else {
 				    /*
 				    * Print the child tag and our child node
@@ -403,7 +422,7 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						        case bOR:
 					                storeVal = "OR";
-                                    fprintf(output, "%d:    ADD  3,4,3\tOp AND\n", linecode); linecode++;
+                                    fprintf(output, "%d:    ADD  3,4,3\tOp OR\n", linecode); linecode++;
 						        break;
 
 						        case eqeq:
@@ -411,8 +430,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                                     expressionCode(tree, output);
                                     fprintf(output, "%d:    TEQ  3,4,3\tOp ==\n", linecode); linecode++;
                                     //add backpatch setup
-                                    ifcount = linecode;
-                                    linecode++;
+                                    ifcount = linecode;                                    if(setIf > 0) {
+                                        linecode++;
+                                    }
 						        break;
 
 						        case neq:
@@ -420,8 +440,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                                     expressionCode(tree, output);
                                     fprintf(output, "%d:    TNE  3,4,3\tOp ==\n", linecode); linecode++;
                                     //add backpatch setup
-                                    ifcount = linecode;
-                                    linecode++;
+                                    ifcount = linecode;                                    if(setIf > 0) {
+                                        linecode++;
+                                    }
 						        break;
 
 						        case lteq:
@@ -430,7 +451,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                                     fprintf(output, "%d:    TLE  3,4,3\tOp <=\n", linecode); linecode++;
                                     //add backpatch setup
                                     ifcount = linecode;
-                                    linecode++;
+                                    if(setIf > 0) {
+                                        linecode++;
+                                    }
 						        break;
 
 						        case lthan:
@@ -438,8 +461,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                                     expressionCode(tree, output);
                                     fprintf(output, "%d:    TLT  3,4,3\tOp <\n", linecode); linecode++;
                                     //add backpatch setup
-                                    ifcount = linecode;
-                                    linecode++;
+                                    ifcount = linecode;                                    if(setIf > 0) {
+                                        linecode++;
+                                    }
 						        break;
 
 						        case gteq:
@@ -447,8 +471,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                                     expressionCode(tree, output);
                                     fprintf(output, "%d:    TGE  3,4,3\tOp >=\n", linecode); linecode++;
                                     //add backpatch setup
-                                    ifcount = linecode;
-                                    linecode++;
+                                    ifcount = linecode;                                    if(setIf > 0) {
+                                        linecode++;
+                                    }
 						        break;
 
 						        case gthan:
@@ -456,12 +481,20 @@ void printCodeTree(TreeNode* tree, FILE *output) {
                                     expressionCode(tree, output);
                                     fprintf(output, "%d:    TGT  3,4,3\tOp <\n", linecode); linecode++;
                                     //add backpatch setup
-                                    ifcount = linecode;
-                                    linecode++;
+                                    ifcount = linecode;                                    if(setIf > 0) {
+                                        linecode++;
+                                    }
 						        break;
 
 						        case qmark:
 					                storeVal = "?";
+                                    tmp = tree->child[0];
+                                    if(tmp != NULL) {
+                                        fprintf(output, "%d:    LDC  3,%d(6)\tLoad int constant\n", linecode, tmp->attr.value); linecode++;
+                                        fprintf(output, "%d:    RND  3,3,6\tOp ?\n", linecode); linecode++;
+                                        fprintf(output, "%d:     ST  3,%d(1)\tSave left side\n", linecode, varstart); linecode++;
+                                    }
+                                    
 						        break;
 
 						        case plus:
@@ -475,6 +508,12 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						        case pplus:
 					                storeVal = "++";
+                                    tmp = tree->child[0];
+                                    if(tmp != NULL) {
+                                        fprintf(output, "%d:     LD  3,%d(1)\tLoad lhs variable\n", linecode, tmp->offset); linecode++;
+                                        fprintf(output, "%d:    LDA  3,1(3)\tincrement value\n", linecode); linecode++;
+                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable\n", linecode, tmp->offset); linecode++;
+                                    }
 						        break;
 
 						        case dash:
@@ -488,6 +527,12 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						        case ddash:
 					                storeVal = "--";
+                                    tmp = tree->child[0];
+                                    if(tmp != NULL) {
+                                        fprintf(output, "%d:     LD  3,%d(1)\tLoad lhs variable\n", linecode, tmp->offset); linecode++;
+                                        fprintf(output, "%d:    LDA  3,-1(3)\tdecrement value\n", linecode); linecode++;
+                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable\n", linecode, tmp->offset); linecode++;
+                                    }
 						        break;
 
 						        case assign:
@@ -505,13 +550,9 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 					                storeVal = "+=";
                                     tmp = tree->child[0];
                                     if(tmp != NULL) {
-                                        fprintf(output, "%d:     LD  3,%d(1)\tLoad variable\n", linecode, varstart); linecode++;
-                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable\n", linecode, varstart); linecode++;
-                                        fprintf(output, "%d:     LD  3,%d(1)\tLoad variable\n", linecode, tmp->offset); linecode++;
-                                        fprintf(output, "%d:     LD  4,%d(1)\tLoad left into ac1\n", linecode, varstart); linecode++;
-                                        fprintf(output, "%d:    ADD  3,4,3\tOp +\n", linecode); linecode++;
-                                        fprintf(output, "%d:     ST  3,%d(1)\tSave left side\n", linecode, varstart); linecode++;
-                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable %s\n", linecode, tmp->offset, tmp->attr.name); linecode++;
+                                        fprintf(output, "%d:     LD  4,%d(1)\tLoad lhs variable\n", linecode, tmp->offset); linecode++;
+                                        fprintf(output, "%d:    ADD  3,4,3\tOp +=\n", linecode); linecode++;
+                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable\n", linecode, tmp->offset); linecode++;
                                     }
                                     currentOffsetName = NULL;
                                     currentOffset = 0;
@@ -520,14 +561,41 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 
 						        case sassign:
 					                storeVal = "-=";
+                                    tmp = tree->child[0];
+                                    if(tmp != NULL) {
+                                        fprintf(output, "%d:     LD  4,%d(1)\tLoad lhs variable\n", linecode, tmp->offset); linecode++;
+                                        fprintf(output, "%d:    SUB  3,4,3\tOp -=\n", linecode); linecode++;
+                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable\n", linecode, tmp->offset); linecode++;
+                                    }
+                                    currentOffsetName = NULL;
+                                    currentOffset = 0;
+                                    leftside = 1;
 						        break;
 
 						        case massign:
 					                storeVal = "*=";
+                                    tmp = tree->child[0];
+                                    if(tmp != NULL) {
+                                        fprintf(output, "%d:     LD  4,%d(1)\tLoad lhs variable\n", linecode, tmp->offset); linecode++;
+                                        fprintf(output, "%d:    MUL  3,4,3\tOp *=\n", linecode); linecode++;
+                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable\n", linecode, tmp->offset); linecode++;
+                                    }
+                                    currentOffsetName = NULL;
+                                    currentOffset = 0;
+                                    leftside = 1;
 						        break;
 
 						        case dassign:
 					                storeVal = "/=";
+                                    tmp = tree->child[0];
+                                    if(tmp != NULL) {
+                                        fprintf(output, "%d:     LD  4,%d(1)\tLoad lhs variable\n", linecode, tmp->offset); linecode++;
+                                        fprintf(output, "%d:    DIV  3,4,3\tOp /=\n", linecode); linecode++;
+                                        fprintf(output, "%d:     ST  3,%d(1)\tStore variable\n", linecode, tmp->offset); linecode++;
+                                    }
+                                    currentOffsetName = NULL;
+                                    currentOffset = 0;
+                                    leftside = 1;
 						        break;
 
 						        case period:
@@ -549,7 +617,6 @@ void printCodeTree(TreeNode* tree, FILE *output) {
 						        break;
 
 						        case fslash:
-                                    printf("%d lkjhasdflkhaslkdfh\n", tree->lineno);
 					                storeVal = "/";
                                     expressionCode(tree, output);
                                     fprintf(output, "%d:    DIV  3,4,3\tOp /\n", linecode);
