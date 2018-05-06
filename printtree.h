@@ -128,6 +128,8 @@ typedef struct TreeNode {
 	*/
 	int lineno;
 
+    int check;
+    int opTodoTree;
 	/*
 	* Node's main type
 	*
